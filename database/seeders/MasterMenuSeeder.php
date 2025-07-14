@@ -127,5 +127,137 @@ class MasterMenuSeeder extends Seeder
             'urutan' => 10,
             'is_active' => true,
         ]);
+
+        // 5. Advanced Management - Root menu with deeper nesting
+        $advancedManagement = MasterMenu::create([
+            'nama_menu' => 'Advanced Management',
+            'slug' => '',
+            'parent_id' => null,
+            'route_name' => null,
+            'icon' => 'fas fa-layer-group',
+            'urutan' => 11,
+            'is_active' => true,
+        ]);
+
+        // Level 2: Content Management under Advanced
+        $contentManagement = MasterMenu::create([
+            'nama_menu' => 'Content Management',
+            'slug' => '',
+            'parent_id' => $advancedManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-folder',
+            'urutan' => 12,
+            'is_active' => true,
+        ]);
+
+        // Level 3: Articles under Content Management
+        $articlesManagement = MasterMenu::create([
+            'nama_menu' => 'Articles',
+            'slug' => '',
+            'parent_id' => $contentManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-newspaper',
+            'urutan' => 13,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Categories under Articles
+        MasterMenu::create([
+            'nama_menu' => 'Article Categories',
+            'slug' => 'panel/article-categories',
+            'parent_id' => $articlesManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-tags',
+            'urutan' => 14,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Tags under Articles
+        MasterMenu::create([
+            'nama_menu' => 'Article Tags',
+            'slug' => 'panel/article-tags',
+            'parent_id' => $articlesManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-hashtag',
+            'urutan' => 15,
+            'is_active' => true,
+        ]);
+
+        // Level 3: Media under Content Management
+        $mediaManagement = MasterMenu::create([
+            'nama_menu' => 'Media',
+            'slug' => '',
+            'parent_id' => $contentManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-photo-video',
+            'urutan' => 16,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Images under Media
+        MasterMenu::create([
+            'nama_menu' => 'Images',
+            'slug' => 'panel/media/images',
+            'parent_id' => $mediaManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-images',
+            'urutan' => 17,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Videos under Media
+        MasterMenu::create([
+            'nama_menu' => 'Videos',
+            'slug' => 'panel/media/videos',
+            'parent_id' => $mediaManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-video',
+            'urutan' => 18,
+            'is_active' => true,
+        ]);
+
+        // Level 2: System Tools under Advanced
+        $systemTools = MasterMenu::create([
+            'nama_menu' => 'System Tools',
+            'slug' => '',
+            'parent_id' => $advancedManagement->id,
+            'route_name' => null,
+            'icon' => 'fas fa-tools',
+            'urutan' => 19,
+            'is_active' => true,
+        ]);
+
+        // Level 3: Monitoring under System Tools
+        $monitoring = MasterMenu::create([
+            'nama_menu' => 'Monitoring',
+            'slug' => '',
+            'parent_id' => $systemTools->id,
+            'route_name' => null,
+            'icon' => 'fas fa-chart-line',
+            'urutan' => 20,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Logs under Monitoring
+        MasterMenu::create([
+            'nama_menu' => 'System Logs',
+            'slug' => 'panel/logs',
+            'parent_id' => $monitoring->id,
+            'route_name' => null,
+            'icon' => 'fas fa-file-code',
+            'urutan' => 21,
+            'is_active' => true,
+        ]);
+
+        // Level 4: Performance under Monitoring
+        MasterMenu::create([
+            'nama_menu' => 'Performance',
+            'slug' => 'panel/performance',
+            'parent_id' => $monitoring->id,
+            'route_name' => null,
+            'icon' => 'fas fa-tachometer-alt',
+            'urutan' => 22,
+            'is_active' => true,
+        ]);
     }
 }

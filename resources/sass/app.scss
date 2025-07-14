@@ -6,3 +6,12 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+// Menu chevron animation
+.menu-chevron {
+    transition: transform 0.3s ease;
+}
+
+.nav-link[aria-expanded="true"] .menu-chevron {
+    transform: rotate(180deg);
+}

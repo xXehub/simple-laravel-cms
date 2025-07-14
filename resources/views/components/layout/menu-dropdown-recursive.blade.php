@@ -4,5 +4,5 @@
     {!! menu_chevron() !!}
 </a>
 <div class="collapse" id="{{ menu_submenu_id($menu) }}">
-    {!! menu_render_recursive($accessibleChildren) !!}
+    <!-- Recursive children will be rendered here by the helper -->
 </div>

@@ -101,12 +101,12 @@ if (!function_exists('menu_link_classes')) {
     function menu_link_classes($menu): string
     {
         $classes = ['nav-link', 'd-flex', 'align-items-center', menu_active_class($menu)];
-        
+
         // Add collapsed class for dropdown menus
         if (menu_has_children($menu)) {
             $classes[] = 'collapsed';
         }
-        
+
         return collect($classes)
             ->filter()
             ->implode(' ');
@@ -212,5 +212,75 @@ if (!function_exists('menu_chevron')) {
     function menu_chevron(): string
     {
         return '<i class="fas fa-chevron-down ms-auto menu-chevron"></i>';
+    }
+}
+
+if (!function_exists('menu_render_recursive')) {
+    /**
+     * Recursively render menu children with unlimited nesting
+     */
+    function menu_render_recursive($children, int $level = 1): string
+    {
+        if ($children->isEmpty()) {
+            return '';
+        }
+
+        $indent = str_repeat('ms-3 ', $level);
+        $html = "<ul class=\"nav flex-column {$indent}\">";
+        
+        foreach ($children as $child) {
+            $childData = menu_data($child);
+            
+            if (!$childData['shouldRender']) {
+                continue;
+            }
+            
+            $html .= '<li class="nav-item">';
+            
+            if ($childData['hasChildren']) {
+                // Render dropdown link
+                $html .= "<a class=\"{$childData['linkClasses']}\" {$childData['collapseAttrs']}>";
+                $html .= $childData['icon'];
+                $html .= menu_text($child);
+                $html .= menu_chevron();
+                $html .= "</a>";
+                
+                // Render collapse container with recursive children
+                $html .= "<div class=\"collapse\" id=\"" . menu_submenu_id($child) . "\">";
+                $html .= menu_render_recursive($childData['accessibleChildren'], $level + 1);
+                $html .= "</div>";
+            } else {
+                // Render single menu item
+                $html .= "<a class=\"{$childData['linkClasses']}\" href=\"{$childData['url']}\">";
+                $html .= $childData['icon'];
+                $html .= menu_text($child);
+                $html .= "</a>";
+            }
+            
+            $html .= '</li>';
+        }
+        
+        $html .= '</ul>';
+        
+        return $html;
+    }
+}
+
+if (!function_exists('menu_all_accessible_children')) {
+    /**
+     * Get all accessible children recursively for a menu
+     */
+    function menu_all_accessible_children($menu)
+    {
+        $children = collect();
+
+        foreach ($menu->children as $child) {
+            if ($child->isAccessible()) {
+                $children->push($child);
+                $children = $children->merge(menu_all_accessible_children($child));
+            }
+        }
+
+        return $children;
     }
 }
