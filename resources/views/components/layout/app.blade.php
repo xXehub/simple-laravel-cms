@@ -31,7 +31,8 @@
 
     <!-- BEGIN PAGE LEVEL STYLES -->
     <link href="{{ asset('libs/jsvectormap/dist/jsvectormap.css?1744816593') }}" rel="stylesheet" />
-
+    <link href="{{ asset('libs/tom-select/dist/css/tom-select.bootstrap5.min.css?1744816592') }}" rel="stylesheet" />
+    <link href="{{ asset('libs/nouislider/dist/nouislider.min.css?1744816592') }}" rel="stylesheet" />
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="{{ asset('dist/css/tabler.css?1744816593') }}" rel="stylesheet" />
     {{-- <link href="./dist/css/tabler.css?1744816593" rel="stylesheet" /> --}}

@@ -133,21 +133,67 @@
 
             if (createModal) {
                 createModal.addEventListener('shown.bs.modal', function() {
-                    console.log('Create Menu Modal Shown');
+                    // Only initialize if not already initialized
+                    const createRolesElement = document.getElementById('create_roles');
+                    const createParentElement = document.getElementById('create_parent_id');
+
+                    if ((createRolesElement && !createRolesElement.tomselect) ||
+                        (createParentElement && !createParentElement.tomselect)) {
+                        setTimeout(function() {
+                            initializeTomSelect();
+                            // Sync all instances
+                            if (window.tomSelectInstances) {
+                                for (let key in window.tomSelectInstances) {
+                                    if (window.tomSelectInstances[key]) {
+                                        window.tomSelectInstances[key].sync();
+                                    }
+                                }
+                            }
+                        }, 100);
+                    }
                 });
 
                 createModal.addEventListener('hidden.bs.modal', function() {
-                    console.log('Create Menu Modal Hidden');
+                    // Clear create form Tom Select instances when modal is hidden
+                    if (window.tomSelectInstances && window.tomSelectInstances['create_roles']) {
+                        window.tomSelectInstances['create_roles'].clear();
+                    }
+                    if (window.tomSelectInstances && window.tomSelectInstances['create_parent_id']) {
+                        window.tomSelectInstances['create_parent_id'].clear();
+                    }
                 });
             }
 
             if (editModal) {
                 editModal.addEventListener('shown.bs.modal', function() {
-                    console.log('Edit Menu Modal Shown');
+                    // Only initialize if not already initialized
+                    const editRolesElement = document.getElementById('edit_roles');
+                    const editParentElement = document.getElementById('edit_parent_id');
+
+                    if ((editRolesElement && !editRolesElement.tomselect) ||
+                        (editParentElement && !editParentElement.tomselect)) {
+                        setTimeout(function() {
+                            initializeTomSelect();
+                            // Sync all instances
+                            if (window.tomSelectInstances) {
+                                for (let key in window.tomSelectInstances) {
+                                    if (window.tomSelectInstances[key]) {
+                                        window.tomSelectInstances[key].sync();
+                                    }
+                                }
+                            }
+                        }, 100);
+                    }
                 });
 
                 editModal.addEventListener('hidden.bs.modal', function() {
-                    console.log('Edit Menu Modal Hidden');
+                    // Clear edit form Tom Select instances when modal is hidden
+                    if (window.tomSelectInstances && window.tomSelectInstances['edit_roles']) {
+                        window.tomSelectInstances['edit_roles'].clear();
+                    }
+                    if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
+                        window.tomSelectInstances['edit_parent_id'].clear();
+                    }
                 });
             }
         });
@@ -163,7 +209,22 @@
                 const createRolesElement = document.getElementById('create_roles');
                 if (createRolesElement && !createRolesElement.tomselect) {
                     window.tomSelectInstances['create_roles'] = new TomSelect(createRolesElement, {
-                        plugins: [], // Removed problematic "remove_button" plugin
+                        plugins: ['remove_button'],
+                        placeholder: 'Select roles...',
+                        maxOptions: null,
+                        create: false,
+                        sortField: 'text',
+                        render: {
+                            option: function(data, escape) {
+                                return `<div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">Role</span>
+                                    <span>${escape(data.text)}</span>
+                                </div>`;
+                            },
+                            item: function(data, escape) {
+                                return `<span class="badge bg-primary">${escape(data.text)}</span>`;
+                            }
+                        }
                     });
                     console.log('Create roles TomSelect initialized');
                 }
@@ -172,7 +233,22 @@
                 const editRolesElement = document.getElementById('edit_roles');
                 if (editRolesElement && !editRolesElement.tomselect) {
                     window.tomSelectInstances['edit_roles'] = new TomSelect(editRolesElement, {
-                        plugins: [], // Removed problematic "remove_button" plugin
+                        plugins: ['remove_button'],
+                        placeholder: 'Select roles...',
+                        maxOptions: null,
+                        create: false,
+                        sortField: 'text',
+                        render: {
+                            option: function(data, escape) {
+                                return `<div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">Role</span>
+                                    <span>${escape(data.text)}</span>
+                                </div>`;
+                            },
+                            item: function(data, escape) {
+                                return `<span class="badge bg-primary">${escape(data.text)}</span>`;
+                            }
+                        }
                     });
                     console.log('Edit roles TomSelect initialized');
                 }
@@ -181,7 +257,48 @@
                 const createParentElement = document.getElementById('create_parent_id');
                 if (createParentElement && !createParentElement.tomselect) {
                     window.tomSelectInstances['create_parent_id'] = new TomSelect(createParentElement, {
-                        plugins: [],
+                        placeholder: 'Select parent menu...',
+                        render: {
+                            option: function(data, escape) {
+                                if (data.value === '') return '<div>-- Root Menu --</div>';
+
+                                const isParent = data.element && data.element.dataset.isParent === 'true';
+                                const text = escape(data.text);
+
+                                if (isParent) {
+                                    // Handle "Parent - MenuName" format
+                                    const cleanText = text.replace(/^(└─\s*)?Parent\s*-\s*/, '');
+                                    return `<div class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">Parent</span>
+                                        <span>${cleanText}</span>
+                                    </div>`;
+                                } else {
+                                    // Handle child menu with "└─ " prefix
+                                    const cleanText = text.replace(/^└─\s*/, '');
+                                    return `<div class="d-flex align-items-center">
+                                        <span class="text-muted me-2">└─</span>
+                                        <span>${cleanText}</span>
+                                    </div>`;
+                                }
+                            },
+                            item: function(data, escape) {
+                                if (data.value === '') return '<span>-- Root Menu --</span>';
+
+                                const isParent = data.element && data.element.dataset.isParent === 'true';
+                                const text = escape(data.text);
+
+                                if (isParent) {
+                                    const cleanText = text.replace(/^(└─\s*)?Parent\s*-\s*/, '');
+                                    return `<span class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">Parent</span>
+                                        <span>${cleanText}</span>
+                                    </span>`;
+                                } else {
+                                    const cleanText = text.replace(/^└─\s*/, '');
+                                    return `<span>${cleanText}</span>`;
+                                }
+                            }
+                        }
                     });
                     console.log('Create parent TomSelect initialized');
                 }
@@ -190,7 +307,46 @@
                 const editParentElement = document.getElementById('edit_parent_id');
                 if (editParentElement && !editParentElement.tomselect) {
                     window.tomSelectInstances['edit_parent_id'] = new TomSelect(editParentElement, {
-                        plugins: [],
+                        placeholder: 'Select parent menu...',
+                        render: {
+                            option: function(data, escape) {
+                                if (data.value === '') return '<div>-- Root Menu --</div>';
+
+                                const isParent = data.element && data.element.dataset.isParent === 'true';
+                                const text = escape(data.text);
+
+                                if (isParent) {
+                                    const cleanText = text.replace(/^(└─\s*)?Parent\s*-\s*/, '');
+                                    return `<div class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">Parent</span>
+                                        <span>${cleanText}</span>
+                                    </div>`;
+                                } else {
+                                    const cleanText = text.replace(/^└─\s*/, '');
+                                    return `<div class="d-flex align-items-center">
+                                        <span class="text-muted me-2">└─</span>
+                                        <span>${cleanText}</span>
+                                    </div>`;
+                                }
+                            },
+                            item: function(data, escape) {
+                                if (data.value === '') return '<span>-- Root Menu --</span>';
+
+                                const isParent = data.element && data.element.dataset.isParent === 'true';
+                                const text = escape(data.text);
+
+                                if (isParent) {
+                                    const cleanText = text.replace(/^(└─\s*)?Parent\s*-\s*/, '');
+                                    return `<span class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">Parent</span>
+                                        <span>${cleanText}</span>
+                                    </span>`;
+                                } else {
+                                    const cleanText = text.replace(/^└─\s*/, '');
+                                    return `<span>${cleanText}</span>`;
+                                }
+                            }
+                        }
                     });
                     console.log('Edit parent TomSelect initialized');
                 }
@@ -207,7 +363,17 @@
             if (window.tomSelectInstances) {
                 for (let key in window.tomSelectInstances) {
                     if (window.tomSelectInstances[key]) {
-                        window.tomSelectInstances[key].destroy();
+                        console.log('Destroying:', key);
+
+                        // Get the original element
+                        const element = document.getElementById(key);
+                        if (element && element.tomselect) {
+                            element.tomselect.destroy();
+                        } else if (window.tomSelectInstances[key].destroy) {
+                            window.tomSelectInstances[key].destroy();
+                        }
+
+                        window.tomSelectInstances[key] = null;
                         delete window.tomSelectInstances[key];
                     }
                 }

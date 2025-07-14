@@ -27,9 +27,9 @@ class MenuController extends Controller
     {
         $menus = MasterMenu::with('roles', 'parent', 'children')->orderBy('urutan')->paginate(20);
         // Get hierarchical menu options for parent selection
-        $parentMenus = collect(menu_formatted_options());
+        $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
-        
+
         return view('panel.menus.index', compact('menus', 'parentMenus', 'roles'));
     }
 
@@ -39,7 +39,7 @@ class MenuController extends Controller
     public function create()
     {
         // Get hierarchical menu options for parent selection
-        $parentMenus = collect(menu_formatted_options());
+        $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
         return view('panel.menus.create', compact('parentMenus', 'roles'));
     }
@@ -73,17 +73,17 @@ class MenuController extends Controller
     public function edit(Request $request)
     {
         $menuId = $request->route('id') ?? $request->input('id');
-        
+
         if (!$menuId) {
             return redirect()->route('panel.menus.index')
                 ->with('error', 'Menu ID not provided');
         }
-        
+
         $menu = MasterMenu::findOrFail($menuId);
         // Get all menus except current one to prevent circular reference
-        $parentMenus = MasterMenu::where('id', '!=', $menu->id)->orderBy('urutan')->get();
+        $parentMenus = $this->getMenuOptions(null, 0, $menu->id);
         $roles = Role::all();
-        
+
         return view('panel.menus.edit', compact('menu', 'parentMenus', 'roles'));
     }
 
@@ -128,5 +128,41 @@ class MenuController extends Controller
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu deleted successfully');
+    }
+
+    /**
+     * Get formatted menu options for parent selection
+     */
+    private function getMenuOptions($parentId = null, $level = 0, $excludeId = null)
+    {
+        $menus = MasterMenu::where('parent_id', $parentId)
+            ->orderBy('urutan')
+            ->get();
+
+        $options = [];
+
+        foreach ($menus as $menu) {
+            // Skip if this is the menu we're editing (to prevent circular reference)
+            if ($excludeId && $menu->id == $excludeId) {
+                continue;
+            }
+
+            $prefix = str_repeat('└─ ', $level);
+            
+            // Check if this menu has children to add "Parent" label
+            $hasChildren = $menu->children()->count() > 0;
+            $label = $hasChildren ? 'Parent' : '';
+            
+            // Format: "└─ Parent - Menu Name" or "└─ Menu Name"
+            $displayName = $prefix . ($label ? $label . ' - ' : '') . $menu->nama_menu;
+            
+            $options[$menu->id] = $displayName;
+
+            // Recursively get children
+            $children = $this->getMenuOptions($menu->id, $level + 1, $excludeId);
+            $options = array_merge($options, $children);
+        }
+
+        return $options;
     }
 }

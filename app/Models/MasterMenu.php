@@ -82,17 +82,17 @@ class MasterMenu extends Model
         if ($this->slug === '') {
             return url('/');
         }
-        
+
         // If has slug, use slug-based URL
         if ($this->slug && $this->slug !== null) {
             return url($this->slug);
         }
-        
+
         // Fallback to route_name if exists
         if ($this->route_name && \Route::has($this->route_name)) {
             return route($this->route_name);
         }
-        
+
         // For parent menus or menus without slugs/routes, return a placeholder
         return '#';
     }
@@ -105,28 +105,28 @@ class MasterMenu extends Model
         if (!auth()->check()) {
             return false;
         }
-        
+
         $user = auth()->user();
-        
+
         // First check if user has role-based access to this menu
         $userRoles = $user->roles->pluck('id');
         $hasRoleAccess = $this->roles()->whereIn('role_id', $userRoles)->exists();
-        
+
         // Get required permission based on menu slug or route
         $requiredPermission = $this->getRequiredPermission();
-        
+
         // For menus with specific permission requirements
         if ($requiredPermission) {
             $hasPermissionAccess = $user->can($requiredPermission);
             return $hasRoleAccess || $hasPermissionAccess;
         }
-        
+
         // For parent/container menus without specific permissions:
         // Allow if they have role access or no role restrictions
         if ($this->children && $this->children->isNotEmpty()) {
             return $hasRoleAccess || !$this->roles()->exists();
         }
-        
+
         // For leaf menus without specific permissions (like public pages)
         // Allow if they have role access or no restrictions
         return $hasRoleAccess || !$this->roles()->exists();
@@ -140,7 +140,7 @@ class MasterMenu extends Model
         // Map menu slugs/routes to required permissions
         $permissionMap = [
             'panel/users' => 'view-users',
-            'panel/roles' => 'view-roles', 
+            'panel/roles' => 'view-roles',
             'panel/permissions' => 'view-permissions',
             'panel/menus' => 'view-menus',
             'panel/pages' => 'view-pages',
@@ -150,16 +150,16 @@ class MasterMenu extends Model
             'dashboard' => 'access-panel', // Panel Management requires panel access
             'panel/dashboard' => 'view-dashboard'
         ];
-        
+
         // Check by exact slug match first
         if (isset($permissionMap[$this->slug])) {
             return $permissionMap[$this->slug];
         }
-        
+
         // Check by route name if no slug match
         if ($this->route_name) {
             $routeName = $this->route_name;
-            
+
             // Extract permission from route name (e.g., panel.users.index -> view-users)
             if (str_contains($routeName, 'panel.')) {
                 $parts = explode('.', $routeName);
@@ -169,7 +169,7 @@ class MasterMenu extends Model
                 }
             }
         }
-        
+
         // Check by slug pattern
         if ($this->slug) {
             // For panel/* slugs, require access-panel at minimum
@@ -182,7 +182,7 @@ class MasterMenu extends Model
                 return 'access-panel';
             }
         }
-        
+
         // No specific permission required (public menu)
         return null;
     }
@@ -210,12 +210,12 @@ class MasterMenu extends Model
     {
         $breadcrumbs = collect([$this]);
         $parent = $this->parent;
-        
+
         while ($parent) {
             $breadcrumbs->prepend($parent);
             $parent = $parent->parent;
         }
-        
+
         return $breadcrumbs;
     }
 
@@ -226,24 +226,24 @@ class MasterMenu extends Model
     {
         $currentUrl = url()->current();
         $menuUrl = $this->getUrl();
-        
+
         // Direct match
         if ($currentUrl === $menuUrl) {
             return true;
         }
-        
+
         // Check if current path matches menu slug
         if ($this->slug && request()->path() === $this->slug) {
             return true;
         }
-        
+
         // Parent menu is active if any child is active (recursive)
         if ($this->children->isNotEmpty()) {
-            return $this->children->contains(function($child) {
+            return $this->children->contains(function ($child) {
                 return $child->isActive();
             });
         }
-        
+
         return false;
     }
 
@@ -252,7 +252,7 @@ class MasterMenu extends Model
      */
     public function getAccessibleChildren()
     {
-        return $this->children->filter(function($child) {
+        return $this->children->filter(function ($child) {
             return $child->canAccess();
         });
     }
@@ -266,14 +266,14 @@ class MasterMenu extends Model
         if ($this->isAccessible()) {
             return true;
         }
-        
+
         // Can access if has accessible children (recursive check)
         if ($this->children->isNotEmpty()) {
-            return $this->children->contains(function($child) {
+            return $this->children->contains(function ($child) {
                 return $child->canAccess();
             });
         }
-        
+
         return false;
     }
 
@@ -290,38 +290,32 @@ class MasterMenu extends Model
      */
     public static function getSidebarMenus()
     {
-        // Load all active menus in one query for efficiency
-        $allMenus = static::active()->orderBy('urutan')->get();
-        
-        // Build tree structure - get root menus
-        $menuTree = $allMenus->filter(function($menu) {
-            return is_null($menu->parent_id);
-        });
-        
-        // Attach children recursively
-        static::attachChildren($menuTree, $allMenus);
-        
-        // Filter by accessibility
-        return $menuTree->filter(function($menu) {
-            return $menu->canAccess();
-        });
-    }
-    
-    /**
-     * Recursively attach children to menu items
-     */
-    private static function attachChildren($parentMenus, $allMenus)
-    {
-        foreach ($parentMenus as $parent) {
-            $children = $allMenus->filter(function($menu) use ($parent) {
-                return $menu->parent_id === $parent->id;
+        // Load root menus with recursive children using nested sets pattern
+        return static::rootMenus()
+            ->active()
+            ->with([
+                'children' => function ($query) {
+                    $query->active()->orderBy('urutan')
+                        ->with([
+                            'children' => function ($query) {
+                                $query->active()->orderBy('urutan')
+                                    ->with([
+                                        'children' => function ($query) {
+                                            $query->active()->orderBy('urutan');
+                                        }
+                                    ]);
+                            }
+                        ]);
+                }
+            ])
+            ->get()
+            ->filter(function ($menu) {
+                return $menu->canAccess();
             });
-            
-            $parent->setRelation('children', $children);
-            
-            if ($children->isNotEmpty()) {
-                static::attachChildren($children, $allMenus);
-            }
-        }
     }
+
+    /**
+     * Debug method to see all menus structure
+     */
+
 }

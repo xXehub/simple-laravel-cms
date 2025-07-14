@@ -1,4 +1,5 @@
 {{-- Create Menu Modal --}}
+<script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
 <div class="modal fade" id="createMenuModal" tabindex="-1" aria-labelledby="createMenuModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -41,6 +42,24 @@
                                 value="{{ old('icon') }}">
                             <small class="form-text text-muted">Font Awesome class. Example: fas fa-users</small>
                         </div>
+                    </div>
+
+
+
+                    <div class="mb-3">
+                        <label class="form-label">Select with labels</label>
+                        <select type="text" class="form-select" id="select-labels" value="">
+                            <option value="copy"
+                                data-custom-properties="&lt;span class=&#34;badge bg-primary-lt&#34;&gt;cmd + C&lt;/span&gt;">
+                                Copy</option>
+                            <option value="paste"
+                                data-custom-properties="&lt;span class=&#34;badge bg-primary-lt&#34;&gt;cmd + V&lt;/span&gt;">
+                                Paste
+                            </option>
+                            <option value="cut"
+                                data-custom-properties="&lt;span class=&#34;badge bg-primary-lt&#34;&gt;cmd + X&lt;/span&gt;">
+                                Cut</option>
+                        </select>
                     </div>
 
                     {{-- Menu Structure --}}
@@ -87,8 +106,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="create_is_active" name="is_active"
-                                    value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                                <input type="checkbox" class="form-check-input" id="create_is_active"
+                                    name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="create_is_active">Active</label>
                             </div>
                         </div>
