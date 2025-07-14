@@ -22,6 +22,6 @@ class SidebarMenu extends Component
      */
     public function render()
     {
-        return view('components.sidebar-menu');
+        return view('components.layout.sidebar-menu');
     }
 }

@@ -18,7 +18,7 @@
                 </a>
                 <div class="dropdown-menu">
                     @foreach ($menu->getAccessibleChildren() as $child)
-                        <x-sidebar-menu :menu="$child" :level="$level + 1" />
+                        <x-.layout.sidebar-menu :menu="$child" :level="$level + 1" />
                     @endforeach
                 </div>
             </div>

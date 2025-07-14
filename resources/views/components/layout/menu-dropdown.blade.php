@@ -1,8 +1,0 @@
-<a class="{{ $linkClasses }}" {!! $collapseAttrs !!}>
-    {!! $icon !!}
-    {{ menu_text($menu) }}
-    {!! menu_chevron() !!}
-</a>
-<div class="collapse" id="{{ menu_submenu_id($menu) }}">
-    {!! menu_render_recursive($accessibleChildren) !!}
-</div>

@@ -79,7 +79,7 @@
 
             @if ($useSidebar)
                 {{-- Layout with Sidebar for Panel Pages --}}
-                <x-sidebar />
+                <<x-layout.sidebar />
 
                 <div class="page-wrapper">
                     <!-- Navigation for Sidebar Layout -->
