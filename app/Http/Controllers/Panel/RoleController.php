@@ -35,14 +35,20 @@ class RoleController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        $role = Role::create(['name' => $request->name]);
+        try {
+            $role = Role::create(['name' => $request->name]);
 
-        if ($request->has('permissions')) {
-            $role->givePermissionTo($request->permissions);
+            if ($request->has('permissions')) {
+                $role->givePermissionTo($request->permissions);
+            }
+
+            return redirect()->route('panel.roles.index')
+                ->with('success', 'Role created successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error creating role: ' . $e->getMessage())
+                ->withInput();
         }
-
-        return redirect()->route('panel.roles.index')
-            ->with('success', 'Role created successfully');
     }
 
     /**
