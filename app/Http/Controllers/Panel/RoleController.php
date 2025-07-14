@@ -59,7 +59,7 @@ class RoleController extends Controller
         $roleId = $request->route('id') ?? $request->input('id');
         $role = Role::findOrFail($roleId);
         $permissions = Permission::all();
-        
+
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -67,7 +67,7 @@ class RoleController extends Controller
                 'permissions' => $permissions
             ]);
         }
-        
+
         return view('panel.roles.edit', compact('role', 'permissions'));
     }
 

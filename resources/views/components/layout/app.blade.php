@@ -83,6 +83,24 @@
             background-color: rgba(255, 255, 255, 0.2);
             color: #fff;
         }
+
+        /* Chevron Animation */
+        .menu-chevron {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .menu-chevron.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Animation for collapsed/expanded state */
+        [data-bs-toggle="collapse"]:not(.collapsed) .menu-chevron {
+            transform: rotate(180deg);
+        }
+
+        [data-bs-toggle="collapse"].collapsed .menu-chevron {
+            transform: rotate(0deg);
+        }
     </style>
 </head>
 

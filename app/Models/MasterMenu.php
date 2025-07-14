@@ -106,8 +106,81 @@ class MasterMenu extends Model
             return false;
         }
         
-        $userRoles = auth()->user()->roles->pluck('id');
-        return $this->roles()->whereIn('role_id', $userRoles)->exists();
+        $user = auth()->user();
+        
+        // First check if user has role-based access to this menu
+        $userRoles = $user->roles->pluck('id');
+        $hasRoleAccess = $this->roles()->whereIn('role_id', $userRoles)->exists();
+        
+        // Also check for specific permissions based on the menu type
+        $hasPermissionAccess = false;
+        
+        // Get required permission based on menu slug or route
+        $requiredPermission = $this->getRequiredPermission();
+        
+        if ($requiredPermission) {
+            $hasPermissionAccess = $user->can($requiredPermission);
+        } else {
+            // For menus without specific permissions (like public pages), allow access
+            $hasPermissionAccess = true;
+        }
+        
+        // Allow access if user has either role-based access OR permission-based access
+        return $hasRoleAccess || $hasPermissionAccess;
+    }
+
+    /**
+     * Get the required permission for this menu
+     */
+    public function getRequiredPermission()
+    {
+        // Map menu slugs/routes to required permissions
+        $permissionMap = [
+            'panel/users' => 'view-users',
+            'panel/roles' => 'view-roles', 
+            'panel/permissions' => 'view-permissions',
+            'panel/menus' => 'view-menus',
+            'panel/pages' => 'view-pages',
+            'panel/settings' => 'view-settings',
+            'profile' => 'view-profile',
+            'panel' => 'access-panel',
+            'dashboard' => 'view-dashboard'
+        ];
+        
+        // Check by exact slug match first
+        if (isset($permissionMap[$this->slug])) {
+            return $permissionMap[$this->slug];
+        }
+        
+        // Check by route name if no slug match
+        if ($this->route_name) {
+            $routeName = $this->route_name;
+            
+            // Extract permission from route name (e.g., panel.users.index -> view-users)
+            if (str_contains($routeName, 'panel.')) {
+                $parts = explode('.', $routeName);
+                if (count($parts) >= 2) {
+                    $entity = $parts[1]; // users, roles, permissions, etc.
+                    return "view-{$entity}";
+                }
+            }
+        }
+        
+        // Check by slug pattern
+        if ($this->slug) {
+            // For panel/* slugs, require access-panel at minimum
+            if (str_starts_with($this->slug, 'panel/')) {
+                $slugParts = explode('/', $this->slug);
+                if (count($slugParts) >= 2) {
+                    $entity = $slugParts[1];
+                    return "view-{$entity}";
+                }
+                return 'access-panel';
+            }
+        }
+        
+        // No specific permission required (public menu)
+        return null;
     }
 
     /**

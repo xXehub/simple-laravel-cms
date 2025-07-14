@@ -29,26 +29,31 @@ class MenuServiceProvider extends ServiceProvider
             if (Auth::check()) {
                 try {
                     $user = Auth::user();
-                    $userRoles = $user->roles->pluck('id');
                     $isAdmin = $user->hasRole('admin');
                     
-                    if ($userRoles->isNotEmpty()) {
-                        // Get active menus accessible by user's roles
-                        $menus = MasterMenu::active()
-                            ->whereHas('roles', function ($query) use ($userRoles) {
-                                $query->whereIn('role_id', $userRoles);
-                            })
-                            ->rootMenus()
-                            ->with(['children' => function ($query) use ($userRoles) {
-                                $query->active()
-                                    ->whereHas('roles', function ($subQuery) use ($userRoles) {
-                                        $subQuery->whereIn('role_id', $userRoles);
-                                    })
-                                    ->orderBy('urutan');
-                            }])
-                            ->orderBy('urutan')
-                            ->get();
-                    }
+                    // Get all active root menus and filter by accessibility
+                    $allMenus = MasterMenu::active()
+                        ->rootMenus()
+                        ->with(['children' => function ($query) {
+                            $query->active()->orderBy('urutan');
+                        }])
+                        ->orderBy('urutan')
+                        ->get();
+                    
+                    // Filter menus based on role access AND permission access
+                    $menus = $allMenus->filter(function ($menu) {
+                        if (!$menu->isAccessible()) {
+                            return false;
+                        }
+                        
+                        // Also filter children
+                        $menu->setRelation('children', $menu->children->filter(function ($child) {
+                            return $child->isAccessible();
+                        }));
+                        
+                        return true;
+                    });
+                    
                 } catch (\Exception $e) {
                     // Log error but don't break the page
                     \Log::error('Error loading user menus: ' . $e->getMessage());

@@ -72,4 +72,21 @@
     <x-modals.roles.create :permissions="$permissions" />
     <x-modals.roles.edit :permissions="$permissions" />
     <x-modals.roles.delete />
+
+    <!-- Handle validation errors by showing appropriate modal -->
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if(old('_token') && !old('id'))
+                    // Show create modal if there were validation errors for create
+                    const createModal = new bootstrap.Modal(document.getElementById('createRoleModal'));
+                    createModal.show();
+                @elseif(old('_token') && old('id'))
+                    // Show edit modal if there were validation errors for update
+                    const editModal = new bootstrap.Modal(document.getElementById('editRoleModal'));
+                    editModal.show();
+                @endif
+            });
+        </script>
+    @endif
 </x-layout.app>
