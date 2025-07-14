@@ -14,13 +14,8 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="create_name" class="form-label">Role Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="create_name"
-                                name="name" value="{{ old('name') }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @else
-                                <div class="invalid-feedback" id="create_name_error"></div>
-                            @enderror
+                            <input type="text" class="form-control" id="create_name" name="name" required>
+                            <div class="invalid-feedback" id="create_name_error"></div>
                         </div>
 
                         <div class="mb-3">
@@ -33,8 +28,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox"
                                                     id="create_permission_{{ $permission->id }}" name="permissions[]"
-                                                    value="{{ $permission->name }}"
-                                                    @if(old('permissions') && in_array($permission->name, old('permissions'))) checked @endif>
+                                                    value="{{ $permission->name }}">
                                                 <label class="form-check-label"
                                                     for="create_permission_{{ $permission->id }}">
                                                     {{ ucfirst(str_replace('-', ' ', $permission->name)) }}
@@ -44,9 +38,6 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @error('permissions')
-                                <div class="text-danger small">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
                     <div class="modal-footer">

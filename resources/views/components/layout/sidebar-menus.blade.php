@@ -7,4 +7,3 @@
         <span class="nav-link text-muted">No menus available</span>
     </li>
 @endforelse
-
