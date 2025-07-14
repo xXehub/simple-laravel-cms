@@ -122,15 +122,9 @@ class MasterMenu extends Model
         }
         
         // For parent/container menus without specific permissions:
-        // - Must have role-based access OR have accessible children
+        // Allow if they have role access or no role restrictions
         if ($this->children && $this->children->isNotEmpty()) {
-            // This is a parent menu - require either role access or children access
-            if ($hasRoleAccess) {
-                return true;
-            }
-            // Don't auto-allow parent menus without role access
-            // Let the helper functions determine if children are accessible
-            return false;
+            return $hasRoleAccess || !$this->roles()->exists();
         }
         
         // For leaf menus without specific permissions (like public pages)
@@ -223,5 +217,111 @@ class MasterMenu extends Model
         }
         
         return $breadcrumbs;
+    }
+
+    /**
+     * Check if current menu is active based on current URL (recursive)
+     */
+    public function isActive()
+    {
+        $currentUrl = url()->current();
+        $menuUrl = $this->getUrl();
+        
+        // Direct match
+        if ($currentUrl === $menuUrl) {
+            return true;
+        }
+        
+        // Check if current path matches menu slug
+        if ($this->slug && request()->path() === $this->slug) {
+            return true;
+        }
+        
+        // Parent menu is active if any child is active (recursive)
+        if ($this->children->isNotEmpty()) {
+            return $this->children->contains(function($child) {
+                return $child->isActive();
+            });
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get accessible children (filtered by permissions)
+     */
+    public function getAccessibleChildren()
+    {
+        return $this->children->filter(function($child) {
+            return $child->canAccess();
+        });
+    }
+
+    /**
+     * Check if user can access this menu or any of its children (recursive)
+     */
+    public function canAccess()
+    {
+        // Can access directly
+        if ($this->isAccessible()) {
+            return true;
+        }
+        
+        // Can access if has accessible children (recursive check)
+        if ($this->children->isNotEmpty()) {
+            return $this->children->contains(function($child) {
+                return $child->canAccess();
+            });
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if this menu has any accessible children (recursive)
+     */
+    public function hasAccessibleChildren()
+    {
+        return $this->getAccessibleChildren()->isNotEmpty();
+    }
+
+    /**
+     * Get root menus for sidebar with all nested children loaded recursively
+     */
+    public static function getSidebarMenus()
+    {
+        // Load all active menus in one query for efficiency
+        $allMenus = static::active()->orderBy('urutan')->get();
+        
+        // Build tree structure - get root menus
+        $menuTree = $allMenus->filter(function($menu) {
+            return is_null($menu->parent_id);
+        });
+        
+        // Attach children recursively
+        static::attachChildren($menuTree, $allMenus);
+        
+        // Filter by accessibility
+        return $menuTree->filter(function($menu) {
+            return $menu->canAccess();
+        });
+    }
+    
+    /**
+     * Recursively attach children to menu items
+     */
+    private static function attachChildren($parentMenus, $allMenus)
+    {
+        foreach ($parentMenus as $parent) {
+            $children = $allMenus->filter(function($menu) use ($parent) {
+                return $menu->parent_id === $parent->id;
+            });
+            
+            $parent->setRelation('children', $children);
+            
+            if ($children->isNotEmpty()) {
+                static::attachChildren($children, $allMenus);
+            }
+        }
     }
 }
