@@ -1,12 +1,4 @@
-@props(['title' => null, 'isAdmin' => false, 'bodyClass' => '', 'navClass' => 'bg-dark', 'useSidebar' => null])
-
-@php
-    // Auto-detect if we should use sidebar based on current route
-    $currentRoute = request()->route()->getName() ?? '';
-    $shouldUseSidebar =
-        $useSidebar ??
-        auth()->check() && (str_starts_with($currentRoute, 'panel.') || in_array($currentRoute, ['dashboard', 'home']));
-@endphp
+@props(['title' => 'KantorKu SuperApp', 'useSidebar' => false])
 
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -18,199 +10,250 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
+    <title>{{ $title ?? 'KantorKu SuperApp' }} - Pemerintah Kota Surabaya</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
+    <!-- Meta Tags for SEO -->
+    <meta name="description" content="Sistem Informasi Terintegrasi Pemerintah Kota Surabaya">
+    <meta name="keywords" content="KantorKu, SuperApp, Surabaya, Pemerintah, Sistem Informasi">
+    <meta name="author" content="Pemerintah Kota Surabaya">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link href="https://fonts.bunny.net/css?family=Inter:300,400,500,600,700&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <!-- BEGIN PAGE LEVEL STYLES -->
+    <link href="{{ asset('libs/jsvectormap/dist/jsvectormap.css?1744816593') }}" rel="stylesheet" />
 
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="{{ asset('dist/css/tabler.css?1744816593') }}" rel="stylesheet" />
+    {{-- <link href="./dist/css/tabler.css?1744816593" rel="stylesheet" /> --}}
+
+    <!-- Tabler CSS Framework -->
+
+    <link href="{{ asset('dist/css/tabler-themes.css?1744816593') }}" rel="stylesheet" />
+    <link href="{{ asset('dist/css/tabler-flags.css') }}" rel="stylesheet" />
+    <link href="{{ asset('dist/css/tabler-payments.css') }}" rel="stylesheet" />
+    <link href="{{ asset('dist/css/tabler-vendors.css?1744816593') }}" rel="stylesheet" />
+    <link href="{{ asset('dist/css/tabler-socials.css') }}" rel="stylesheet" />
+    <link href="{{ asset('dist/css/tabler-marketing.css') }}" rel="stylesheet" />
+
+
+    <!-- BEGIN DEMO STYLES -->
+    <link href="{{ asset('./preview/css/demo.css?1744816593') }}" rel="stylesheet" />
+    {{-- <link href="./preview/css/demo.css?1744816593" rel="stylesheet" /> --}}
+    <!-- END DEMO STYLES -->
+    <!-- BEGIN CUSTOM FONT -->
     <style>
-        .sidebar {
-            min-height: 100vh;
-            background-color: #343a40;
-        }
-
-        .sidebar .nav-link {
-            color: #fff;
-            border-radius: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .sidebar .nav-link:hover {
-            background-color: #495057;
-            color: #fff;
-        }
-
-        .sidebar .nav-link.active {
-            background-color: #0d6efd;
-            color: #fff;
-        }
-
-        .sidebar-sticky {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .content-wrapper {
-            min-height: calc(100vh - 56px);
-        }
-
-        .admin-panel {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .admin-panel .sidebar {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .admin-panel .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .admin-panel .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        /* Chevron Animation */
-        .menu-chevron {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .menu-chevron.rotate {
-            transform: rotate(180deg);
-        }
-
-        /* Animation for collapsed/expanded state */
-        [data-bs-toggle="collapse"]:not(.collapsed) .menu-chevron {
-            transform: rotate(180deg);
-        }
-
-        [data-bs-toggle="collapse"].collapsed .menu-chevron {
-            transform: rotate(0deg);
-        }
+        @import url("https://rsms.me/inter/inter.css");
     </style>
+    <!-- Laravel Mix Assets -->
+    @vite(['resources/js/app.js'])
+
+    <!-- Custom Styles -->
+
 </head>
 
-<body class="{{ $bodyClass }}">
+<body>
+    {{-- <script src="./dist/js/tabler-theme.min.js?1744816593"></script> --}}
+    <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
+    {{-- <link href="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}" /> --}}
+    <!-- Loading Overlay -->
+    {{-- 
+    <div id="loading-overlay" class="loading-overlay d-none">
+        <div class="text-center">
+            <x-loading />
+        </div>
+    </div> --}}
+
     <div id="app">
-        <!-- Top Navigation -->
-        <nav class="navbar navbar-expand-md navbar-dark {{ $navClass }} shadow-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                    @if ($isAdmin)
-                        <span class="badge bg-danger ms-2">Admin</span>
+        <div class="page">
+            <x-layout.tema-builder />
+
+            @if ($useSidebar)
+                {{-- Layout with Sidebar for Panel Pages --}}
+                <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false"
+                            aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <h1 class="navbar-brand navbar-brand-autodark">
+                            <a href="{{ route('panel.dashboard') }}">
+                                <i class="fas fa-cogs me-2"></i>
+                                Panel Admin
+                            </a>
+                        </h1>
+                        <div class="collapse navbar-collapse" id="sidebar-menu">
+                            <ul class="navbar-nav pt-lg-3">
+                                <x-layout.sidebar-menus :menus="$userMenus ?? collect()" />
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="page-wrapper">
+                    <!-- Navigation for Sidebar Layout -->
+                    @if (
+                        !in_array(Route::currentRouteName(), [
+                            'login',
+                            'register',
+                            'password.request',
+                            'password.reset',
+                            'password.confirm',
+                            'verification.notice',
+                            'verification.verify',
+                        ]))
+                        <x-layout.top-bar />
                     @endif
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-                    </ul>
+                    <div class="page-body">
+                        <div class="container-xl">
+                            <!-- Flash Messages -->
+                            <x-layout.flash-messages />
 
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                    <span
-                                        class="badge bg-secondary ms-1">{{ Auth::user()->roles->first()->name ?? 'No Role' }}</span>
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    @php
-                                        // Check if user has access to panel/dashboard menu dynamically
-                                        $panelDashboard = \App\Models\MasterMenu::active()
-                                            ->where('slug', 'panel/dashboard')
-                                            ->whereHas('roles', function ($q) {
-                                                $q->whereIn('role_id', auth()->user()->roles->pluck('id'));
-                                            })
-                                            ->first();
-                                    @endphp
-
-                                    @if ($panelDashboard)
-                                        <a class="dropdown-item"
-                                            href="{{ route('panel.dashboard') }}">
-                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                        </a>
-                                    @endif
-
-                                    <a class="dropdown-item" href="{{ route('profile') }}">
-                                        <i class="fas fa-user me-2"></i>Profile
-                                    </a>
-                                    <hr class="dropdown-divider">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        <i class="fas fa-sign-out-alt me-2"></i>{{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-        @if ($shouldUseSidebar)
-            <div class="container-fluid">
-                <div class="row">
-                    <!-- Sidebar -->
-                    <x-layout.sidebar :menus="$userMenus ?? collect()" />
-
-                    <!-- Main content -->
-                    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                        <div class="content-wrapper">
-                            <x-alert.flash-messages />
+                            <!-- Page Content -->
                             {{ $slot }}
                         </div>
-                    </main>
+                    </div>
                 </div>
-            </div>
-        @else
-            <main class="py-4">
-                <x-alert.flash-messages />
-                {{ $slot }}
-            </main>
-        @endif
+            @else
+                {{-- Regular Layout without Sidebar --}}
+                <!-- Navigation -->
+                @if (
+                    !in_array(Route::currentRouteName(), [
+                        'login',
+                        'register',
+                        'password.request',
+                        'password.reset',
+                        'password.confirm',
+                        'verification.notice',
+                        'verification.verify',
+                    ]))
+                    <x-layout.top-bar />
+                @endif
+
+                <!-- Main Content -->
+                <main class="py-4">
+                    <!-- Flash Messages -->
+                    <x-layout.flash-messages />
+
+                    <!-- Page Content -->
+                    {{ $slot }}
+                </main>
+            @endif
+
+            <!-- Footer -->
+            @if (
+                !in_array(Route::currentRouteName(), [
+                    'login',
+                    'register',
+                    'password.request',
+                    'password.reset',
+                    'password.confirm',
+                    'verification.notice',
+                    'verification.verify',
+                ]))
+                <x-layout.footer />
+            @endif
+        </div>
     </div>
+
+    <!-- Profile Modal -->
+    <x-modals.profile />
+
+    <!-- Settings Modal -->
+    <x-modals.settings />
+
+    <!-- Modal Alert Component -->
+    {{-- <x-modals-alert /> --}}
+
+    <!-- JavaScript Libraries -->
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS (included in Tabler) -->
+    <script src="{{ asset('dist/js/tabler.min.js') }}"></script>
+
+    <!-- Modal Alert Script - Load immediately without defer -->
+    <script src="{{ asset('js/modal-alert.js') }}"></script>
+
+    <!-- Debug Modal Alert Loading -->
+    <script>
+        console.log('Debug: Checking modal alert loading...');
+
+        // Check immediately
+        if (typeof window.modalAlert !== 'undefined') {
+            console.log('Modal alert tersedia langsung:', window.modalAlert);
+        } else {
+            console.log('Modal alert belum tersedia, menunggu...');
+        }
+
+        // Check after DOM loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking modal alert again...');
+
+            setTimeout(() => {
+                if (typeof window.modalAlert !== 'undefined' && window.modalAlert) {
+                    console.log('✅ Modal alert berhasil dimuat:', window.modalAlert);
+                    console.log('✅ Modal alert show function:', typeof window.modalAlert.show);
+                } else {
+                    console.error('❌ Modal alert gagal dimuat!');
+
+                    // Check if modal element exists
+                    const modalElement = document.getElementById('alertModal');
+                    if (modalElement) {
+                        console.log('✅ Modal element ditemukan:', modalElement);
+                    } else {
+                        console.error('❌ Modal element tidak ditemukan!');
+                    }
+                }
+            }, 500);
+        });
+    </script>
+
+    <script src="{{ asset('libs/apexcharts/dist/apexcharts.min.js?1744816593') }}" defer></script>
+    <script src="{{ asset('libs/jsvectormap/dist/jsvectormap.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('libs/jsvectormap/dist/maps/world.js?1667333929') }}" defer></script>
+    <script src="{{ asset('libs/jsvectormap/dist/maps/world-merc.js?1667333929') }}" defer></script>
+
+    <script src="{{ asset('libs/nouislider/dist/nouislider.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('libs/litepicker/dist/litepicker.js?1667333929') }}" defer></script>
+    <script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('dist/js/tabler.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('preview/js/demo.min.js?1667333929') }}" defer></script>
+
+
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Sweet Alert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Dropzone -->
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+    <!-- Moment.js for date handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"></script>
+
+    <!-- Custom JavaScript -->
+
+    <!-- Page Specific Scripts -->
+    @stack('scripts')
 </body>
 
 </html>
