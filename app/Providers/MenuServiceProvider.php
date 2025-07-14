@@ -31,28 +31,22 @@ class MenuServiceProvider extends ServiceProvider
                     $user = Auth::user();
                     $isAdmin = $user->hasRole('admin');
                     
-                    // Get all active root menus and filter by accessibility
+                    // Get all active root menus with all their children loaded
                     $allMenus = MasterMenu::active()
                         ->rootMenus()
                         ->with(['children' => function ($query) {
-                            $query->active()->orderBy('urutan');
+                            $query->active()->orderBy('urutan')->with(['children' => function ($subQuery) {
+                                $subQuery->active()->orderBy('urutan')->with(['children' => function ($subSubQuery) {
+                                    $subSubQuery->active()->orderBy('urutan');
+                                }]);
+                            }]);
                         }])
                         ->orderBy('urutan')
                         ->get();
                     
-                    // Filter menus based on role access AND permission access
-                    $menus = $allMenus->filter(function ($menu) {
-                        if (!$menu->isAccessible()) {
-                            return false;
-                        }
-                        
-                        // Also filter children
-                        $menu->setRelation('children', $menu->children->filter(function ($child) {
-                            return $child->isAccessible();
-                        }));
-                        
-                        return true;
-                    });
+                    // Let the helper functions handle all permission filtering
+                    // Don't filter here, let the view components handle it
+                    $menus = $allMenus;
                     
                 } catch (\Exception $e) {
                     // Log error but don't break the page

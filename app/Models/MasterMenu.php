@@ -112,21 +112,30 @@ class MasterMenu extends Model
         $userRoles = $user->roles->pluck('id');
         $hasRoleAccess = $this->roles()->whereIn('role_id', $userRoles)->exists();
         
-        // Also check for specific permissions based on the menu type
-        $hasPermissionAccess = false;
-        
         // Get required permission based on menu slug or route
         $requiredPermission = $this->getRequiredPermission();
         
+        // For menus with specific permission requirements
         if ($requiredPermission) {
             $hasPermissionAccess = $user->can($requiredPermission);
-        } else {
-            // For menus without specific permissions (like public pages), allow access
-            $hasPermissionAccess = true;
+            return $hasRoleAccess || $hasPermissionAccess;
         }
         
-        // Allow access if user has either role-based access OR permission-based access
-        return $hasRoleAccess || $hasPermissionAccess;
+        // For parent/container menus without specific permissions:
+        // - Must have role-based access OR have accessible children
+        if ($this->children && $this->children->isNotEmpty()) {
+            // This is a parent menu - require either role access or children access
+            if ($hasRoleAccess) {
+                return true;
+            }
+            // Don't auto-allow parent menus without role access
+            // Let the helper functions determine if children are accessible
+            return false;
+        }
+        
+        // For leaf menus without specific permissions (like public pages)
+        // Allow if they have role access or no restrictions
+        return $hasRoleAccess || !$this->roles()->exists();
     }
 
     /**
@@ -144,7 +153,8 @@ class MasterMenu extends Model
             'panel/settings' => 'view-settings',
             'profile' => 'view-profile',
             'panel' => 'access-panel',
-            'dashboard' => 'view-dashboard'
+            'dashboard' => 'access-panel', // Panel Management requires panel access
+            'panel/dashboard' => 'view-dashboard'
         ];
         
         // Check by exact slug match first

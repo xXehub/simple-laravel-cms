@@ -12,6 +12,12 @@
  * - menu_is_active(): Functional active state checking
  * - menu_*_classes(): CSS class generation
  * - menu_render_type(): Template selection logic
+ * - menu_render_recursive(): Recursive unlimited nesting with permission checks
+ * 
+ * Permission Logic:
+ * - Parent menus are only shown if user has access to them OR to any of their children
+ * - Supports unlimited nesting levels with recursive permission checking
+ * - Clean separation between permission logic and rendering logic
  * 
  * Usage in Blade:
  * @php $data = menu_data($menu); @endphp
@@ -215,9 +221,58 @@ if (!function_exists('menu_chevron')) {
     }
 }
 
+if (!function_exists('menu_has_accessible_content')) {
+    /**
+     * Check if menu has accessible content using functional approach
+     * Eliminates if/else chains by using functional programming patterns
+     */
+    function menu_has_accessible_content($menu): bool
+    {
+        // Use functional composition to determine accessibility
+        $accessibilityCheckers = [
+            // Check 1: Direct menu accessibility for leaf nodes
+            fn($m) => !$m->children->count() && $m->isAccessible(),
+            
+            // Check 2: Parent menu with accessible children (recursive)
+            fn($m) => $m->children->count() && $m->children->contains(fn($child) => menu_has_accessible_content($child))
+        ];
+        
+        // Apply all checkers and return true if any pass
+        return collect($accessibilityCheckers)->contains(fn($checker) => $checker($menu));
+    }
+}
+
+if (!function_exists('menu_should_show_parent')) {
+    /**
+     * Alias for menu_has_accessible_content for semantic clarity
+     */
+    function menu_should_show_parent($menu): bool
+    {
+        return menu_has_accessible_content($menu);
+    }
+}
+
+if (!function_exists('menu_render_decision')) {
+    /**
+     * Single function to determine if menu should be rendered and how
+     * Returns array with rendering decision and data
+     */
+    function menu_render_decision($menu): array
+    {
+        $shouldRender = menu_has_accessible_content($menu);
+        
+        return [
+            'render' => $shouldRender,
+            'data' => $shouldRender ? menu_data($menu) : null,
+            'type' => $shouldRender ? (menu_has_children($menu) ? 'dropdown' : 'single') : 'none'
+        ];
+    }
+}
+
 if (!function_exists('menu_render_recursive')) {
     /**
      * Recursively render menu children with unlimited nesting
+     * Only shows parent menus if user has permission or if they have accessible children
      */
     function menu_render_recursive($children, int $level = 1): string
     {
@@ -227,41 +282,50 @@ if (!function_exists('menu_render_recursive')) {
 
         $indent = str_repeat('ms-3 ', $level);
         $html = "<ul class=\"nav flex-column {$indent}\">";
-        
+
         foreach ($children as $child) {
-            $childData = menu_data($child);
-            
-            if (!$childData['shouldRender']) {
+            // Skip menu if user has no access to it or its children
+            if (!menu_has_accessible_content($child)) {
                 continue;
             }
             
+            $childData = menu_data($child);
+            
             $html .= '<li class="nav-item">';
-            
+
             if ($childData['hasChildren']) {
-                // Render dropdown link
-                $html .= "<a class=\"{$childData['linkClasses']}\" {$childData['collapseAttrs']}>";
-                $html .= $childData['icon'];
-                $html .= menu_text($child);
-                $html .= menu_chevron();
-                $html .= "</a>";
+                // Get only accessible children for rendering
+                $accessibleChildren = $childData['accessibleChildren'];
                 
-                // Render collapse container with recursive children
-                $html .= "<div class=\"collapse\" id=\"" . menu_submenu_id($child) . "\">";
-                $html .= menu_render_recursive($childData['accessibleChildren'], $level + 1);
-                $html .= "</div>";
+                // Only render dropdown if there are accessible children or menu itself is accessible
+                if ($accessibleChildren->isNotEmpty() || $childData['shouldRender']) {
+                    // Render dropdown link
+                    $html .= "<a class=\"{$childData['linkClasses']}\" {$childData['collapseAttrs']}>";
+                    $html .= $childData['icon'];
+                    $html .= menu_text($child);
+                    $html .= menu_chevron();
+                    $html .= "</a>";
+
+                    // Render collapse container with recursive children
+                    $html .= "<div class=\"collapse\" id=\"" . menu_submenu_id($child) . "\">";
+                    $html .= menu_render_recursive($accessibleChildren, $level + 1);
+                    $html .= "</div>";
+                }
             } else {
-                // Render single menu item
-                $html .= "<a class=\"{$childData['linkClasses']}\" href=\"{$childData['url']}\">";
-                $html .= $childData['icon'];
-                $html .= menu_text($child);
-                $html .= "</a>";
+                // Only render single menu item if user has access
+                if ($childData['shouldRender']) {
+                    $html .= "<a class=\"{$childData['linkClasses']}\" href=\"{$childData['url']}\">";
+                    $html .= $childData['icon'];
+                    $html .= menu_text($child);
+                    $html .= "</a>";
+                }
             }
-            
+
             $html .= '</li>';
         }
-        
+
         $html .= '</ul>';
-        
+
         return $html;
     }
 }

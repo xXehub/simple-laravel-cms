@@ -29,18 +29,20 @@ class MenuRoleSeeder extends Seeder
             }
         }
 
-        // Editor has access to profile and pages panel only
+        // Editor has access to profile and limited panel features
         $editorRole = $roles->where('name', 'editor')->first();
         if ($editorRole) {
-            $editorMenuSlugs = [
-                '', // Homepage
-                'profile', // Profile
-                'panel/pages', // Pages management only
-                'about-us', // Public pages
-                'contact',
+            // Editor menu access by menu names
+            $editorMenuNames = [
+                'Beranda', // Homepage
+                'Dashboard', // Dashboard
+                'Panel Management', // Container - needs access to see Pages
+                'Pages', // Pages management only
+                'About Us', // Public pages
+                'Contact',
             ];
 
-            $editorMenus = $menus->whereIn('slug', $editorMenuSlugs);
+            $editorMenus = $menus->whereIn('nama_menu', $editorMenuNames);
             foreach ($editorMenus as $menu) {
                 MenuRole::firstOrCreate([
                     'role_id' => $editorRole->id,
@@ -52,14 +54,14 @@ class MenuRoleSeeder extends Seeder
         // Viewer has access to public pages and profile only (NO panel access)
         $viewerRole = $roles->where('name', 'viewer')->first();
         if ($viewerRole) {
-            $viewerMenuSlugs = [
-                '', // Homepage
-                'profile', // Profile
-                'about-us', // Public pages
-                'contact',
+            // Viewer menu access by menu names - very restricted
+            $viewerMenuNames = [
+                'Beranda', // Homepage only
+                'About Us', // Public pages
+                'Contact',
             ];
 
-            $viewerMenus = $menus->whereIn('slug', $viewerMenuSlugs);
+            $viewerMenus = $menus->whereIn('nama_menu', $viewerMenuNames);
             foreach ($viewerMenus as $menu) {
                 MenuRole::firstOrCreate([
                     'role_id' => $viewerRole->id,
