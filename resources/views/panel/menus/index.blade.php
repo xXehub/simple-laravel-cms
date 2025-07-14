@@ -109,9 +109,16 @@
     @include('components.modals.menus.update')
     @include('components.modals.menus.delete')
 
-    {{-- Debug Script --}}
+    {{-- Tom Select CSS & JS --}}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    {{-- Main Script --}}
     <script>
         console.log('Menu management page loaded');
+        
+        let editRolesSelect;
+        let createRolesSelect;
 
         // Check if Bootstrap is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -122,6 +129,35 @@
             if (typeof bootstrap === 'undefined') {
                 console.error('Bootstrap is not loaded!');
             }
+            
+            // Initialize Tom Select for role selects
+            setTimeout(function() {
+                // Initialize create roles select
+                const createRolesElement = document.getElementById('create_roles');
+                if (createRolesElement) {
+                    createRolesSelect = new TomSelect('#create_roles', {
+                        plugins: ['remove_button'],
+                        placeholder: 'Select roles...',
+                        maxOptions: null,
+                        create: false,
+                        sortField: 'text'
+                    });
+                    console.log('Create roles Tom Select initialized');
+                }
+                
+                // Initialize edit roles select
+                const editRolesElement = document.getElementById('edit_roles');
+                if (editRolesElement) {
+                    editRolesSelect = new TomSelect('#edit_roles', {
+                        plugins: ['remove_button'],
+                        placeholder: 'Select roles...',
+                        maxOptions: null,
+                        create: false,
+                        sortField: 'text'
+                    });
+                    console.log('Edit roles Tom Select initialized');
+                }
+            }, 100); // Small delay to ensure DOM is fully ready
         });
 
         function openEditModal(menu) {
@@ -134,10 +170,26 @@
                 'edit_urutan', 'edit_is_active'
             ];
 
+            // Debug: Check each element individually
+            console.log('Checking form elements:');
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`${id}:`, element ? 'FOUND' : 'MISSING');
+            });
+
             const missingElements = requiredElements.filter(id => !document.getElementById(id));
             if (missingElements.length > 0) {
                 console.error('Missing form elements:', missingElements);
-                alert('Error: Some form elements are missing. Please check the console.');
+                
+                // Debug: Check if modal exists
+                const modal = document.getElementById('editMenuModal');
+                console.log('Edit modal exists:', modal ? 'YES' : 'NO');
+                
+                if (modal) {
+                    console.log('Modal HTML:', modal.innerHTML.substring(0, 200) + '...');
+                }
+                
+                alert('Error: Some form elements are missing. Please check console.');
                 return;
             }
 
@@ -151,34 +203,23 @@
             document.getElementById('edit_urutan').value = menu.urutan;
             document.getElementById('edit_is_active').checked = menu.is_active == 1;
 
-            // Clear and set roles
-            const roleCheckboxes = document.querySelectorAll('input[name="roles[]"]');
-            roleCheckboxes.forEach(checkbox => {
-                if (checkbox.id.startsWith('edit_role_')) {
-                    checkbox.checked = false;
-                }
-            });
+            // Set roles using Tom Select
+            if (typeof editRolesSelect !== 'undefined' && editRolesSelect) {
+                // Clear current selection
+                editRolesSelect.clear();
 
-            if (menu.roles && menu.roles.length > 0) {
-                menu.roles.forEach(role => {
-                    const checkbox = document.getElementById(`edit_role_${role.id}`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    } else {
-                        console.warn(`Role checkbox not found: edit_role_${role.id}`);
-                    }
-                });
+                // Set selected roles
+                if (menu.roles && menu.roles.length > 0) {
+                    menu.roles.forEach(role => {
+                        editRolesSelect.addItem(role.id.toString());
+                    });
+                }
             }
 
             // Show modal
             const modalElement = document.getElementById('editMenuModal');
-            if (modalElement) {
-                const modal = new bootstrap.Modal(modalElement);
-                modal.show();
-            } else {
-                console.error('Edit modal element not found');
-                alert('Error: Edit modal not found. Please check permissions.');
-            }
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
         }
 
         function openDeleteModal(menu) {

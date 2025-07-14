@@ -348,3 +348,89 @@ if (!function_exists('menu_all_accessible_children')) {
         return $children;
     }
 }
+
+if (!function_exists('menu_max_depth')) {
+    /**
+     * Calculate the maximum depth of a menu tree
+     * Useful for debugging and layout purposes
+     */
+    function menu_max_depth($menu, int $currentDepth = 0): int
+    {
+        if (!$menu->children || $menu->children->isEmpty()) {
+            return $currentDepth;
+        }
+        
+        $maxChildDepth = $currentDepth;
+        
+        foreach ($menu->children as $child) {
+            $childDepth = menu_max_depth($child, $currentDepth + 1);
+            $maxChildDepth = max($maxChildDepth, $childDepth);
+        }
+        
+        return $maxChildDepth;
+    }
+}
+
+if (!function_exists('menu_tree_stats')) {
+    /**
+     * Get statistics about the menu tree
+     * Returns array with total_menus, max_depth, has_deep_nesting
+     */
+    function menu_tree_stats(): array
+    {
+        $rootMenus = \App\Models\MasterMenu::whereNull('parent_id')->get();
+        $totalMenus = \App\Models\MasterMenu::count();
+        $maxDepth = 0;
+        
+        foreach ($rootMenus as $root) {
+            $depth = menu_max_depth($root);
+            $maxDepth = max($maxDepth, $depth);
+        }
+        
+        return [
+            'total_menus' => $totalMenus,
+            'root_menus' => $rootMenus->count(),
+            'max_depth' => $maxDepth,
+            'has_deep_nesting' => $maxDepth > 2,
+            'supports_unlimited_nesting' => true
+        ];
+    }
+}
+
+if (!function_exists('menu_options_hierarchical')) {
+    /**
+     * Get menu options formatted hierarchically for dropdowns
+     * Returns collection with ID as key and indented name as value
+     */
+    function menu_options_hierarchical($menus = null, $level = 0): array
+    {
+        if ($menus === null) {
+            $menus = \App\Models\MasterMenu::whereNull('parent_id')->with('children')->orderBy('urutan')->get();
+        }
+        
+        $options = [];
+        $indent = str_repeat('— ', $level);
+        
+        foreach ($menus as $menu) {
+            $options[$menu->id] = $indent . $menu->nama_menu;
+            
+            // Recursively add children
+            if ($menu->children && $menu->children->isNotEmpty()) {
+                $childOptions = menu_options_hierarchical($menu->children, $level + 1);
+                $options = array_merge($options, $childOptions);
+            }
+        }
+        
+        return $options;
+    }
+}
+
+if (!function_exists('menu_formatted_options')) {
+    /**
+     * Get formatted menu options for select dropdowns with hierarchy indication
+     */
+    function menu_formatted_options(): array
+    {
+        return menu_options_hierarchical();
+    }
+}

@@ -26,7 +26,8 @@ class MenuController extends Controller
     public function index()
     {
         $menus = MasterMenu::with('roles', 'parent', 'children')->orderBy('urutan')->paginate(20);
-        $parentMenus = MasterMenu::where('parent_id', null)->orderBy('urutan')->get();
+        // Get hierarchical menu options for parent selection
+        $parentMenus = collect(menu_formatted_options());
         $roles = Role::all();
         
         return view('panel.menus.index', compact('menus', 'parentMenus', 'roles'));
@@ -37,7 +38,8 @@ class MenuController extends Controller
      */
     public function create()
     {
-        $parentMenus = MasterMenu::whereNull('parent_id')->get();
+        // Get hierarchical menu options for parent selection
+        $parentMenus = collect(menu_formatted_options());
         $roles = Role::all();
         return view('panel.menus.create', compact('parentMenus', 'roles'));
     }
@@ -78,7 +80,8 @@ class MenuController extends Controller
         }
         
         $menu = MasterMenu::findOrFail($menuId);
-        $parentMenus = MasterMenu::whereNull('parent_id')->where('id', '!=', $menu->id)->get();
+        // Get all menus except current one to prevent circular reference
+        $parentMenus = MasterMenu::where('id', '!=', $menu->id)->orderBy('urutan')->get();
         $roles = Role::all();
         
         return view('panel.menus.edit', compact('menu', 'parentMenus', 'roles'));
