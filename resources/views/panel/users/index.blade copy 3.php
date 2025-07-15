@@ -74,7 +74,7 @@
                                             <th>Email</th>
                                             <th>Role</th>
                                             <th>Registered</th>
-                                            <th class="w-3">Actions</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table-tbody">
@@ -129,7 +129,6 @@
                 // Initialize DataTable
                 dataTable = $('#datatable-users').DataTable({
                     processing: true,
-                    autoWidth: false,
                     serverSide: true,
                     ajax: {
                         url: '{{ route('panel.users.datatable') }}',
@@ -235,41 +234,6 @@
                         $('#advanced-table-search').focus();
                     }
                 });
-
-                // Clear form when create modal is closed
-                @can('create-users')
-                    $('#createUserModal').on('hidden.bs.modal', function() {
-                        document.getElementById('createUserForm').reset();
-                    });
-                @endcan
-
-                // Clear form when edit modal is closed
-                @can('update-users')
-                    $('#editUserModal').on('hidden.bs.modal', function() {
-                        document.getElementById('editUserForm').reset();
-                    });
-                @endcan
-
-                // Handle form submissions to refresh datatable
-                @can('create-users')
-                    $('#createUserForm').on('submit', function(e) {
-                        console.log('Create form submitted');
-                    });
-                @endcan
-
-                @can('update-users')
-                    $('#editUserForm').on('submit', function(e) {
-                        console.log('Edit form submitted');
-
-                    });
-                @endcan
-
-                @can('delete-users')
-                    $('#deleteUserForm').on('submit', function(e) {
-                        console.log('Delete form submitted');
-
-                    });
-                @endcan
             });
 
             // Function to set page length
@@ -373,8 +337,6 @@
                                 editCheckbox.checked = true;
                             }
                         });
-
-                        // Modal will be opened automatically by data-bs-target
                     })
                     .catch(error => {
                         console.error('Error loading user data:', error);
@@ -386,9 +348,21 @@
             function deleteUser(userId, userName) {
                 document.getElementById('delete_user_id').value = userId;
                 document.getElementById('delete_user_name').textContent = userName;
-
-                // Modal will be opened automatically by data-bs-target
             }
+
+            // Clear form when create modal is closed
+            @can('create-users')
+                document.getElementById('createUserModal').addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('createUserForm').reset();
+                });
+            @endcan
+
+            // Clear form when edit modal is closed
+            @can('update-users')
+                document.getElementById('editUserModal').addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('editUserForm').reset();
+                });
+            @endcan
         </script>
     @endpush
 </x-layout.app>

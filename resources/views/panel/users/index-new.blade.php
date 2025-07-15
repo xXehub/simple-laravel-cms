@@ -1,16 +1,17 @@
 <x-layout.app title="Users Management - Panel Admin" :pakai-sidebar="true">
     <div class="container-xl">
-        <div class="row row-cards">
-            <div class="page-header d-print-none" aria-label="Page header">
-                <div class="container-xl">
-                    <div class="row g-2 align-items-center">
-                        <div class="col">
-                            <h2 class="page-title">Users Management</h2>
-                        </div>
+        <!-- Page Header -->
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">Users Management</h2>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="row row-cards">
             <x-alert.flash-messages />
             
             <!-- Main Table Card -->
@@ -65,28 +66,28 @@
                                                     aria-label="Select all users" id="select-all" />
                                             </th>
                                             <th>
-                                                <button class="table-sort d-flex justify-content-between"
-                                                    data-sort="sort-name">
-                                                    Name
-                                                </button>
+                                                Name
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm ms-1">
+                                                    <path d="M8 9l4 -4l4 4"></path>
+                                                    <path d="M16 15l-4 4l-4 -4"></path>
+                                                </svg>
                                             </th>
                                             <th>
-                                                <button class="table-sort d-flex justify-content-between"
-                                                    data-sort="sort-email">
-                                                    Email
-                                                </button>
+                                                Email
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm ms-1">
+                                                    <path d="M8 9l4 -4l4 4"></path>
+                                                    <path d="M16 15l-4 4l-4 -4"></path>
+                                                </svg>
                                             </th>
                                             <th>
-                                                <button class="table-sort d-flex justify-content-between"
-                                                    data-sort="sort-role">
-                                                    Role
-                                                </button>
+                                                Role
                                             </th>
                                             <th>
-                                                <button class="table-sort d-flex justify-content-between"
-                                                    data-sort="sort-date">
-                                                    Registered
-                                                </button>
+                                                Registered
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm ms-1">
+                                                    <path d="M8 9l4 -4l4 4"></path>
+                                                    <path d="M16 15l-4 4l-4 -4"></path>
+                                                </svg>
                                             </th>
                                             <th>Actions</th>
                                         </tr>
@@ -206,14 +207,21 @@
                         },
                     ],
                     dom: 'rt', // Remove default search and pagination
+                    order: [[1, 'asc']], // Default sort by name
+                    columnDefs: [
+                        {
+                            targets: [0, 3, 5], // Checkbox, Role, and Action columns
+                            orderable: false
+                        }
+                    ],
                     pageLength: 10,
                     lengthMenu: [
                         [10, 25, 50, 100],
                         [10, 25, 50, 100]
                     ],
                     language: {
-                        processing: "Loading...",
-                        zeroRecords: "No users found",
+                        processing: "Memuat...",
+                        zeroRecords: "Tidak ada pengguna ditemukan",
                         info: "",
                         infoEmpty: "",
                         infoFiltered: "",

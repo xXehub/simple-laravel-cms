@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users,email,' . $userId,
             'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'array',
-            'roles.*' => 'exists:roles,id'
+            'roles.*' => 'exists:roles,name'
         ];
     }
 
