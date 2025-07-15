@@ -131,8 +131,11 @@
         }
         // --- Modal Openers ---
         window.openEditModal = menu => {
-            refreshParentMenuOptions().then(() => setTimeout(() => fillEditModal(menu), 300)).catch(() => fillEditModal(
-                menu));
+            fillEditModal(menu); // Open modal instantly
+            // After parent menu options refresh, pastikan parent_id tetap sesuai
+            refreshParentMenuOptions().then(() => {
+                setSelect('edit_parent_id', menu.parent_id, 'edit_parent_id');
+            }).catch(() => {});
         };
         window.openDeleteModal = menu => {
             const m = document.getElementById('deleteMenuModal');
