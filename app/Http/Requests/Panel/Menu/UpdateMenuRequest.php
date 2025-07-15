@@ -21,7 +21,7 @@ class UpdateMenuRequest extends FormRequest
     {
         $this->merge([
             'parent_id' => $this->parent_id ?: null,
-            'is_active' => $this->has('is_active'),
+            'is_active' => $this->has('is_active') && $this->input('is_active') == '1',
         ]);
     }
 

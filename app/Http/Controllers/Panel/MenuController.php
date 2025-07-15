@@ -63,7 +63,7 @@ class MenuController extends Controller
         // Debug logging
         \Log::info('Store Menu Request Data:', $request->all());
         \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
-        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active')]);
+        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active'), 'has_checkbox' => $request->has('is_active')]);
 
         $menu = MasterMenu::create([
             'nama_menu' => $request->nama_menu,
@@ -79,7 +79,7 @@ class MenuController extends Controller
             $menu->roles()->sync($request->roles);
         }
 
-        \Log::info('Menu created successfully:', ['menu_id' => $menu->id]);
+        \Log::info('Menu created successfully:', ['menu_id' => $menu->id, 'is_active_saved' => $menu->is_active]);
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu created successfully');
@@ -116,7 +116,7 @@ class MenuController extends Controller
         \Log::info('Update Menu Request Data:', $request->all());
         \Log::info('Menu ID:', ['menu_id' => $menuId]);
         \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
-        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active')]);
+        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active'), 'has_checkbox' => $request->has('is_active')]);
         
         $menu = MasterMenu::findOrFail($menuId);
 
@@ -132,7 +132,7 @@ class MenuController extends Controller
 
         $menu->roles()->sync($request->roles ?? []);
 
-        \Log::info('Menu updated successfully:', ['menu_id' => $menu->id]);
+        \Log::info('Menu updated successfully:', ['menu_id' => $menu->id, 'is_active_saved' => $menu->is_active]);
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu updated successfully');
