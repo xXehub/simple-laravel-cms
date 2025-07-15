@@ -19,7 +19,7 @@ class MasterMenuSeeder extends Seeder
             'slug' => '',
             'parent_id' => null,
             'route_name' => 'welcome',
-            'icon' => 'fas fa-home',
+            'icon' => 'fa-solid fa-shop',
             'urutan' => 0,
             'is_active' => true,
         ]);
@@ -30,7 +30,7 @@ class MasterMenuSeeder extends Seeder
             'slug' => 'panel/dashboard',
             'parent_id' => null,
             'route_name' => null,
-            'icon' => 'fas fa-tachometer-alt',
+            'icon' => 'fa-solid fa-table-columns',
             'urutan' => 1,
             'is_active' => true,
         ]);
@@ -41,7 +41,7 @@ class MasterMenuSeeder extends Seeder
             'slug' => 'dashboard',
             'parent_id' => null,
             'route_name' => null,
-            'icon' => 'fas fa-cogs',
+            'icon' => 'fa-solid fa-bars-progress',
             'urutan' => 2,
             'is_active' => true,
         ]);

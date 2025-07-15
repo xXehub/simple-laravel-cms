@@ -110,8 +110,70 @@
     </div>
     {{-- TomSelect Initialization Script --}}
     <script>
+        // Declare functions in global scope first
+        window.openEditModal = function(menu) {
+            console.log('Opening edit modal for menu:', menu);
+
+            // Refresh parent options before opening modal to ensure we have latest data
+            refreshParentMenuOptions().then(() => {
+                setTimeout(() => {
+                    populateEditModal(menu);
+                }, 300);
+            }).catch(() => {
+                // If refresh fails, still try to populate with existing data
+                populateEditModal(menu);
+            });
+        };
+
+        window.openDeleteModal = function(menu) {
+            console.log('Opening delete modal for menu:', menu);
+
+            const modalElement = document.getElementById('deleteMenuModal');
+            if (!modalElement) {
+                console.error('Delete modal element not found');
+                alert('Error: Delete modal not found. Please check permissions.');
+                return;
+            }
+
+            // Populate form fields
+            const deleteMenuId = document.getElementById('delete_menu_id');
+            const deleteMenuName = document.getElementById('delete_menu_name');
+            const deleteMenuSlug = document.getElementById('delete_menu_slug');
+            const deleteMenuRoute = document.getElementById('delete_menu_route');
+
+            if (deleteMenuId) deleteMenuId.value = menu.id;
+            if (deleteMenuName) deleteMenuName.textContent = menu.nama_menu;
+            if (deleteMenuSlug) deleteMenuSlug.textContent = menu.slug;
+            if (deleteMenuRoute) deleteMenuRoute.textContent = menu.route_name || '-';
+
+            // Show modal
+            if (typeof $ !== 'undefined' && $.fn.modal) {
+                $(modalElement).modal('show');
+            } 
+            else if (window.bootstrap && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } 
+            else {
+                modalElement.classList.add('show');
+                modalElement.style.display = 'block';
+                modalElement.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                
+                if (!document.querySelector('.modal-backdrop')) {
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                }
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded - Initializing TomSelect');
+            console.log('Available functions:', {
+                openEditModal: typeof window.openEditModal,
+                openDeleteModal: typeof window.openDeleteModal
+            });
 
             // Initialize tomSelectInstances object
             if (!window.tomSelectInstances) {
@@ -204,6 +266,14 @@
                     // Let the form submit naturally
                 });
             }
+
+            // Check if there's a success message (indicating a successful operation)
+            @if(session('success'))
+                console.log('Menu operation successful, refreshing parent options...');
+                setTimeout(() => {
+                    refreshParentMenuOptions();
+                }, 1000);
+            @endif
 
             // Check for validation errors and reopen modal if needed
             @if ($errors->any())
@@ -381,9 +451,77 @@
             }
         }
 
-        function openEditModal(menu) {
-            console.log('Opening edit modal for menu:', menu);
+        function refreshParentMenuOptions() {
+            console.log('Refreshing parent menu options...');
+            
+            // Return a Promise for better handling
+            return fetch('{{ route("panel.menus.index") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.parentMenus) {
+                    // Update create parent select
+                    const createParentSelect = document.getElementById('create_parent_id');
+                    if (createParentSelect) {
+                        updateSelectOptions(createParentSelect, data.parentMenus);
+                        if (window.tomSelectInstances['create_parent_id']) {
+                            window.tomSelectInstances['create_parent_id'].destroy();
+                            delete window.tomSelectInstances['create_parent_id'];
+                            window.tomSelectInstances['create_parent_id'] = new TomSelect(createParentSelect, {
+                                plugins: [],
+                            });
+                        }
+                    }
 
+                    // Update edit parent select
+                    const editParentSelect = document.getElementById('edit_parent_id');
+                    if (editParentSelect) {
+                        updateSelectOptions(editParentSelect, data.parentMenus);
+                        if (window.tomSelectInstances['edit_parent_id']) {
+                            window.tomSelectInstances['edit_parent_id'].destroy();
+                            delete window.tomSelectInstances['edit_parent_id'];
+                            window.tomSelectInstances['edit_parent_id'] = new TomSelect(editParentSelect, {
+                                plugins: [],
+                            });
+                        }
+                    }
+                    
+                    console.log('Parent menu options refreshed successfully');
+                    return data;
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing parent menu options:', error);
+                throw error;
+            });
+        }
+
+        function updateSelectOptions(selectElement, options) {
+            // Clear existing options except the first one (-- Root Menu --)
+            while (selectElement.children.length > 1) {
+                selectElement.removeChild(selectElement.lastChild);
+            }
+
+            // Add new options
+            Object.entries(options).forEach(([id, name]) => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = name.replace(/└─\s/g, '').replace(/Parent\s-\s/g, '');
+                selectElement.appendChild(option);
+            });
+        }
+
+        function populateEditModal(menu) {
             // Check if all required elements exist
             const requiredElements = [
                 'edit_menu_id', 'edit_nama_menu', 'edit_slug',
@@ -408,24 +546,53 @@
             document.getElementById('edit_is_active').checked = menu.is_active == 1;
 
             // Set parent menu using Tom Select
-            if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
-                console.log('Setting parent value via TomSelect:', menu.parent_id || '');
-                window.tomSelectInstances['edit_parent_id'].clear();
-                if (menu.parent_id) {
-                    window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id.toString());
-                    console.log('Parent value set successfully');
+            setTimeout(() => {
+                if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
+                    console.log('Setting parent value via TomSelect:', menu.parent_id || 'null');
+                    console.log('Available parent options:');
+                    const parentSelect = document.getElementById('edit_parent_id');
+                    if (parentSelect) {
+                        Array.from(parentSelect.options).forEach(option => {
+                            console.log(`Option: value=${option.value}, text=${option.textContent}`);
+                        });
+                    }
+                    
+                    window.tomSelectInstances['edit_parent_id'].clear();
+                    if (menu.parent_id && menu.parent_id !== null) {
+                        // Ensure the value exists in options before setting
+                        const option = document.querySelector(`#edit_parent_id option[value="${menu.parent_id}"]`);
+                        if (option) {
+                            window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id.toString());
+                            console.log('Parent value set successfully via TomSelect:', menu.parent_id);
+                        } else {
+                            console.warn('Parent option not found in select, refreshing options...');
+                            // Refresh the options by reinitializing TomSelect
+                            window.tomSelectInstances['edit_parent_id'].destroy();
+                            delete window.tomSelectInstances['edit_parent_id'];
+                            
+                            const editParentElement = document.getElementById('edit_parent_id');
+                            if (editParentElement) {
+                                window.tomSelectInstances['edit_parent_id'] = new TomSelect(editParentElement, {
+                                    plugins: [],
+                                });
+                                setTimeout(() => {
+                                    window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id.toString());
+                                }, 100);
+                            }
+                        }
+                    } else {
+                        console.log('No parent_id to set (is null/empty), clearing selection');
+                    }
                 } else {
-                    console.log('No parent_id to set');
+                    console.log('Tom Select edit_parent_id not found, using fallback');
+                    // Fallback to standard DOM manipulation
+                    const parentSelect = document.getElementById('edit_parent_id');
+                    if (parentSelect) {
+                        parentSelect.value = menu.parent_id || '';
+                        console.log('Parent value set via fallback:', parentSelect.value);
+                    }
                 }
-            } else {
-                console.log('Tom Select edit_parent_id not found, using fallback');
-                // Fallback to standard DOM manipulation
-                const parentSelect = document.getElementById('edit_parent_id');
-                if (parentSelect) {
-                    parentSelect.value = menu.parent_id || '';
-                    console.log('Parent value set via fallback:', parentSelect.value);
-                }
-            }
+            }, 200);
 
             // Set roles using Tom Select
             if (window.tomSelectInstances && window.tomSelectInstances['edit_roles']) {
@@ -499,53 +666,6 @@
             } else {
                 console.error('Edit modal element not found');
                 alert('Error: Edit modal not found. Please check if it is properly included.');
-            }
-        }
-
-        function openDeleteModal(menu) {
-            console.log('Opening delete modal for menu:', menu);
-
-            const modalElement = document.getElementById('deleteMenuModal');
-            if (!modalElement) {
-                console.error('Delete modal element not found');
-                alert('Error: Delete modal not found. Please check permissions.');
-                return;
-            }
-
-            // Populate form fields
-            const deleteMenuId = document.getElementById('delete_menu_id');
-            const deleteMenuName = document.getElementById('delete_menu_name');
-            const deleteMenuSlug = document.getElementById('delete_menu_slug');
-            const deleteMenuRoute = document.getElementById('delete_menu_route');
-
-            if (deleteMenuId) deleteMenuId.value = menu.id;
-            if (deleteMenuName) deleteMenuName.textContent = menu.nama_menu;
-            if (deleteMenuSlug) deleteMenuSlug.textContent = menu.slug;
-            if (deleteMenuRoute) deleteMenuRoute.textContent = menu.route_name || '-';
-
-            // Show modal
-            if (typeof $ !== 'undefined' && $.fn.modal) {
-                // jQuery Bootstrap modal (most common in Tabler.io)
-                $(modalElement).modal('show');
-            } 
-            else if (window.bootstrap && bootstrap.Modal) {
-                // Bootstrap 5 modal
-                const modal = new bootstrap.Modal(modalElement);
-                modal.show();
-            } 
-            else {
-                // Fallback for Tabler.io
-                modalElement.classList.add('show');
-                modalElement.style.display = 'block';
-                modalElement.setAttribute('aria-hidden', 'false');
-                document.body.classList.add('modal-open');
-                
-                // Add backdrop
-                if (!document.querySelector('.modal-backdrop')) {
-                    const backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
-                }
             }
         }
     </script>

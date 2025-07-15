@@ -23,12 +23,23 @@ class MenuController extends Controller
     /**
      * Display menus listing
      */
-    public function index()
+    public function index(Request $request)
     {
-        $menus = MasterMenu::with('roles', 'parent', 'children')->orderBy('urutan')->paginate(20);
+        $menus = MasterMenu::with('roles', 'parent', 'children')->orderBy('urutan')->orderBy('id')->paginate(20);
         // Get hierarchical menu options for parent selection
         $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
+
+        // Debug logging for parent menus
+        \Log::info('Parent Menu Options Generated:', $parentMenus);
+
+        // Handle AJAX request for refreshing parent menu options
+        if ($request->ajax()) {
+            return response()->json([
+                'parentMenus' => $parentMenus,
+                'roles' => $roles->pluck('name', 'id')
+            ]);
+        }
 
         return view('panel.menus.index', compact('menus', 'parentMenus', 'roles'));
     }
@@ -153,6 +164,7 @@ class MenuController extends Controller
     {
         $menus = MasterMenu::where('parent_id', $parentId)
             ->orderBy('urutan')
+            ->orderBy('id') // Add secondary sort to ensure consistent ordering
             ->get();
 
         $options = [];
@@ -176,7 +188,8 @@ class MenuController extends Controller
 
             // Recursively get children
             $children = $this->getMenuOptions($menu->id, $level + 1, $excludeId);
-            $options = array_merge($options, $children);
+            // Use + operator instead of array_merge to preserve numeric keys
+            $options = $options + $children;
         }
 
         return $options;
