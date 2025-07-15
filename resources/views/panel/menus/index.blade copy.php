@@ -1,4 +1,4 @@
-<x-layout.app title="Menus Management - Panel Admin" :use-sidebar="true">
+<x-layout.app title="Menus Management - Panel Admin" :pakai-sidebar="true">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">
             <i class="fas fa-bars me-2"></i>Menus Management

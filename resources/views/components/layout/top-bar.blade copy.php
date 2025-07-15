@@ -1,5 +1,5 @@
     @props(['title' => null, 'isAdmin' => false, 'bodyClass' => '', 'navClass' => 'bg-dark', 'useSidebar' => null])
-  <div class="page-header d-print-none">
+
     <div class="navbar-expand-md">
         <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="navbar navbar-light">
@@ -254,4 +254,3 @@
             </div>
         </div>
     </div>
-</div>

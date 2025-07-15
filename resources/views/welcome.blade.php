@@ -1,4 +1,4 @@
-<x-layout.app title="Laravel Superapp CMS" :use-sidebar="false">
+<x-layout.app title="Laravel Superapp CMS" :pakai-sidebar="false">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
@@ -21,14 +21,12 @@
                         @endphp
 
                         @if ($panelMenu)
-                            <a class="btn btn-light btn-lg" href="{{ route('panel.dashboard') }}"
-                                role="button">
+                            <a class="btn btn-light btn-lg" href="{{ route('panel.dashboard') }}" role="button">
                                 <i class="fas fa-tachometer-alt"></i> Go to Panel
                             </a>
                         @endif
 
-                        <a class="btn btn-outline-light btn-lg" href="{{ route('profile') }}"
-                            role="button">
+                        <a class="btn btn-outline-light btn-lg" href="{{ route('profile') }}" role="button">
                             <i class="fas fa-user"></i> My Profile
                         </a>
                     @else
@@ -182,4 +180,3 @@
     </div>
     </div>
 </x-layout.app>
-

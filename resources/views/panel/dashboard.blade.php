@@ -1,4 +1,6 @@
-<x-layout.app title="Panel Admin Dashboard" :use-sidebar="true">
+<x-layout.app title="Panel Admin Dashboard" :pakai-sidebar="true">
+
+
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">
             <i class="fas fa-tachometer-alt me-2"></i>Panel Dashboard
@@ -60,8 +62,10 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Roles & Permissions</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['roles'] }}/{{ $stats['permissions'] }}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Roles & Permissions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ $stats['roles'] }}/{{ $stats['permissions'] }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-key fa-2x text-gray-300"></i>
@@ -121,4 +125,3 @@
         </div>
     </div>
 </x-layout.app>
-

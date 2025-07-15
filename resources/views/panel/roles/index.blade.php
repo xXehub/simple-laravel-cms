@@ -1,4 +1,5 @@
-<x-layout.app title="Roles Management - Panel Admin" :use-sidebar="true">
+<x-layout.app title="Roles Management - Panel Admin" :pakai-sidebar="true">
+   <div class="page-wrapper">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">
             <i class="fas fa-user-tag me-2"></i>Roles Management
@@ -72,4 +73,5 @@
     <x-modals.roles.create :permissions="$permissions" />
     <x-modals.roles.edit :permissions="$permissions" />
     <x-modals.roles.delete />
+   </div>
 </x-layout.app>
