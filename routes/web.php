@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         // Users Management
         Route::prefix('users')->name('users.')->middleware('permission:view-users')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/datatable', [UserController::class, 'datatable'])->name('datatable');
             Route::get('/create', [UserController::class, 'create'])->name('create')->middleware('permission:create-users');
             Route::post('/store', [UserController::class, 'store'])->name('store')->middleware('permission:create-users');
             Route::get('/edit', [UserController::class, 'edit'])->name('edit')->middleware('permission:update-users');

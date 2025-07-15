@@ -5,11 +5,26 @@
                 <div class="container-xl">
                     <div class="row g-2 align-items-center">
                         <div class="col">
-                            <h2 class="page-title">Users Management</h2>
+                            <h2 class="page-title">Tables</h2>
                         </div>
                     </div>
                 </div>
             </div>
+            {{-- <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-users me-2"></i>Users Management
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    @can('create-users')
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#createUserModal">
+                            <i class="fas fa-plus me-2"></i>Add User
+                        </button>
+                    @endcan
+                </div>
+            </div> --}}
+
             <x-alert.flash-messages />
             {{-- gawe body tabel --}}
             <div class="col-12">
@@ -42,16 +57,7 @@
                                         @can('create-users')
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#createUserModal">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon me-1">
-                                                    <line x1="12" y1="5" x2="12" y2="19">
-                                                    </line>
-                                                    <line x1="5" y1="12" x2="19" y2="12">
-                                                    </line>
-                                                </svg>
-                                                Add User
+                                                <i class="fas fa-plus me-2"></i>Add User
                                             </button>
                                         @endcan
                                     </div>
@@ -125,9 +131,179 @@
                 </div>
             </div>
 
-            <!-- User Modals -->
-            <x-modals.users.create :roles="$roles" />
-            <x-modals.users.update :roles="$roles" />
+            <!-- Create User Modal -->
+            @can('create-users')
+                <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('panel.users.store') }}" id="createUserForm">
+                                @csrf
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="create_name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="create_name" name="name"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="create_email" class="form-label">Email <span
+                                                class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="create_email" name="email"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="create_password" class="form-label">Password <span
+                                                class="text-danger">*</span></label>
+                                        <input type="password" class="form-control" id="create_password" name="password"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="create_password_confirmation" class="form-label">Confirm Password
+                                            <span class="text-danger">*</span></label>
+                                        <input type="password" class="form-control" id="create_password_confirmation"
+                                            name="password_confirmation" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Roles</label>
+                                        @foreach ($roles as $role)
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="create_role_{{ $role->id }}" name="roles[]"
+                                                    value="{{ $role->name }}">
+                                                <label class="form-check-label" for="create_role_{{ $role->id }}">
+                                                    {{ ucfirst($role->name) }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Create User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+
+            <!-- Edit User Modal -->
+            @can('update-users')
+                <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('panel.users.update') }}" id="editUserForm">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="id" id="edit_user_id">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="edit_name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_name" name="name"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="edit_email" class="form-label">Email <span
+                                                class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="edit_email" name="email"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="edit_password" class="form-label">Password <small
+                                                class="text-muted">(leave
+                                                empty to keep current)</small></label>
+                                        <input type="password" class="form-control" id="edit_password" name="password">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="edit_password_confirmation" class="form-label">Confirm
+                                            Password</label>
+                                        <input type="password" class="form-control" id="edit_password_confirmation"
+                                            name="password_confirmation">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Roles</label>
+                                        <div id="edit_roles_container">
+                                            @foreach ($roles as $role)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="edit_role_{{ $role->id }}" name="roles[]"
+                                                        value="{{ $role->name }}">
+                                                    <label class="form-check-label" for="edit_role_{{ $role->id }}">
+                                                        {{ ucfirst($role->name) }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+
+            <!-- Delete User Modal -->
+            @can('delete-users')
+                <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('panel.users.delete') }}" id="deleteUserForm">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="id" id="delete_user_id">
+                                <div class="modal-body">
+                                    <p>Are you sure you want to delete user <strong id="delete_user_name"></strong>?</p>
+                                    <p class="text-danger">This action cannot be undone.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> Delete User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
         </div>
 
     </div>
@@ -205,7 +381,23 @@
                             name: 'action',
                             orderable: false,
                             searchable: false,
-                            className: 'text-end'
+                            render: function(data, type, row) {
+                                let actions = '<div class="d-flex justify-content-end">';
+                                @can('update-users')
+                                    actions +=
+                                        '<button class="btn btn-sm btn-outline-primary me-1" onclick="editUser(' +
+                                        row.id +
+                                        ')" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="fas fa-edit"></i></button>';
+                                @endcan
+                                @can('delete-users')
+                                    actions +=
+                                        '<button class="btn btn-sm btn-outline-danger" onclick="deleteUser(' +
+                                        row.id + ', \'' + row.name +
+                                        '\')" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fas fa-trash"></i></button>';
+                                @endcan
+                                actions += '</div>';
+                                return actions;
+                            }
                         },
                     ],
                     dom: 'rt', // Remove default search and pagination
@@ -215,8 +407,8 @@
                         [10, 25, 50, 100]
                     ],
                     language: {
-                        processing: "Memuat...",
-                        zeroRecords: "Tidak ada pengguna ditemukan",
+                        processing: "Loading...",
+                        zeroRecords: "No users found",
                         info: "",
                         infoEmpty: "",
                         infoFiltered: "",

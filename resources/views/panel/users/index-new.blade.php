@@ -10,8 +10,10 @@
                     </div>
                 </div>
             </div>
+
             <x-alert.flash-messages />
-            {{-- gawe body tabel --}}
+            
+            <!-- Main Table Card -->
             <div class="col-12">
                 <div class="card">
                     <div class="card-table">
@@ -42,14 +44,9 @@
                                         @can('create-users')
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#createUserModal">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon me-1">
-                                                    <line x1="12" y1="5" x2="12" y2="19">
-                                                    </line>
-                                                    <line x1="5" y1="12" x2="19" y2="12">
-                                                    </line>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
+                                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                    <line x1="5" y1="12" x2="19" y2="12"></line>
                                                 </svg>
                                                 Add User
                                             </button>
@@ -126,11 +123,11 @@
             </div>
 
             <!-- User Modals -->
-            <x-modals.users.create :roles="$roles" />
-            <x-modals.users.update :roles="$roles" />
+            <x-users.create :roles="$roles" />
+            <x-users.update :roles="$roles" />
         </div>
-
     </div>
+    
     @push('scripts')
         <!-- DataTables CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
@@ -215,8 +212,8 @@
                         [10, 25, 50, 100]
                     ],
                     language: {
-                        processing: "Memuat...",
-                        zeroRecords: "Tidak ada pengguna ditemukan",
+                        processing: "Loading...",
+                        zeroRecords: "No users found",
                         info: "",
                         infoEmpty: "",
                         infoFiltered: "",
