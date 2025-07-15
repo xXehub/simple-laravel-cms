@@ -78,7 +78,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="table-tbody">
-                                        <!-- Data akan diisi oleh datatable AJAX -->
+                                        <!-- Data will be filled by DataTable AJAX -->
                                     </tbody>
                                 </table>
                             </div>
@@ -100,7 +100,7 @@
                                     </div>
                                 </div>
                                 <ul class="pagination m-0 ms-auto" id="datatable-pagination">
-                                    <!-- Pagination akan diisi oleh DataTables -->
+                                    <!-- Pagination will be filled by DataTables -->
                                 </ul>
                             </div>
                         </div>
@@ -117,16 +117,13 @@
     @push('scripts')
         <!-- DataTables CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
         <script>
+            // --- DataTable Initialization ---
             let dataTable;
-
             $(document).ready(function() {
-                // Initialize DataTable
                 dataTable = $('#datatable-users').DataTable({
                     processing: true,
                     autoWidth: false,
@@ -139,18 +136,14 @@
                             data: null,
                             orderable: false,
                             searchable: false,
-                            render: function(data, type, row) {
-                                return '<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="' +
-                                    row.id + '"/>';
-                            }
+                            render: (data, type, row) =>
+                                `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="${row.id}"/>`
                         },
                         {
                             data: 'name',
                             name: 'name',
-                            render: function(data, type, row) {
-                                return '<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>' +
-                                    data;
-                            }
+                            render: (data) =>
+                                `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>${data}`
                         },
                         {
                             data: 'email',
@@ -161,14 +154,11 @@
                             name: 'roles',
                             orderable: false,
                             searchable: false,
-                            render: function(data, type, row) {
+                            render: (data) => {
                                 if (data && data.length > 0) {
-                                    let badges = '';
-                                    data.forEach(role => {
-                                        badges += '<span class="badge bg-primary-lt me-1">' +
-                                            role + '</span>';
-                                    });
-                                    return badges;
+                                    return data.map(role =>
+                                            `<span class="badge bg-primary-lt me-1">${role}</span>`)
+                                        .join('');
                                 }
                                 return '<span class="badge bg-secondary-lt">No Role</span>';
                             }
@@ -176,13 +166,11 @@
                         {
                             data: 'created_at',
                             name: 'created_at',
-                            render: function(data, type, row) {
-                                return new Date(data).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                });
-                            }
+                            render: (data) => new Date(data).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })
                         },
                         {
                             data: 'action',
@@ -192,12 +180,12 @@
                             className: 'text-end'
                         },
                     ],
-                    dom: 'rt', // Remove default search and pagination
+                    dom: 'rt',
                     order: [
                         [1, 'asc']
-                    ], // Default sort by name
+                    ],
                     columnDefs: [{
-                        targets: [0, 3, 5], // Checkbox, Role, and Action columns
+                        targets: [0, 3, 5],
                         orderable: false
                     }],
                     pageLength: 10,
@@ -217,62 +205,28 @@
                         updateRecordInfo(settings);
                     }
                 });
-
-                // Custom search functionality
+                // --- Event Listeners ---
                 $('#advanced-table-search').on('keyup', function() {
                     dataTable.search(this.value).draw();
                 });
-
-                // Select all functionality
                 $('#select-all').on('change', function() {
                     $('.table-selectable-check').prop('checked', this.checked);
                 });
-
-                // Keyboard shortcut for search
                 $(document).on('keydown', function(e) {
                     if (e.ctrlKey && e.key === 'k') {
                         e.preventDefault();
                         $('#advanced-table-search').focus();
                     }
                 });
-
-                // Clear form when create modal is closed
-                @can('create-users')
-                    $('#createUserModal').on('hidden.bs.modal', function() {
-                        document.getElementById('createUserForm').reset();
-                    });
-                @endcan
-
-                // Clear form when edit modal is closed
-                @can('update-users')
-                    $('#editUserModal').on('hidden.bs.modal', function() {
-                        document.getElementById('editUserForm').reset();
-                    });
-                @endcan
-
-                // Handle form submissions to refresh datatable
-                @can('create-users')
-                    $('#createUserForm').on('submit', function(e) {
-                        console.log('Create form submitted');
-                    });
-                @endcan
-
-                @can('update-users')
-                    $('#editUserForm').on('submit', function(e) {
-                        console.log('Edit form submitted');
-
-                    });
-                @endcan
-
-                @can('delete-users')
-                    $('#deleteUserForm').on('submit', function(e) {
-                        console.log('Delete form submitted');
-
-                    });
-                @endcan
+                // Reset forms on modal close
+                $('#createUserModal').on('hidden.bs.modal', function() {
+                    document.getElementById('createUserForm').reset();
+                });
+                $('#editUserModal').on('hidden.bs.modal', function() {
+                    document.getElementById('editUserForm').reset();
+                });
             });
-
-            // Function to set page length
+            // --- Helper Functions ---
             function setPageListItems(event) {
                 event.preventDefault();
                 const value = parseInt(event.target.getAttribute('data-value'));
@@ -280,68 +234,57 @@
                 $('#page-count').text(value);
             }
 
-            // Function to update pagination
             function updatePagination(settings) {
                 const api = new $.fn.dataTable.Api(settings);
                 const pageInfo = api.page.info();
                 const pagination = $('#datatable-pagination');
-
                 pagination.empty();
-
                 // Previous button
                 const prevDisabled = pageInfo.page === 0 ? 'disabled' : '';
                 pagination.append(`
-                <li class="page-item ${prevDisabled}">
-                    <a class="page-link" href="#" onclick="changePage(${pageInfo.page - 1})" ${prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                            <path d="M15 6l-6 6l6 6"/>
-                        </svg>
-                        sebelumnya
-                    </a>
-                </li>
-            `);
-
+                    <li class="page-item ${prevDisabled}">
+                        <a class="page-link" href="#" onclick="changePage(${pageInfo.page - 1})" ${prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                <path d="M15 6l-6 6l6 6"/>
+                            </svg>
+                            sebelumnya
+                        </a>
+                    </li>
+                `);
                 // Page numbers
                 for (let i = 0; i < pageInfo.pages; i++) {
                     const active = i === pageInfo.page ? 'active' : '';
                     pagination.append(`
-                    <li class="page-item ${active}">
-                        <a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a>
-                    </li>
-                `);
+                        <li class="page-item ${active}">
+                            <a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a>
+                        </li>
+                    `);
                 }
-
                 // Next button
                 const nextDisabled = pageInfo.page === pageInfo.pages - 1 ? 'disabled' : '';
                 pagination.append(`
-                <li class="page-item ${nextDisabled}">
-                    <a class="page-link" href="#" onclick="changePage(${pageInfo.page + 1})" ${nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
-                        selanjutnya
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                            <path d="M9 6l6 6l-6 6"/>
-                        </svg>
-                    </a>
-                </li>
-            `);
+                    <li class="page-item ${nextDisabled}">
+                        <a class="page-link" href="#" onclick="changePage(${pageInfo.page + 1})" ${nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                            selanjutnya
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                <path d="M9 6l6 6l-6 6"/>
+                            </svg>
+                        </a>
+                    </li>
+                `);
             }
 
-            // Function to change page
             function changePage(pageNumber) {
                 if (pageNumber >= 0) {
                     dataTable.page(pageNumber).draw(false);
                 }
             }
 
-            // Function to update record info
             function updateRecordInfo(settings) {
-                const api = new $.fn.dataTable.Api(settings);
-                const pageInfo = api.page.info();
-                // Update any record count displays if needed
+                // You can update record count displays here if needed
             }
-
-            // Edit User function
+            // --- User Actions ---
             function editUser(userId) {
-                // Fetch user data via AJAX
                 fetch(`{{ route('panel.users.edit') }}?id=${userId}`, {
                         headers: {
                             'Accept': 'application/json',
@@ -351,21 +294,13 @@
                     .then(response => response.json())
                     .then(data => {
                         const user = data.user;
-
-                        // Set values in modal
                         document.getElementById('edit_user_id').value = user.id;
                         document.getElementById('edit_name').value = user.name;
                         document.getElementById('edit_email').value = user.email;
                         document.getElementById('edit_password').value = '';
                         document.getElementById('edit_password_confirmation').value = '';
-
-                        // Set roles
                         const editRoleCheckboxes = document.querySelectorAll('#edit_roles_container input[name="roles[]"]');
-
-                        // Uncheck all first
                         editRoleCheckboxes.forEach(checkbox => checkbox.checked = false);
-
-                        // Check the appropriate roles
                         user.roles.forEach(role => {
                             const editCheckbox = document.querySelector(
                                 `#edit_roles_container input[value="${role.name}"]`);
@@ -373,8 +308,6 @@
                                 editCheckbox.checked = true;
                             }
                         });
-
-                        // Modal will be opened automatically by data-bs-target
                     })
                     .catch(error => {
                         console.error('Error loading user data:', error);
@@ -382,12 +315,9 @@
                     });
             }
 
-            // Delete User function
             function deleteUser(userId, userName) {
                 document.getElementById('delete_user_id').value = userId;
                 document.getElementById('delete_user_name').textContent = userName;
-
-                // Modal will be opened automatically by data-bs-target
             }
         </script>
     @endpush

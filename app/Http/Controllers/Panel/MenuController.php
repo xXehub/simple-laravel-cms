@@ -49,6 +49,11 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request)
     {
+        // Debug logging
+        \Log::info('Store Menu Request Data:', $request->all());
+        \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
+        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active')]);
+
         $menu = MasterMenu::create([
             'nama_menu' => $request->nama_menu,
             'slug' => $request->slug,
@@ -56,12 +61,14 @@ class MenuController extends Controller
             'icon' => $request->icon,
             'parent_id' => $request->parent_id,
             'urutan' => $request->urutan,
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->boolean('is_active'),
         ]);
 
         if ($request->has('roles')) {
             $menu->roles()->sync($request->roles);
         }
+
+        \Log::info('Menu created successfully:', ['menu_id' => $menu->id]);
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu created successfully');
@@ -93,6 +100,13 @@ class MenuController extends Controller
     public function update(UpdateMenuRequest $request)
     {
         $menuId = $request->route('id') ?? $request->input('id');
+        
+        // Debug logging
+        \Log::info('Update Menu Request Data:', $request->all());
+        \Log::info('Menu ID:', ['menu_id' => $menuId]);
+        \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
+        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active')]);
+        
         $menu = MasterMenu::findOrFail($menuId);
 
         $menu->update([
@@ -102,10 +116,12 @@ class MenuController extends Controller
             'icon' => $request->icon,
             'parent_id' => $request->parent_id,
             'urutan' => $request->urutan,
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->boolean('is_active'),
         ]);
 
         $menu->roles()->sync($request->roles ?? []);
+
+        \Log::info('Menu updated successfully:', ['menu_id' => $menu->id]);
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu updated successfully');
@@ -148,14 +164,14 @@ class MenuController extends Controller
             }
 
             $prefix = str_repeat('└─ ', $level);
-            
+
             // Check if this menu has children to add "Parent" label
             $hasChildren = $menu->children()->count() > 0;
             $label = $hasChildren ? 'Parent' : '';
-            
+
             // Format: "└─ Parent - Menu Name" or "└─ Menu Name"
             $displayName = $prefix . ($label ? $label . ' - ' : '') . $menu->nama_menu;
-            
+
             $options[$menu->id] = $displayName;
 
             // Recursively get children

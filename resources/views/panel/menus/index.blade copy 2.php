@@ -168,135 +168,6 @@
                     modals.forEach(modal => closeModal(modal));
                 }
             });
-
-            // Add form submission handlers
-            const createForm = document.getElementById('createMenuForm');
-            const editForm = document.getElementById('editMenuForm');
-
-            if (createForm) {
-                createForm.addEventListener('submit', function(e) {
-                    console.log('Create form submitted');
-                    console.log('Form action:', createForm.action);
-                    console.log('Form method:', createForm.method);
-                    
-                    // Log form data for debugging
-                    const formData = new FormData(createForm);
-                    console.log('Form data:');
-                    for (let [key, value] of formData.entries()) {
-                        console.log(key, value);
-                    }
-                    // Let the form submit naturally
-                });
-            }
-
-            if (editForm) {
-                editForm.addEventListener('submit', function(e) {
-                    console.log('Edit form submitted');
-                    console.log('Form action:', editForm.action);
-                    console.log('Form method:', editForm.method);
-                    
-                    // Log form data for debugging
-                    const formData = new FormData(editForm);
-                    console.log('Form data:');
-                    for (let [key, value] of formData.entries()) {
-                        console.log(key, value);
-                    }
-                    // Let the form submit naturally
-                });
-            }
-
-            // Check for validation errors and reopen modal if needed
-            @if ($errors->any())
-                @if (old('_method') === 'PUT')
-                    // Reopen edit modal if there were validation errors on update
-                    console.log('Validation errors detected for edit form, attempting to reopen modal');
-                    const editModal = document.getElementById('editMenuModal');
-                    if (editModal) {
-                        // Populate form with old values
-                        document.getElementById('edit_menu_id').value = '{{ old('id') }}';
-                        document.getElementById('edit_nama_menu').value = '{{ old('nama_menu') }}';
-                        document.getElementById('edit_slug').value = '{{ old('slug') }}';
-                        document.getElementById('edit_route_name').value = '{{ old('route_name') }}';
-                        document.getElementById('edit_icon').value = '{{ old('icon') }}';
-                        document.getElementById('edit_urutan').value = '{{ old('urutan') }}';
-                        document.getElementById('edit_is_active').checked = {{ old('is_active') ? 'true' : 'false' }};
-
-                        // Set parent using TomSelect if available
-                        if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
-                            setTimeout(() => {
-                                window.tomSelectInstances['edit_parent_id'].setValue('{{ old('parent_id') }}');
-                            }, 200);
-                        } else {
-                            document.getElementById('edit_parent_id').value = '{{ old('parent_id') }}';
-                        }
-
-                        // Set roles using TomSelect if available
-                        if (window.tomSelectInstances && window.tomSelectInstances['edit_roles']) {
-                            setTimeout(() => {
-                                window.tomSelectInstances['edit_roles'].clear();
-                                @if (old('roles'))
-                                    @foreach (old('roles') as $roleId)
-                                        window.tomSelectInstances['edit_roles'].addItem('{{ $roleId }}');
-                                    @endforeach
-                                @endif
-                            }, 200);
-                        }
-
-                        // Try jQuery first (most common with Tabler.io)
-                        if (typeof $ !== 'undefined' && $.fn.modal) {
-                            $(editModal).modal('show');
-                        } 
-                        // Then try Bootstrap 5
-                        else if (window.bootstrap && bootstrap.Modal) {
-                            const modal = new bootstrap.Modal(editModal);
-                            modal.show();
-                        } 
-                        // Fallback for Tabler.io
-                        else {
-                            editModal.classList.add('show');
-                            editModal.style.display = 'block';
-                            editModal.setAttribute('aria-hidden', 'false');
-                            document.body.classList.add('modal-open');
-                            
-                            // Add backdrop
-                            if (!document.querySelector('.modal-backdrop')) {
-                                const backdrop = document.createElement('div');
-                                backdrop.className = 'modal-backdrop fade show';
-                                document.body.appendChild(backdrop);
-                            }
-                        }
-                    }
-                @else
-                    // Reopen create modal if there were validation errors on store
-                    console.log('Validation errors detected for create form, attempting to reopen modal');
-                    const createModal = document.getElementById('createMenuModal');
-                    if (createModal) {
-                        // Try jQuery first (most common with Tabler.io)
-                        if (typeof $ !== 'undefined' && $.fn.modal) {
-                            $(createModal).modal('show');
-                        } 
-                        // Then try Bootstrap 5
-                        else if (window.bootstrap && bootstrap.Modal) {
-                            const modal = new bootstrap.Modal(createModal);
-                            modal.show();
-                        } 
-                        // Fallback for Tabler.io
-                        else {
-                            createModal.classList.add('show');
-                            createModal.style.display = 'block';
-                            createModal.setAttribute('aria-hidden', 'false');
-                            document.body.classList.add('modal-open');
-                            
-                            // Add backdrop
-                            if (!document.querySelector('.modal-backdrop')) {
-                                const backdrop = document.createElement('div');
-                                backdrop.className = 'modal-backdrop fade show';
-                                document.body.appendChild(backdrop);
-                            }
-                        }
-                    }
-                @endif
-            @endif
         });
 
         // Helper function to close modal (Tabler.io compatible)
@@ -409,21 +280,14 @@
 
             // Set parent menu using Tom Select
             if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
-                console.log('Setting parent value via TomSelect:', menu.parent_id || '');
-                window.tomSelectInstances['edit_parent_id'].clear();
-                if (menu.parent_id) {
-                    window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id.toString());
-                    console.log('Parent value set successfully');
-                } else {
-                    console.log('No parent_id to set');
-                }
+                console.log('Setting parent value:', menu.parent_id || '');
+                window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id || '');
             } else {
                 console.log('Tom Select edit_parent_id not found, using fallback');
                 // Fallback to standard DOM manipulation
                 const parentSelect = document.getElementById('edit_parent_id');
                 if (parentSelect) {
                     parentSelect.value = menu.parent_id || '';
-                    console.log('Parent value set via fallback:', parentSelect.value);
                 }
             }
 

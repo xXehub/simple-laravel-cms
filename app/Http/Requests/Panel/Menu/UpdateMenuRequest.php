@@ -15,6 +15,17 @@ class UpdateMenuRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'parent_id' => $this->parent_id ?: null,
+            'is_active' => $this->has('is_active'),
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
@@ -26,7 +37,16 @@ class UpdateMenuRequest extends FormRequest
             'slug' => 'required|string|max:255|unique:master_menus,slug,' . $menuId,
             'route_name' => 'nullable|string|max:255',
             'icon' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:master_menus,id',
+            'parent_id' => [
+                'nullable',
+                'exists:master_menus,id',
+                function ($attribute, $value, $fail) use ($menuId) {
+                    // Prevent circular reference
+                    if ($value && $value == $menuId) {
+                        $fail('Menu cannot be parent of itself.');
+                    }
+                },
+            ],
             'urutan' => 'required|integer',
             'is_active' => 'boolean',
             'roles' => 'array',
