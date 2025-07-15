@@ -34,9 +34,7 @@
                 @forelse($menus as $menu)
                     <tr>
                         <td>{{ $menu->id }}</td>
-                        <td>
-                            <strong>{{ $menu->nama_menu }}</strong>
-                        </td>
+                        <td><strong>{{ $menu->nama_menu }}</strong></td>
                         <td><code>{{ $menu->slug }}</code></td>
                         <td>
                             @if ($menu->parent)
@@ -80,7 +78,6 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 @endcan
-
                                 @can('delete-menus')
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                         onclick="openDeleteModal({{ $menu->toJson() }})" title="Delete Menu">
@@ -101,137 +98,45 @@
 
     {{ $menus->links() }}
 
-    {{-- Include Modal Components --}}
     @include('components.modals.menus.create')
     @include('components.modals.menus.update')
     @include('components.modals.menus.delete')
 
-    {{-- TomSelect Initialization Script --}}
+    {{-- untuk load tom-select --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded - Initializing TomSelect');
-
-            // Initialize tomSelectInstances object
-            if (!window.tomSelectInstances) {
-                window.tomSelectInstances = {};
-            }
-
-            // Check if TomSelect is available
-            if (typeof TomSelect === 'undefined') {
-                console.error('TomSelect is not loaded. Please check if the library is properly included.');
-                return;
-            }
-
-            // Initialize TomSelect after a short delay to ensure DOM is fully ready
-            setTimeout(function() {
-                initializeTomSelect();
-            }, 100);
-
-            // Modal event listeners
-            const createModal = document.getElementById('createMenuModal');
-            const editModal = document.getElementById('editMenuModal');
-
-            if (createModal) {
-                createModal.addEventListener('shown.bs.modal', function() {
-                    console.log('Create Menu Modal Shown');
-                });
-
-                createModal.addEventListener('hidden.bs.modal', function() {
-                    console.log('Create Menu Modal Hidden');
-                });
-            }
-
-            if (editModal) {
-                editModal.addEventListener('shown.bs.modal', function() {
-                    console.log('Edit Menu Modal Shown');
-                });
-
-                editModal.addEventListener('hidden.bs.modal', function() {
-                    console.log('Edit Menu Modal Hidden');
-                });
-            }
+            if (!window.tomSelectInstances) window.tomSelectInstances = {};
+            if (typeof TomSelect === 'undefined') return;
+            setTimeout(initializeTomSelect, 100);
         });
 
         function initializeTomSelect() {
-            try {
-                console.log('Initializing TomSelect instances...');
-
-                // Destroy existing instances first
-                destroyTomSelects();
-
-                // Initialize Create Roles Select
-                const createRolesElement = document.getElementById('create_roles');
-                if (createRolesElement && !createRolesElement.tomselect) {
-                    window.tomSelectInstances['create_roles'] = new TomSelect(createRolesElement, {
-                        plugins: [], // Removed problematic "remove_button" plugin
+            destroyTomSelects();
+            const ids = ['create_roles', 'edit_roles', 'create_parent_id', 'edit_parent_id'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.tomselect) {
+                    window.tomSelectInstances[id] = new TomSelect(el, {
+                        plugins: []
                     });
-                    console.log('Create roles TomSelect initialized');
                 }
-
-                // Initialize Edit Roles Select
-                const editRolesElement = document.getElementById('edit_roles');
-                if (editRolesElement && !editRolesElement.tomselect) {
-                    window.tomSelectInstances['edit_roles'] = new TomSelect(editRolesElement, {
-                        plugins: [], // Removed problematic "remove_button" plugin
-                    });
-                    console.log('Edit roles TomSelect initialized');
-                }
-
-                // Initialize Create Parent Select
-                const createParentElement = document.getElementById('create_parent_id');
-                if (createParentElement && !createParentElement.tomselect) {
-                    window.tomSelectInstances['create_parent_id'] = new TomSelect(createParentElement, {
-                        plugins: [],
-                    });
-                    console.log('Create parent TomSelect initialized');
-                }
-
-                // Initialize Edit Parent Select
-                const editParentElement = document.getElementById('edit_parent_id');
-                if (editParentElement && !editParentElement.tomselect) {
-                    window.tomSelectInstances['edit_parent_id'] = new TomSelect(editParentElement, {
-                        plugins: [],
-                    });
-                    console.log('Edit parent TomSelect initialized');
-                }
-
-                console.log('All TomSelect instances initialized successfully');
-                console.log('Current tomSelectInstances:', Object.keys(window.tomSelectInstances));
-            } catch (error) {
-                console.error('Error initializing TomSelect:', error);
-            }
+            });
         }
 
         function destroyTomSelects() {
-            console.log('Destroying Tom Select instances...');
             if (window.tomSelectInstances) {
-                for (let key in window.tomSelectInstances) {
-                    if (window.tomSelectInstances[key]) {
-                        window.tomSelectInstances[key].destroy();
-                        delete window.tomSelectInstances[key];
-                    }
-                }
+                Object.values(window.tomSelectInstances).forEach(instance => instance && instance.destroy());
+                window.tomSelectInstances = {};
             }
         }
 
         function openEditModal(menu) {
-            console.log('Opening edit modal for menu:', menu);
-
-            // Check if all required elements exist
-            const requiredElements = [
-                'edit_menu_id', 'edit_nama_menu', 'edit_slug',
-                'edit_route_name', 'edit_icon', 'edit_parent_id',
+            const ids = ['edit_menu_id', 'edit_nama_menu', 'edit_slug', 'edit_route_name', 'edit_icon', 'edit_parent_id',
                 'edit_urutan', 'edit_is_active'
             ];
-
-            const missingElements = requiredElements.filter(id => !document.getElementById(id));
-            if (missingElements.length > 0) {
-                console.error('Missing form elements:', missingElements);
-                alert('Error: Some form elements are missing. Please check if edit modal is properly included.');
-                return;
+            for (const id of ids) {
+                if (!document.getElementById(id)) return alert('Error: Some form elements are missing.');
             }
-
-            // Populate form fields
             document.getElementById('edit_menu_id').value = menu.id;
             document.getElementById('edit_nama_menu').value = menu.nama_menu;
             document.getElementById('edit_slug').value = menu.slug;
@@ -239,98 +144,46 @@
             document.getElementById('edit_icon').value = menu.icon || '';
             document.getElementById('edit_urutan').value = menu.urutan;
             document.getElementById('edit_is_active').checked = menu.is_active == 1;
-
-            // Set parent menu using Tom Select
-            if (window.tomSelectInstances && window.tomSelectInstances['edit_parent_id']) {
-                console.log('Setting parent value:', menu.parent_id || '');
+            if (window.tomSelectInstances['edit_parent_id']) {
                 window.tomSelectInstances['edit_parent_id'].setValue(menu.parent_id || '');
             } else {
-                console.log('Tom Select edit_parent_id not found, using fallback');
-                // Fallback to standard DOM manipulation
-                const parentSelect = document.getElementById('edit_parent_id');
-                if (parentSelect) {
-                    parentSelect.value = menu.parent_id || '';
-                }
+                document.getElementById('edit_parent_id').value = menu.parent_id || '';
             }
-
-            // Set roles using Tom Select
-            if (window.tomSelectInstances && window.tomSelectInstances['edit_roles']) {
-                console.log('Setting roles:', menu.roles);
-                // Clear current selection
+            if (window.tomSelectInstances['edit_roles']) {
                 window.tomSelectInstances['edit_roles'].clear();
-
-                // Set selected roles
                 if (menu.roles && menu.roles.length > 0) {
-                    menu.roles.forEach(role => {
-                        console.log('Adding role:', role.id.toString());
-                        window.tomSelectInstances['edit_roles'].addItem(role.id.toString());
-                    });
+                    menu.roles.forEach(role => window.tomSelectInstances['edit_roles'].addItem(role.id.toString()));
                 }
             } else {
-                console.log('Tom Select edit_roles not found, using fallback');
-                // Fallback to standard DOM manipulation
                 const rolesSelect = document.getElementById('edit_roles');
                 if (rolesSelect && menu.roles) {
-                    // Clear all selections first
-                    Array.from(rolesSelect.options).forEach(option => {
-                        option.selected = false;
-                    });
-
-                    // Set selected roles
+                    Array.from(rolesSelect.options).forEach(option => option.selected = false);
                     menu.roles.forEach(role => {
                         const option = rolesSelect.querySelector(`option[value="${role.id}"]`);
-                        if (option) {
-                            option.selected = true;
-                        }
+                        if (option) option.selected = true;
                     });
                 }
             }
-
-            // Sync all Tom Select instances to ensure data is properly displayed
             if (window.tomSelectInstances) {
-                console.log('Syncing Tom Select instances:', Object.keys(window.tomSelectInstances));
-                for (let key in window.tomSelectInstances) {
-                    if (window.tomSelectInstances[key]) {
-                        window.tomSelectInstances[key].sync();
-                    }
-                }
+                Object.values(window.tomSelectInstances).forEach(instance => instance && instance.sync());
             }
-
-            // Show modal
             const modalElement = document.getElementById('editMenuModal');
-            if (modalElement) {
-                const modal = new bootstrap.Modal(modalElement);
-                modal.show();
-            } else {
-                console.error('Edit modal element not found');
-                alert('Error: Edit modal not found. Please check if it is properly included.');
-            }
+            if (modalElement) new bootstrap.Modal(modalElement).show();
+            else alert('Error: Edit modal not found.');
         }
 
         function openDeleteModal(menu) {
-            console.log('Opening delete modal for menu:', menu);
-
             const modalElement = document.getElementById('deleteMenuModal');
-            if (!modalElement) {
-                console.error('Delete modal element not found');
-                alert('Error: Delete modal not found. Please check permissions.');
-                return;
-            }
-
-            // Populate form fields
-            const deleteMenuId = document.getElementById('delete_menu_id');
-            const deleteMenuName = document.getElementById('delete_menu_name');
-            const deleteMenuSlug = document.getElementById('delete_menu_slug');
-            const deleteMenuRoute = document.getElementById('delete_menu_route');
-
-            if (deleteMenuId) deleteMenuId.value = menu.id;
-            if (deleteMenuName) deleteMenuName.textContent = menu.nama_menu;
-            if (deleteMenuSlug) deleteMenuSlug.textContent = menu.slug;
-            if (deleteMenuRoute) deleteMenuRoute.textContent = menu.route_name || '-';
-
-            // Show modal
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+            if (!modalElement) return alert('Error: Delete modal not found.');
+            const id = document.getElementById('delete_menu_id');
+            const name = document.getElementById('delete_menu_name');
+            const slug = document.getElementById('delete_menu_slug');
+            const route = document.getElementById('delete_menu_route');
+            if (id) id.value = menu.id;
+            if (name) name.textContent = menu.nama_menu;
+            if (slug) slug.textContent = menu.slug;
+            if (route) route.textContent = menu.route_name || '-';
+            new bootstrap.Modal(modalElement).show();
         }
     </script>
 </x-layout.app>
