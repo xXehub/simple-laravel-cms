@@ -72,24 +72,19 @@
 <body>
     <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
 
-<body>
-        <div class="page">
-            <x-layout.tema-builder />
+    <div class="page">
+        <x-layout.tema-builder />
 
-            @includeWhen($pakaiSidebar, 'components.layout.sidebar')
-            @includeWhen($pakaiTopBar, 'components.layout.top-bar')
+        @includeWhen($pakaiSidebar, 'components.layout.sidebar')
+        @includeWhen($pakaiTopBar, 'components.layout.top-bar')
 
-
-            <div class="page-wrapper">
-                <x-layout.flash-messages />
-                {{ $slot }}
-            </div>
-
-
-            @includeWhen($pakaiTopBar, 'components.layout.footer')
+        <div class="page-wrapper">
+            <x-layout.flash-messages />
+            {{ $slot }}
         </div>
+
+        @includeWhen($pakaiTopBar, 'components.layout.footer')
     </div>
-</body>
     <!-- Profile & Settings Modals -->
     <x-modals.profile />
     <x-modals.settings />
@@ -108,7 +103,6 @@
     <script src="{{ asset('libs/nouislider/dist/nouislider.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/litepicker/dist/litepicker.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
-    <script src="{{ asset('dist/js/tabler.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('preview/js/demo.min.js?1667333929') }}" defer></script>
 
     <!-- Third Party Libraries -->
