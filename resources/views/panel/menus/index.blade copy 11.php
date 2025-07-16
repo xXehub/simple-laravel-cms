@@ -124,22 +124,27 @@
                                                         onclick="filterTable('child')">Child Menus</a>
                                                 </div>
 
-
+                                                {{-- gawe delete selected --}}
+                                                @can('delete-menus')
+                                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#createMenuModal">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                            height="16" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round" class="icon me-1">
+                                                            <line x1="12" y1="5" x2="12"
+                                                                y2="19">
+                                                            </line>
+                                                            <line x1="5" y1="12" x2="19"
+                                                                y2="12">
+                                                            </line>
+                                                        </svg>
+                                                        Hapus Terpilih
+                                                    </button>
+                                                @endcan
                                             </div>
                                             {{-- gawe button delete all --}}
-                                            {{-- gawe delete selected --}}
-                                            @can('delete-menus')
-                                                <button type="button" id="delete-selected-btn" class="btn btn-danger" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteSelectedModal" disabled>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
-                                                        <polyline points="3,6 5,6 21,6"></polyline>
-                                                        <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
-                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                    </svg>
-                                                    Hapus Terpilih (<span id="selected-count">0</span>)
-                                                </button>
-                                            @endcan
+
                                             {{-- end delete all --}}
                                         </div>
                                     </div>
@@ -174,9 +179,12 @@
                                     </table>
                                 </div>
                                 <div class="card-footer d-flex align-items-center">
+                                    {{-- gawe showndekene --}}
                                     <div class="col-auto d-flex align-items-center">
-                                        <p class="m-0 text-secondary" id="record-info">Showing <strong>0 to 0</strong> of <strong>0 entries</strong></p>
+                                        <p class="m-0 text-secondary">Showing <strong>1 to 8</strong> of <strong>16
+                                                entries</strong></p>
                                     </div>
+                                    {{-- end show --}}
                                     <ul class="pagination m-0 ms-auto" id="datatable-pagination">
                                         <!-- Pagination will be filled by DataTables -->
                                     </ul>
@@ -189,7 +197,6 @@
                 @include('components.modals.menus.create')
                 @include('components.modals.menus.update')
                 @include('components.modals.menus.delete')
-                @include('components.modals.menus.delete-selected')
             </div>
         </div>
     </div>
@@ -198,186 +205,14 @@
         <!-- Menus DataTable Module -->
         <script src="{{ asset('js/datatable/menus.js') }}"></script>
         <script>
-            let selectedMenus = [];
-            let menusTable;
-
             // Initialize Menus DataTable
             MenusDataTable.initialize('{{ route('panel.menus.index') }}')
                 .then(table => {
-                    menusTable = table;
                     MenusDataTable.setupModalHandlers();
-                    setupCheckboxHandlers();
-                    setupBulkDeleteHandlers();
                 })
                 .catch(error => {
                     console.error('Failed to initialize Menus DataTable:', error);
                 });
-
-            // Setup checkbox handlers for bulk operations
-            function setupCheckboxHandlers() {
-                // Handle select all checkbox
-                $('#select-all').on('change', function() {
-                    const isChecked = this.checked;
-                    $('.table-selectable-check').prop('checked', isChecked);
-                    updateSelectedMenus();
-                    updateBulkDeleteButton();
-                    updateActionButtonsState();
-                });
-
-                // Handle individual checkboxes
-                $(document).on('change', '.table-selectable-check', function() {
-                    updateSelectedMenus();
-                    updateSelectAllState();
-                    updateBulkDeleteButton();
-                    updateActionButtonsState();
-                });
-            }
-
-            // Update selected menus array
-            function updateSelectedMenus() {
-                selectedMenus = [];
-                $('.table-selectable-check:checked').each(function() {
-                    const row = menusTable.row($(this).closest('tr')).data();
-                    if (row) {
-                        selectedMenus.push({
-                            id: row.id,
-                            nama_menu: row.nama_menu,
-                            slug: row.slug
-                        });
-                    }
-                });
-                
-                $('#selected-count').text(selectedMenus.length);
-            }
-
-            // Update select all checkbox state
-            function updateSelectAllState() {
-                const totalCheckboxes = $('.table-selectable-check').length;
-                const checkedCheckboxes = $('.table-selectable-check:checked').length;
-                
-                $('#select-all').prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
-                $('#select-all').prop('checked', checkedCheckboxes === totalCheckboxes && totalCheckboxes > 0);
-            }
-
-            // Update bulk delete button state
-            function updateBulkDeleteButton() {
-                const hasSelected = selectedMenus.length > 0;
-                $('#delete-selected-btn').prop('disabled', !hasSelected);
-                $('#selected-count').text(selectedMenus.length);
-            }
-
-            // Disable/enable action buttons based on selection
-            function updateActionButtonsState() {
-                const hasSelected = selectedMenus.length > 0;
-                
-                // Disable individual action buttons when items are selected
-                if (hasSelected) {
-                    $('.btn-outline-primary, .btn-outline-danger').not('#delete-selected-btn').prop('disabled', true);
-                } else {
-                    $('.btn-outline-primary, .btn-outline-danger').not('#delete-selected-btn').prop('disabled', false);
-                }
-            }
-
-            // Setup bulk delete handlers
-            function setupBulkDeleteHandlers() {
-                // Show selected menus in delete modal
-                $('#deleteSelectedModal').on('show.bs.modal', function() {
-                    $('#delete-selected-count').text(selectedMenus.length);
-                    
-                    let menusList = '';
-                    selectedMenus.forEach(menu => {
-                        menusList += `<div class="border rounded p-2 mb-1">
-                            <strong>${menu.nama_menu}</strong><br>
-                            <small class="text-muted">Slug: ${menu.slug}</small>
-                        </div>`;
-                    });
-                    
-                    $('#selected-menus-list').html(menusList);
-                });
-
-                // Handle bulk delete confirmation
-                $('#confirm-delete-selected').on('click', function() {
-                    const menuIds = selectedMenus.map(menu => menu.id);
-                    const button = $(this);
-                    
-                    // Disable button and show loading
-                    button.prop('disabled', true).html(`
-                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Deleting...
-                    `);
-                    
-                    // Send request
-                    fetch('{{ route("panel.menus.bulk-delete") }}', {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            menu_ids: menuIds
-                        })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            // Close modal and refresh table
-                            $('#deleteSelectedModal').modal('hide');
-                            location.reload(); // Simple reload to show flash messages
-                        } else {
-                            throw new Error('Network response was not ok');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error deleting menus. Please try again.');
-                    })
-                    .finally(() => {
-                        // Reset button
-                        button.prop('disabled', false).html(`
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
-                                <polyline points="3,6 5,6 21,6"></polyline>
-                                <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                            Delete Selected
-                        `);
-                    });
-                });
-            }
-
-            // Update record information
-            function updateRecordInfo() {
-                if (menusTable && menusTable.page) {
-                    const info = menusTable.page.info();
-                    if (info) {
-                        const start = info.start + 1;
-                        const end = info.end;
-                        const total = info.recordsTotal;
-                        const filtered = info.recordsFiltered;
-                        
-                        let infoText = '';
-                        if (total === 0) {
-                            infoText = 'Showing <strong>0 to 0</strong> of <strong>0 entries</strong>';
-                        } else if (filtered !== total) {
-                            infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${filtered} entries</strong> (filtered from ${total} total entries)`;
-                        } else {
-                            infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${total} entries</strong>`;
-                        }
-                        
-                        $('#record-info').html(infoText);
-                    }
-                }
-            }
-
-            // Override draw callback to update record info
-            $(document).on('draw.dt', '#menusTable', function() {
-                updateRecordInfo();
-                updateSelectedMenus();
-                updateSelectAllState();
-                updateBulkDeleteButton();
-                updateActionButtonsState();
-            });
 
             // Auto-refresh on success
             @if (session('success'))
@@ -388,16 +223,6 @@
                     }, 1000);
                 });
             @endif
-
-            // Setup page length handler
-            window.setPageListItems = function(event) {
-                event.preventDefault();
-                const value = parseInt(event.target.getAttribute('data-value'));
-                if (menusTable && value) {
-                    menusTable.page.len(value).draw();
-                    $('#page-count').text(value);
-                }
-            };
 
             // Backward compatibility (optional, can be removed if not used elsewhere)
             window.openEditModal = (menu) => MenusDataTable.openEditModal(menu, '{{ route('panel.menus.index') }}');

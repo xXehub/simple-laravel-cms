@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
             Route::match(['PUT', 'POST'], '/update', [UserController::class, 'update'])->name('update')->middleware('permission:update-users');
             Route::delete('/delete', [UserController::class, 'destroy'])->name('delete')->middleware('permission:delete-users');
             Route::delete('/destroy', [UserController::class, 'destroy'])->name('destroy')->middleware('permission:delete-users');
+            Route::delete('/bulk-delete', [UserController::class, 'bulkDestroy'])->name('bulk-delete')->middleware('permission:delete-users');
         });
 
         // Roles Management
@@ -67,6 +68,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/edit', [MenuController::class, 'edit'])->name('edit')->middleware('permission:update-menus');
             Route::match(['PUT', 'POST'], '/update', [MenuController::class, 'update'])->name('update')->middleware('permission:update-menus');
             Route::delete('/delete', [MenuController::class, 'destroy'])->name('delete')->middleware('permission:delete-menus');
+            Route::delete('/bulk-delete', [MenuController::class, 'bulkDestroy'])->name('bulk-delete')->middleware('permission:delete-menus');
         });
 
         // Pages Management

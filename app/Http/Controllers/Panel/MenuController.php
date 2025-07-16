@@ -17,7 +17,7 @@ class MenuController extends Controller
         $this->middleware('permission:view-menus')->only(['index']);
         $this->middleware('permission:create-menus')->only(['create', 'store']);
         $this->middleware('permission:update-menus')->only(['edit', 'update']);
-        $this->middleware('permission:delete-menus')->only(['destroy']);
+        $this->middleware('permission:delete-menus')->only(['destroy', 'bulkDestroy']);
     }
 
     /**
@@ -211,6 +211,58 @@ class MenuController extends Controller
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu deleted successfully');
+    }
+
+    /**
+     * Bulk delete menus
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'menu_ids' => 'required|array',
+            'menu_ids.*' => 'exists:master_menus,id'
+        ]);
+
+        $menuIds = $request->menu_ids;
+        $deletedCount = 0;
+        $errors = [];
+
+        foreach ($menuIds as $menuId) {
+            $menu = MasterMenu::find($menuId);
+
+            if (!$menu) {
+                continue;
+            }
+
+            if ($menu->children()->count() > 0) {
+                $errors[] = "Cannot delete '{$menu->nama_menu}' - has child menus";
+                continue;
+            }
+
+            $menu->delete();
+            $deletedCount++;
+        }
+
+        if ($deletedCount > 0) {
+            $message = "Successfully deleted {$deletedCount} menu(s)";
+            $status = 'success';
+            if (!empty($errors)) {
+                $message .= ". However, some menus could not be deleted: " . implode(', ', $errors);
+            }
+        } else {
+            $message = 'No menus were deleted. ' . implode(', ', $errors);
+            $status = 'error';
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'deleted_count' => $deletedCount
+            ]);
+        }
+
+        return redirect()->route('panel.menus.index')->with($status, $message);
     }
 
     /**

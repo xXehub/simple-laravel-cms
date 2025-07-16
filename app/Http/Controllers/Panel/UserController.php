@@ -13,6 +13,15 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+        $this->middleware('permission:view-users')->only(['index', 'datatable']);
+        $this->middleware('permission:create-users')->only(['create', 'store']);
+        $this->middleware('permission:update-users')->only(['edit', 'update']);
+        $this->middleware('permission:delete-users')->only(['destroy', 'bulkDestroy']);
+    }
+
     /**
      * Display users listing
      */
@@ -112,6 +121,60 @@ class UserController extends Controller
     }
 
     /**
+     * Bulk delete users
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $userIds = $request->user_ids;
+        $deletedCount = 0;
+        $errors = [];
+        $currentUserId = auth()->id();
+
+        foreach ($userIds as $userId) {
+            $user = User::find($userId);
+            
+            if (!$user) {
+                continue;
+            }
+
+            // Prevent self-deletion
+            if ($user->id === $currentUserId) {
+                $errors[] = "Cannot delete your own account ({$user->name})";
+                continue;
+            }
+
+            $user->delete();
+            $deletedCount++;
+        }
+
+        if ($deletedCount > 0) {
+            $message = "Successfully deleted {$deletedCount} user(s)";
+            $status = 'success';
+            if (!empty($errors)) {
+                $message .= ". However, some users could not be deleted: " . implode(', ', $errors);
+            }
+        } else {
+            $message = 'No users were deleted. ' . implode(', ', $errors);
+            $status = 'error';
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'deleted_count' => $deletedCount
+            ]);
+        }
+
+        return redirect()->route('panel.users.index')->with($status, $message);
+    }
+
+    /**
      * Server-side datatable for users
      */
     public function datatable(Request $request)
@@ -133,6 +196,15 @@ class UserController extends Controller
             })
             ->editColumn('created_at', function ($user) {
                 return $user->created_at->toISOString();
+            })
+            ->addColumn('id', function ($user) {
+                return $user->id;
+            })
+            ->addColumn('name', function ($user) {
+                return $user->name;
+            })
+            ->addColumn('email', function ($user) {
+                return $user->email;
             })
             ->rawColumns(['action'])
             ->make(true);
