@@ -28,8 +28,7 @@ window.MenusDataTable = (function () {
                     console.error("DataTable Ajax Error:", error, thrown);
                 },
             },
-            columns: [
-                {
+            columns: [{
                     data: null,
                     orderable: false,
                     searchable: false,
@@ -45,9 +44,9 @@ window.MenusDataTable = (function () {
                     //  render: (data) =>
                     //     `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>${data}`,
                     render: function (data, type, row) {
-                        return data
-                            ? `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"><i class="${data}"></i></span>`
-                            : '<span class="text-muted">-</span>';
+                        return data ?
+                            `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"><i class="${data}"></i></span>` :
+                            '<span class="text-muted">-</span>';
                     },
                 },
                 // {
@@ -80,18 +79,18 @@ window.MenusDataTable = (function () {
                     orderable: false,
                     className: "text-secondary",
                     render: function (data, type, row) {
-                        return data
-                            ? `<span class="badge bg-secondary-lt">${data}</span>`
-                            : '<span class="text-muted">-</span>';
+                        return data ?
+                            `<span class="badge bg-secondary-lt">${data}</span>` :
+                            '<span class="text-muted">-</span>';
                     },
                 },
                 {
                     data: "route_name",
                     name: "route_name",
                     render: function (data, type, row) {
-                        return data
-                            ? `<code>${data}</code>`
-                            : '<span class="text-muted">-</span>';
+                        return data ?
+                            `<code>${data}</code>` :
+                            '<span class="text-muted">-</span>';
                     },
                 },
 
@@ -107,9 +106,9 @@ window.MenusDataTable = (function () {
                     className: "text-center",
                     render: function (data, type, row) {
                         // Handle boolean values properly
-                        return data === true || data === 1 || data === "1"
-                            ? '<span class="badge bg-success-lt">Active</span>'
-                            : '<span class="badge bg-danger-lt">Inactive</span>';
+                        return data === true || data === 1 || data === "1" ?
+                            '<span class="badge bg-success-lt">Active</span>' :
+                            '<span class="badge bg-danger-lt">Inactive</span>';
                     },
                 },
                 {
@@ -121,7 +120,7 @@ window.MenusDataTable = (function () {
                             return data
                                 .map(
                                     (role) =>
-                                        `<span class="badge bg-secondary-lt me-1">${role}</span>`
+                                    `<span class="badge bg-secondary-lt me-1">${role}</span>`
                                 )
                                 .join("");
                         }
@@ -147,7 +146,7 @@ window.MenusDataTable = (function () {
             pageLength: 15,
             lengthMenu: [10, 15, 25, 50, 100],
             language: {
-                processing: "Loading menus...",
+                processing: "Memuat...",
                 zeroRecords: "No menus found",
                 info: "Showing _START_ to _END_ of _TOTAL_ menus",
                 infoEmpty: "Showing 0 to 0 of 0 menus",
@@ -246,8 +245,15 @@ window.MenusDataTable = (function () {
 
     // Modal utilities (tanpa OOP/perulangan)
     function showModal(el) {
-        if (window.$?.fn?.modal) return $(el).modal("show");
-        if (window.bootstrap?.Modal) return new bootstrap.Modal(el).show();
+        // Prefer jQuery modal if available
+        if (window.$ && $.fn && $.fn.modal) {
+            return $(el).modal("show");
+        }
+        // Fallback to Bootstrap 5 Modal if available
+        if (window.bootstrap && bootstrap.Modal) {
+            return new bootstrap.Modal(el).show();
+        }
+        // Manual fallback
         el.classList.add("show");
         el.style.display = "block";
         el.setAttribute("aria-hidden", "false");
@@ -258,10 +264,18 @@ window.MenusDataTable = (function () {
             document.body.appendChild(backdrop);
         }
     }
+
     function hideModal(el) {
-        if (window.$?.fn?.modal) return $(el).modal("hide");
-        if (window.bootstrap?.Modal)
-            return bootstrap.Modal.getInstance(el)?.hide();
+        // Prefer jQuery modal if available
+        if (window.$ && $.fn && $.fn.modal) {
+            return $(el).modal("hide");
+        }
+        // Fallback to Bootstrap 5 Modal if available
+        if (window.bootstrap && bootstrap.Modal) {
+            var instance = bootstrap.Modal.getInstance(el);
+            if (instance) return instance.hide();
+        }
+        // Manual fallback
         el.classList.remove("show");
         el.style.display = "none";
         el.setAttribute("aria-hidden", "true");
@@ -273,12 +287,12 @@ window.MenusDataTable = (function () {
     // Menu operations (tanpa perulangan)
     function refreshParentMenuOptions(route) {
         return fetch(route, {
-            method: "GET",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                Accept: "application/json",
-            },
-        })
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    Accept: "application/json",
+                },
+            })
             .then(function (response) {
                 if (!response.ok) throw new Error("Network error");
                 return response.json();
@@ -307,9 +321,11 @@ window.MenusDataTable = (function () {
                 return data;
             });
     }
+
     function refreshDataTable() {
         if (menusTable) menusTable.ajax.reload(null, false);
     }
+
     function updateSelectOptions(select, options) {
         while (select.children.length > 1) select.removeChild(select.lastChild);
         for (var key in options) {
@@ -329,14 +345,17 @@ window.MenusDataTable = (function () {
         var el = document.getElementById(id);
         if (el) el.value = val;
     }
+
     function setText(id, val) {
         var el = document.getElementById(id);
         if (el) el.textContent = val;
     }
+
     function setChecked(id, val) {
         var el = document.getElementById(id);
         if (el) el.checked = !!val;
     }
+
     function setSelect(id, val, tsKey) {
         var ts = tomSelectInstances[tsKey];
         if (ts) {
@@ -347,6 +366,7 @@ window.MenusDataTable = (function () {
             if (el) el.value = val || "";
         }
     }
+
     function setRoles(id, arr) {
         var ts = tomSelectInstances[id];
         if (ts) {
@@ -395,6 +415,7 @@ window.MenusDataTable = (function () {
                 tomSelectInstances[key].sync();
         showModal(document.getElementById("editMenuModal"));
     }
+
     function openEditModal(menu, route) {
         fillEditModal(menu);
         refreshParentMenuOptions(route)
@@ -403,6 +424,7 @@ window.MenusDataTable = (function () {
             })
             .catch(function () {});
     }
+
     function openDeleteModal(menu) {
         var modal = document.getElementById("deleteMenuModal");
         if (!modal) return;
@@ -412,6 +434,7 @@ window.MenusDataTable = (function () {
         setText("delete_menu_route", menu.route_name || "-");
         showModal(modal);
     }
+
     function setupModalHandlers() {
         document.addEventListener("click", function (e) {
             if (e.target.closest('[data-bs-dismiss="modal"]')) {
@@ -430,7 +453,7 @@ window.MenusDataTable = (function () {
     // Setup checkbox handlers for bulk operations
     function setupCheckboxHandlers() {
         // Handle select all checkbox
-        $('#select-all').on('change', function() {
+        $('#select-all').on('change', function () {
             const isChecked = this.checked;
             $('.table-selectable-check').prop('checked', isChecked);
             updateSelectedMenus();
@@ -439,7 +462,7 @@ window.MenusDataTable = (function () {
         });
 
         // Handle individual checkboxes
-        $(document).on('change', '.table-selectable-check', function() {
+        $(document).on('change', '.table-selectable-check', function () {
             updateSelectedMenus();
             updateSelectAllState();
             updateBulkDeleteButton();
@@ -450,7 +473,7 @@ window.MenusDataTable = (function () {
     // Update selected menus array
     function updateSelectedMenus() {
         selectedMenus = [];
-        $('.table-selectable-check:checked').each(function() {
+        $('.table-selectable-check:checked').each(function () {
             const row = menusTable.row($(this).closest('tr')).data();
             if (row) {
                 selectedMenus.push({
@@ -495,7 +518,7 @@ window.MenusDataTable = (function () {
     // Setup bulk delete handlers
     function setupBulkDeleteHandlers(bulkDeleteRoute, csrfToken) {
         // Show selected menus in delete modal
-        $('#deleteSelectedModal').on('show.bs.modal', function() {
+        $('#deleteSelectedModal').on('show.bs.modal', function () {
             $('#delete-selected-count').text(selectedMenus.length);
 
             let menusList = '';
@@ -510,7 +533,7 @@ window.MenusDataTable = (function () {
         });
 
         // Handle bulk delete confirmation
-        $('#confirm-delete-selected').on('click', function() {
+        $('#confirm-delete-selected').on('click', function () {
             const menuIds = selectedMenus.map(menu => menu.id);
             const button = $(this);
 
@@ -588,7 +611,7 @@ window.MenusDataTable = (function () {
     // Setup draw callback to update UI states
     function setupDrawCallback() {
         // Override draw callback to update record info
-        $(document).on('draw.dt', '#menusTable', function() {
+        $(document).on('draw.dt', '#menusTable', function () {
             updateRecordInfo();
             updateSelectedMenus();
             updateSelectAllState();
@@ -599,7 +622,7 @@ window.MenusDataTable = (function () {
 
     // Setup page length handler
     function setupPageLengthHandler() {
-        window.setPageListItems = function(event) {
+        window.setPageListItems = function (event) {
             event.preventDefault();
             const value = parseInt(event.target.getAttribute('data-value'));
             if (menusTable && value) {
@@ -608,6 +631,7 @@ window.MenusDataTable = (function () {
             }
         };
     }
+
 
     // Initialize all handlers
     function initializeAllHandlers(bulkDeleteRoute, csrfToken) {

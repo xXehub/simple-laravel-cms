@@ -27,8 +27,7 @@ window.UsersDataTable = (function () {
                     console.error("DataTable Ajax Error:", error, thrown);
                 },
             },
-            columns: [
-                {
+            columns: [{
                     data: null,
                     orderable: false,
                     searchable: false,
@@ -57,7 +56,7 @@ window.UsersDataTable = (function () {
                             return data
                                 .map(
                                     (role) =>
-                                        `<span class="badge bg-primary-lt me-1">${role}</span>`
+                                    `<span class="badge bg-primary-lt me-1">${role}</span>`
                                 )
                                 .join("");
                         }
@@ -82,11 +81,13 @@ window.UsersDataTable = (function () {
                     className: "text-end",
                 },
             ],
-            order: [[1, "asc"]],
+            order: [
+                [1, "asc"]
+            ],
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
             language: {
-                processing: "Loading users...",
+                processing: "Memuat...",
                 zeroRecords: "No users found",
                 info: "Showing _START_ to _END_ of _TOTAL_ users",
                 infoEmpty: "Showing 0 to 0 of 0 users",
@@ -146,7 +147,6 @@ window.UsersDataTable = (function () {
                 $(".table-selectable-check").prop("checked", isChecked);
                 updateSelectedUsers();
                 updateBulkDeleteButton();
-                updateActionButtonsState();
             });
 
         // Handle individual checkboxes
@@ -156,7 +156,7 @@ window.UsersDataTable = (function () {
                 updateSelectedUsers();
                 updateSelectAllState();
                 updateBulkDeleteButton();
-                updateActionButtonsState();
+
             });
     }
 
@@ -199,22 +199,6 @@ window.UsersDataTable = (function () {
         $("#selected-count").text(selectedUsers.length);
     }
 
-    // Disable/enable action buttons based on selection
-    function updateActionButtonsState() {
-        const hasSelected = selectedUsers.length > 0;
-
-        // Disable individual action buttons when items are selected
-        if (hasSelected) {
-            $(".btn-outline-primary, .btn-outline-danger")
-                .not("#delete-selected-btn")
-                .prop("disabled", true);
-        } else {
-            $(".btn-outline-primary, .btn-outline-danger")
-                .not("#delete-selected-btn")
-                .prop("disabled", false);
-        }
-    }
-
     // Setup bulk delete handlers
     function setupBulkDeleteHandlers() {
         // Show selected users in delete modal
@@ -249,18 +233,18 @@ window.UsersDataTable = (function () {
 
                 // Send request
                 fetch(bulkDeleteRoute, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute("content"),
-                        Accept: "application/json",
-                    },
-                    body: JSON.stringify({
-                        user_ids: userIds,
-                    }),
-                })
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute("content"),
+                            Accept: "application/json",
+                        },
+                        body: JSON.stringify({
+                            user_ids: userIds,
+                        }),
+                    })
                     .then((response) => {
                         if (response.ok) {
                             // Close modal and refresh table
@@ -299,7 +283,6 @@ window.UsersDataTable = (function () {
                 updateSelectedUsers();
                 updateSelectAllState();
                 updateBulkDeleteButton();
-                updateActionButtonsState();
             });
     }
 
@@ -338,11 +321,11 @@ window.UsersDataTable = (function () {
     // User action functions
     function editUser(userId, editRoute) {
         fetch(`${editRoute}?id=${userId}`, {
-            headers: {
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
+                headers: {
+                    Accept: "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
             .then((response) => response.json())
             .then((data) => {
                 const user = data.user;
@@ -402,6 +385,7 @@ window.UsersDataTable = (function () {
 
     // Initialize bulk delete route (will be set from Blade)
     let bulkDeleteRoute = "";
+
     function setBulkDeleteRoute(route) {
         bulkDeleteRoute = route;
     }

@@ -14,6 +14,19 @@ use App\Http\Controllers\Panel\SettingController;
 Auth::routes();
 
 // Public routes
+// Authentication routes (Laravel UI)
+Auth::routes([
+    'register' => true,
+    'reset' => true,
+    'verify' => false,
+]);
+
+/* untuk redirect setelah login/register */
+Route::get('/home', function () {
+    return redirect('/');
+})->name('home');
+
+/* public routes */
 Route::get('/', [DynamicController::class, 'handleWelcome'])->name('welcome');
 
 // Authenticated routes
@@ -97,6 +110,3 @@ Route::middleware('auth')->group(function () {
 Route::get('/{slug}', [DynamicController::class, 'handleDynamicPage'])
     ->where('slug', '[a-zA-Z0-9\-\/]+')
     ->name('dynamic.page');
-
-// Backward compatibility route
-Route::redirect('/home', '/profile')->name('home');
