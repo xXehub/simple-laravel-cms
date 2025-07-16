@@ -326,69 +326,81 @@ window.MenusDataTable = (function () {
         if (menusTable) menusTable.ajax.reload(null, false);
     }
 
-    function updateSelectOptions(select, options) {
-        while (select.children.length > 1) select.removeChild(select.lastChild);
-        for (var key in options) {
-            if (Object.prototype.hasOwnProperty.call(options, key)) {
-                var option = document.createElement("option");
-                option.value = key;
-                option.textContent = options[key]
-                    .replace(/└─\s/g, "")
-                    .replace(/Parent\s-\s/g, "");
-                select.appendChild(option);
+
+
+    // Form utilities 
+    function setValue(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value;
+        }
+    }
+
+    function setText(id, text) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = text;
+        }
+    }
+
+    function setChecked(id, isChecked) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.checked = Boolean(isChecked);
+        }
+    }
+
+    function setSelect(id, value, tomSelectKey) {
+        const tomSelectInstance = tomSelectInstances[tomSelectKey];
+
+        if (tomSelectInstance) {
+            // Handle TomSelect dropdown
+            tomSelectInstance.clear();
+            if (value) {
+                tomSelectInstance.setValue(value.toString());
+            }
+        } else {
+            // Handle regular select element
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value || "";
             }
         }
     }
 
-    // Form utilities (tanpa perulangan)
-    function setValue(id, val) {
-        var el = document.getElementById(id);
-        if (el) el.value = val;
-    }
+    function setRoles(id, rolesArray) {
+        const tomSelectInstance = tomSelectInstances[id];
 
-    function setText(id, val) {
-        var el = document.getElementById(id);
-        if (el) el.textContent = val;
-    }
-
-    function setChecked(id, val) {
-        var el = document.getElementById(id);
-        if (el) el.checked = !!val;
-    }
-
-    function setSelect(id, val, tsKey) {
-        var ts = tomSelectInstances[tsKey];
-        if (ts) {
-            ts.clear();
-            if (val) ts.setValue(val.toString());
+        if (tomSelectInstance) {
+            // Handle TomSelect multi-select
+            tomSelectInstance.clear();
+            if (rolesArray && rolesArray.length > 0) {
+                rolesArray.forEach(role => {
+                    tomSelectInstance.addItem(role.toString());
+                });
+            }
         } else {
-            var el = document.getElementById(id);
-            if (el) el.value = val || "";
-        }
-    }
+            // Handle regular multi-select element
+            const element = document.getElementById(id);
+            if (element) {
+                // Clear all selections first
+                Array.from(element.options).forEach(option => {
+                    option.selected = false;
+                });
 
-    function setRoles(id, arr) {
-        var ts = tomSelectInstances[id];
-        if (ts) {
-            ts.clear();
-            if (arr && arr.length)
-                for (var i = 0; i < arr.length; i++)
-                    ts.addItem(arr[i].toString());
-        } else {
-            var el = document.getElementById(id);
-            if (el) {
-                var opts = el.options;
-                for (var j = 0; j < opts.length; j++) opts[j].selected = false;
-                if (arr && arr.length)
-                    for (var k = 0; k < arr.length; k++) {
-                        var o = el.querySelector(
-                            'option[value="' + arr[k] + '"]'
-                        );
-                        if (o) o.selected = true;
-                    }
+                // Set selected options
+                if (rolesArray && rolesArray.length > 0) {
+                    rolesArray.forEach(roleValue => {
+                        const option = element.querySelector(`option[value="${roleValue}"]`);
+                        if (option) {
+                            option.selected = true;
+                        }
+                    });
+                }
             }
         }
     }
+
 
     // Modal operations (tanpa perulangan)
     function fillEditModal(menu) {
@@ -458,7 +470,6 @@ window.MenusDataTable = (function () {
             $('.table-selectable-check').prop('checked', isChecked);
             updateSelectedMenus();
             updateBulkDeleteButton();
-            updateActionButtonsState();
         });
 
         // Handle individual checkboxes
@@ -466,7 +477,6 @@ window.MenusDataTable = (function () {
             updateSelectedMenus();
             updateSelectAllState();
             updateBulkDeleteButton();
-            updateActionButtonsState();
         });
     }
 
@@ -503,17 +513,6 @@ window.MenusDataTable = (function () {
         $('#selected-count').text(selectedMenus.length);
     }
 
-    // Disable/enable action buttons based on selection
-    function updateActionButtonsState() {
-        const hasSelected = selectedMenus.length > 0;
-
-        // Disable individual action buttons when items are selected
-        if (hasSelected) {
-            $('.btn-outline-primary, .btn-outline-danger').not('#delete-selected-btn').prop('disabled', true);
-        } else {
-            $('.btn-outline-primary, .btn-outline-danger').not('#delete-selected-btn').prop('disabled', false);
-        }
-    }
 
     // Setup bulk delete handlers
     function setupBulkDeleteHandlers(bulkDeleteRoute, csrfToken) {
@@ -616,7 +615,6 @@ window.MenusDataTable = (function () {
             updateSelectedMenus();
             updateSelectAllState();
             updateBulkDeleteButton();
-            updateActionButtonsState();
         });
     }
 
