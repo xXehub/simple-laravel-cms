@@ -105,6 +105,86 @@
     <script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('preview/js/demo.min.js?1667333929') }}" defer></script>
 
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    
+    <!-- Custom DataTables + Tabler Integration CSS -->
+    <style>
+        /* Hide default DataTables search and length controls */
+        .dataTables_filter,
+        .dataTables_length {
+            display: none !important;
+        }
+        
+        /* DataTables pagination styling */
+        .dataTables_paginate .paginate_button {
+            padding: 0.5rem 0.75rem !important;
+            margin-left: 0.125rem !important;
+            border: 1px solid var(--tblr-border-color) !important;
+            color: var(--tblr-body-color) !important;
+            background: none !important;
+        }
+        
+        .dataTables_paginate .paginate_button:hover {
+            background: var(--tblr-bg-surface-secondary) !important;
+            border-color: var(--tblr-border-color-darker) !important;
+            color: var(--tblr-body-color) !important;
+        }
+        
+        .dataTables_paginate .paginate_button.current {
+            background: var(--tblr-primary) !important;
+            border-color: var(--tblr-primary) !important;
+            color: white !important;
+        }
+        
+        .dataTables_paginate .paginate_button.disabled {
+            color: var(--tblr-text-muted) !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+        
+        /* DataTables info styling */
+        .dataTables_info {
+            color: var(--tblr-text-muted) !important;
+            font-size: 0.875rem !important;
+        }
+        
+        /* DataTables length select styling */
+        .dataTables_length select {
+            padding: 0.375rem 2rem 0.375rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            border: 1px solid var(--tblr-border-color) !important;
+            border-radius: var(--tblr-border-radius) !important;
+            background: var(--tblr-bg-surface) !important;
+            color: var(--tblr-body-color) !important;
+        }
+        
+        /* Table responsive wrapper */
+        .table-responsive {
+            border: none !important;
+        }
+        
+        /* Processing indicator */
+        .dataTables_processing {
+            background: var(--tblr-bg-surface) !important;
+            border: 1px solid var(--tblr-border-color) !important;
+            color: var(--tblr-body-color) !important;
+            border-radius: var(--tblr-border-radius) !important;
+        }
+        
+        /* Custom search input styling */
+        #customSearch {
+            min-width: 200px;
+        }
+        
+        /* Dropdown filter styling */
+        .card-actions .dropdown-toggle {
+            border-color: var(--tblr-border-color) !important;
+        }
+    </style>
+
     <!-- Third Party Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -112,6 +192,14 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 
     <!-- Page Specific Scripts -->
     @stack('scripts')

@@ -43,28 +43,23 @@
                                             </span>
                                         </div>
                                         <div class="dropdown">
-                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle" 
+                                                    type="button" data-bs-toggle="dropdown">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                     class="icon me-1">
-                                                    <path d="M6 9l6 6 6-6" />
+                                                    <path d="M6 9l6 6 6-6"/>
                                                 </svg>
                                                 Filter
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" onclick="filterTable('all')">All
-                                                    Menus</a>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="filterTable('active')">Active Only</a>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="filterTable('inactive')">Inactive Only</a>
+                                                <a class="dropdown-item" href="#" onclick="filterTable('all')">All Menus</a>
+                                                <a class="dropdown-item" href="#" onclick="filterTable('active')">Active Only</a>
+                                                <a class="dropdown-item" href="#" onclick="filterTable('inactive')">Inactive Only</a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="filterTable('parent')">Parent Menus</a>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="filterTable('child')">Child Menus</a>
+                                                <a class="dropdown-item" href="#" onclick="filterTable('parent')">Parent Menus</a>
+                                                <a class="dropdown-item" href="#" onclick="filterTable('child')">Child Menus</a>
                                             </div>
                                         </div>
                                         @can('create-menus')
@@ -123,8 +118,7 @@
                                             records</a>
                                         <a class="dropdown-item" onclick="setPageListItems(event)" data-value="50">50
                                             records</a>
-                                        <a class="dropdown-item" onclick="setPageListItems(event)"
-                                            data-value="100">100
+                                        <a class="dropdown-item" onclick="setPageListItems(event)" data-value="100">100
                                             records</a>
                                     </div>
                                 </div>
@@ -181,7 +175,7 @@
                 setSelect('edit_parent_id', menu.parent_id, 'edit_parent_id');
             }).catch(() => {});
         };
-
+        
         window.openDeleteModal = menu => {
             const m = document.getElementById('deleteMenuModal');
             if (!m) return;
@@ -203,7 +197,7 @@
         // --- Filter Functionality ---
         window.filterTable = function(type) {
             let searchTerm = '';
-            switch (type) {
+            switch(type) {
                 case 'active':
                     searchTerm = 'Active';
                     menusTable.column(7).search(searchTerm).draw();
@@ -240,13 +234,13 @@
         // --- DOM Ready ---
         function waitForLibraries() {
             // Check if all required libraries are loaded
-            if (typeof $ === 'undefined' ||
-                typeof $.fn.DataTable === 'undefined' ||
+            if (typeof $ === 'undefined' || 
+                typeof $.fn.DataTable === 'undefined' || 
                 typeof window.TomSelect === 'undefined') {
                 setTimeout(waitForLibraries, 100);
                 return;
             }
-
+            
             // Initialize everything once libraries are ready
             initializeApp();
         }
@@ -347,56 +341,48 @@
                     // Update custom pagination
                     const api = this.api();
                     const pageInfo = api.page.info();
-
+                    
                     // Build custom pagination
                     let paginationHtml = '';
                     const totalPages = pageInfo.pages;
                     const currentPage = pageInfo.page + 1;
-
+                    
                     // Previous button
                     if (currentPage > 1) {
-                        paginationHtml +=
-                            `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page('previous').draw(); return false;">‹ Prev</a></li>`;
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page('previous').draw(); return false;">‹ Prev</a></li>`;
                     }
-
+                    
                     // Page numbers
                     const startPage = Math.max(1, currentPage - 2);
                     const endPage = Math.min(totalPages, currentPage + 2);
-
+                    
                     if (startPage > 1) {
-                        paginationHtml +=
-                            `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page(0).draw(); return false;">1</a></li>`;
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page(0).draw(); return false;">1</a></li>`;
                         if (startPage > 2) {
-                            paginationHtml +=
-                                `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+                            paginationHtml += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
                         }
                     }
-
+                    
                     for (let i = startPage; i <= endPage; i++) {
                         const isActive = i === currentPage ? 'active' : '';
                         const pageIndex = i - 1;
-                        paginationHtml +=
-                            `<li class="page-item ${isActive}"><a class="page-link" href="#" onclick="menusTable.page(${pageIndex}).draw(); return false;">${i}</a></li>`;
+                        paginationHtml += `<li class="page-item ${isActive}"><a class="page-link" href="#" onclick="menusTable.page(${pageIndex}).draw(); return false;">${i}</a></li>`;
                     }
-
+                    
                     if (endPage < totalPages) {
                         if (endPage < totalPages - 1) {
-                            paginationHtml +=
-                                `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+                            paginationHtml += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
                         }
-                        paginationHtml +=
-                            `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page(${totalPages - 1}).draw(); return false;">${totalPages}</a></li>`;
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page(${totalPages - 1}).draw(); return false;">${totalPages}</a></li>`;
                     }
-
+                    
                     // Next button
                     if (currentPage < totalPages) {
-                        paginationHtml +=
-                            `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page('next').draw(); return false;">Next ›</a></li>`;
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="menusTable.page('next').draw(); return false;">Next ›</a></li>`;
                     }
-
+                    
                     $('#datatable-pagination').html(paginationHtml);
-                }
-            });
+                }                });
 
             // Custom search functionality
             $('#advanced-table-search').on('keyup', function() {

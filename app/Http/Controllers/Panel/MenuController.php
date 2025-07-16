@@ -25,13 +25,14 @@ class MenuController extends Controller
      */
     public function index(Request $request)
     {
-        $menus = MasterMenu::with('roles', 'parent', 'children')->orderBy('urutan')->orderBy('id')->paginate(20);
         // Get hierarchical menu options for parent selection
         $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
 
-        // Debug logging for parent menus
-        \Log::info('Parent Menu Options Generated:', $parentMenus);
+        // Handle DataTables AJAX request
+        if ($request->ajax() && $request->has('draw')) {
+            return $this->getDataTablesData($request);
+        }
 
         // Handle AJAX request for refreshing parent menu options
         if ($request->ajax()) {
@@ -41,7 +42,90 @@ class MenuController extends Controller
             ]);
         }
 
-        return view('panel.menus.index', compact('menus', 'parentMenus', 'roles'));
+        return view('panel.menus.index', compact('parentMenus', 'roles'));
+    }
+
+    /**
+     * Get DataTables data for AJAX request
+     */
+    private function getDataTablesData(Request $request)
+    {
+        $draw = $request->get('draw');
+        $start = $request->get('start', 0);
+        $length = $request->get('length', 10);
+        $search = $request->get('search')['value'] ?? '';
+        $orderColumn = $request->get('order')[0]['column'] ?? 0;
+        $orderDir = $request->get('order')[0]['dir'] ?? 'asc';
+
+        $columns = ['id', 'nama_menu', 'slug', 'parent_id', 'route_name', 'icon', 'urutan', 'is_active'];
+        $orderBy = $columns[$orderColumn] ?? 'urutan';
+
+        $query = MasterMenu::with('roles', 'parent', 'children');
+
+        // Apply search
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_menu', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('route_name', 'like', "%{$search}%")
+                    ->orWhereHas('parent', function ($subQ) use ($search) {
+                        $subQ->where('nama_menu', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $totalRecords = MasterMenu::count();
+        $filteredRecords = $query->count();
+
+        $menus = $query->orderBy($orderBy, $orderDir)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        foreach ($menus as $menu) {
+            $parentBadge = $menu->parent
+                ? '<span class="badge bg-secondary">' . $menu->parent->nama_menu . '</span>'
+                : '<span class="text-muted">-</span>';
+
+            $statusBadge = $menu->is_active
+                ? '<span class="badge bg-success">Active</span>'
+                : '<span class="badge bg-danger">Inactive</span>';
+
+            $rolesBadges = '';
+            foreach ($menu->roles as $role) {
+                $rolesBadges .= '<span class="badge bg-primary me-1">' . $role->name . '</span>';
+            }
+
+            $actions = '<div class="btn-group" role="group">';
+            if (auth()->user()->can('update-menus')) {
+                $actions .= '<button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal(' . htmlspecialchars($menu->toJson()) . ')" title="Edit Menu"><i class="fas fa-edit"></i></button>';
+            }
+            if (auth()->user()->can('delete-menus')) {
+                $actions .= '<button type="button" class="btn btn-sm btn-outline-danger" onclick="openDeleteModal(' . htmlspecialchars($menu->toJson()) . ')" title="Delete Menu"><i class="fas fa-trash"></i></button>';
+            }
+            $actions .= '</div>';
+
+            $data[] = [
+                $menu->id,
+                '<strong>' . $menu->nama_menu . '</strong>',
+                '<code>' . $menu->slug . '</code>',
+                $parentBadge,
+                $menu->route_name ? '<code>' . $menu->route_name . '</code>' : '<span class="text-muted">-</span>',
+                $menu->icon ? '<i class="' . $menu->icon . '"></i>' : '<span class="text-muted">-</span>',
+                $menu->urutan,
+                $statusBadge,
+                $rolesBadges,
+                $actions
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data
+        ]);
     }
 
     /**
@@ -111,13 +195,13 @@ class MenuController extends Controller
     public function update(UpdateMenuRequest $request)
     {
         $menuId = $request->route('id') ?? $request->input('id');
-        
+
         // Debug logging
         \Log::info('Update Menu Request Data:', $request->all());
         \Log::info('Menu ID:', ['menu_id' => $menuId]);
         \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
         \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active'), 'has_checkbox' => $request->has('is_active')]);
-        
+
         $menu = MasterMenu::findOrFail($menuId);
 
         $menu->update([
