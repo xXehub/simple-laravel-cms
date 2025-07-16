@@ -85,16 +85,16 @@ class MenuController extends Controller
         $data = [];
         foreach ($menus as $menu) {
             $parentBadge = $menu->parent
-                ? '<span class="badge bg-secondary">' . $menu->parent->nama_menu . '</span>'
+                ? '<span class="badge bg-secondary-lt">' . $menu->parent->nama_menu . '</span>'
                 : '<span class="text-muted">-</span>';
 
             $statusBadge = $menu->is_active
-                ? '<span class="badge bg-success">Active</span>'
-                : '<span class="badge bg-danger">Inactive</span>';
+                ? '<span class="badge bg-success-lt">Active</span>'
+                : '<span class="badge bg-danger-lt">Inactive</span>';
 
             $rolesBadges = '';
             foreach ($menu->roles as $role) {
-                $rolesBadges .= '<span class="badge bg-primary me-1">' . $role->name . '</span>';
+                $rolesBadges .= '<span class="badge bg-secondary-lt me-1">' . $role->name . '</span>';
             }
 
             $actions = '<div class="btn-group" role="group">';

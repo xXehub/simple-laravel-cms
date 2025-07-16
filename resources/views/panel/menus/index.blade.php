@@ -148,36 +148,19 @@
     </div>
 
     @push('scripts')
-        <script>
-            // --- DataTable Variable ---
-            let menusTable;
-        </script>
         <!-- Menus DataTable Module -->
         <script src="{{ asset('js/datatable/menus.js') }}"></script>
         <script>
             // Initialize Menus DataTable
-            MenusDataTable.initialize('{{ route('panel.menus.index') }}').then(table => {
-                // Setup modal handlers
-                MenusDataTable.setupModalHandlers();
+            MenusDataTable.initialize('{{ route('panel.menus.index') }}')
+                .then(table => {
+                    MenusDataTable.setupModalHandlers();
+                })
+                .catch(error => {
+                    console.error('Failed to initialize Menus DataTable:', error);
+                });
 
-                // Handle validation errors and auto-reopen modals
-                @if ($errors->any())
-                    @if (old('_method') === 'PUT')
-                        const m = document.getElementById('editMenuModal');
-                        if (m) {
-                            // Fill form with old values and show modal
-                            // Implementation would go here for error handling
-                        }
-                    @else
-                        const m = document.getElementById('createMenuModal');
-                        if (m) {
-                            // Show create modal for validation errors
-                        }
-                    @endif
-                @endif
-            });
-
-            // Check if operation was successful and refresh table
+            // Auto-refresh on success
             @if (session('success'))
                 document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
@@ -187,18 +170,10 @@
                 });
             @endif
 
-            // Global functions for backward compatibility
-            function openEditModal(menu) {
-                MenusDataTable.openEditModal(menu, '{{ route('panel.menus.index') }}');
-            }
-
-            function openDeleteModal(menu) {
-                MenusDataTable.openDeleteModal(menu);
-            }
-
-            function filterTable(type) {
-                MenusDataTable.filterTable(type);
-            }
+            // Backward compatibility (optional, can be removed if not used elsewhere)
+            window.openEditModal = (menu) => MenusDataTable.openEditModal(menu, '{{ route('panel.menus.index') }}');
+            window.openDeleteModal = (menu) => MenusDataTable.openDeleteModal(menu);
+            window.filterTable = (type) => MenusDataTable.filterTable(type);
         </script>
     @endpush
 </x-layout.app>
