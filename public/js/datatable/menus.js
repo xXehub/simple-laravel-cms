@@ -17,105 +17,116 @@ window.MenusDataTable = (function () {
             processing: true,
             serverSide: true,
             deferRender: true,
-            ajax: { 
-                url: route, 
+            ajax: {
+                url: route,
                 type: "GET",
-                data: function(d) {
+                data: function (d) {
                     // Send additional parameters for server-side processing
                     return d;
                 },
-                error: function(xhr, error, thrown) {
-                    console.error('DataTable Ajax Error:', error, thrown);
-                }
+                error: function (xhr, error, thrown) {
+                    console.error("DataTable Ajax Error:", error, thrown);
+                },
             },
             columns: [
                 {
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select menu" value="${row.id}"/>`;
-                    }
-                },
-                { 
-                    data: "id", 
-                    name: "id", 
-                    className: "text-secondary" 
-                },
-                { 
-                    data: "nama_menu", 
-                    name: "nama_menu", 
-                    className: "fw-medium",
-                    render: function(data, type, row) {
-                        return `<strong>${data}</strong>`;
-                    }
-                },
-                { 
-                    data: "slug", 
-                    name: "slug", 
-                    className: "text-secondary",
-                    render: function(data, type, row) {
-                        return `<code>${data}</code>`;
-                    }
-                },
-                {
-                    data: "parent",
-                    name: "parent_id",
-                    orderable: false,
-                    className: "text-secondary",
-                    render: function(data, type, row) {
-                        return data 
-                            ? `<span class="badge bg-secondary-lt">${data}</span>`
-                            : '<span class="text-muted">-</span>';
-                    }
-                },
-                { 
-                    data: "route_name", 
-                    name: "route_name",
-                    render: function(data, type, row) {
-                        return data 
-                            ? `<code>${data}</code>`
-                            : '<span class="text-muted">-</span>';
-                    }
+                    },
                 },
                 {
                     data: "icon",
                     name: "icon",
                     orderable: false, // Icons should not be orderable
                     className: "text-center",
-                    render: function(data, type, row) {
-                        return data 
-                            ? `<i class="${data}"></i>`
+                    //  render: (data) =>
+                    //     `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>${data}`,
+                    render: function (data, type, row) {
+                        return data
+                            ? `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"><i class="${data}"></i></span>`
                             : '<span class="text-muted">-</span>';
-                    }
+                    },
                 },
-                { 
-                    data: "urutan", 
-                    name: "urutan", 
-                    className: "text-center" 
+                {
+                    data: "id",
+                    name: "id",
+                    className: "text-secondary",
+                },
+                {
+                    data: "nama_menu",
+                    name: "nama_menu",
+                    // className: "text-secondary",
+                    // render: function(data, type, row) {
+                    //     return `<strong>${data}</strong>`;
+                    // }
+                    render: function (data, type, row) {
+                        return `${data}`;
+                    },
+                },
+                {
+                    data: "slug",
+                    name: "slug",
+                    className: "text-secondary",
+                    render: function (data, type, row) {
+                        return `<code>${data}</code>`;
+                    },
+                },
+                {
+                    data: "parent",
+                    name: "parent_id",
+                    orderable: false,
+                    className: "text-secondary",
+                    render: function (data, type, row) {
+                        return data
+                            ? `<span class="badge bg-secondary-lt">${data}</span>`
+                            : '<span class="text-muted">-</span>';
+                    },
+                },
+                {
+                    data: "route_name",
+                    name: "route_name",
+                    render: function (data, type, row) {
+                        return data
+                            ? `<code>${data}</code>`
+                            : '<span class="text-muted">-</span>';
+                    },
+                },
+
+                {
+                    data: "urutan",
+                    name: "urutan",
+                    className: "text-center",
                 },
                 {
                     data: "is_active",
                     name: "is_active",
                     orderable: false,
                     className: "text-center",
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         // Handle boolean values properly
-                        return data === true || data === 1 || data === '1'
+                        return data === true || data === 1 || data === "1"
                             ? '<span class="badge bg-success-lt">Active</span>'
                             : '<span class="badge bg-danger-lt">Inactive</span>';
-                    }
+                    },
                 },
-                { 
-                    data: "roles", 
-                    name: "roles", 
+                {
+                    data: "roles",
+                    name: "roles",
                     orderable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         if (data && data.length > 0) {
-                            return data.map(role => `<span class="badge bg-secondary-lt me-1">${role}</span>`).join('');
+                            return data
+                                .map(
+                                    (role) =>
+                                        `<span class="badge bg-secondary-lt me-1">${role}</span>`
+                                )
+                                .join("");
                         }
                         return '<span class="text-muted">No roles</span>';
-                    }
+                    },
                 },
                 {
                     data: "actions",
@@ -123,11 +134,11 @@ window.MenusDataTable = (function () {
                     orderable: false,
                     searchable: false,
                     className: "text-end",
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         // Return the pre-rendered action HTML from component
                         return data;
-                    }
-                }
+                    },
+                },
             ],
             order: [
                 [7, "asc"], // urutan column
@@ -147,8 +158,8 @@ window.MenusDataTable = (function () {
                     first: "First",
                     last: "Last",
                     next: "Next",
-                    previous: "Previous"
-                }
+                    previous: "Previous",
+                },
             },
         };
     }

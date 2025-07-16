@@ -95,17 +95,18 @@
                                                 <input class="form-check-input m-0 align-middle" type="checkbox"
                                                     aria-label="Select all menus" id="select-all" />
                                             </th>
+                                            <th>Icon</th>
                                             <th class="w-1">ID</th>
                                             <th style="width: 10%">Nama Menu</th>
                                             <th style="width: 10%">Slug</th>
                                             <th style="width: 20%">Parent</th>
                                             <th style="width: 10%">Route</th>
-                                            <th style="width: 10%">Icon</th>
+
                                             <th class="w-1">Order</th>
                                             <th style="width: 10%">Status</th>
                                             <th style="width: 30%">Roles</th>
                                             {{-- <th class="w-3">Actions</th> --}}
-                                            <th class="w-3">Actions</th>
+                                            <th class="w-3">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table-tbody">
