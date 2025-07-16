@@ -1,8 +1,8 @@
 /**
  * Users DataTable Configuration
- *
+ * Server-side processing enabled for better performance
  * @author KantorKu SuperApp Team
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 window.UsersDataTable = (function () {
@@ -10,12 +10,22 @@ window.UsersDataTable = (function () {
 
     let dataTable;
 
-    // Users table configuration
+    // Users table configuration with server-side processing
     function getTableConfig(route) {
         return {
+            processing: true,
+            serverSide: true,
+            deferRender: true,
             ajax: {
                 url: route,
                 type: "GET",
+                data: function(d) {
+                    // Send additional parameters for server-side processing
+                    return d;
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('DataTable Ajax Error:', error, thrown);
+                }
             },
             columns: [
                 {
@@ -71,19 +81,22 @@ window.UsersDataTable = (function () {
                 },
             ],
             order: [[1, "asc"]],
-            columnDefs: [
-                {
-                    targets: [0, 3, 5],
-                    orderable: false,
-                },
-            ],
             pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
             language: {
-                processing: "Memuat...",
-                zeroRecords: "Tidak ada pengguna ditemukan",
-                info: "",
-                infoEmpty: "",
-                infoFiltered: "",
+                processing: "Loading users...",
+                zeroRecords: "No users found",
+                info: "Showing _START_ to _END_ of _TOTAL_ users",
+                infoEmpty: "Showing 0 to 0 of 0 users",
+                infoFiltered: "(filtered from _MAX_ total users)",
+                lengthMenu: "Show _MENU_ users per page",
+                search: "Search users:",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                }
             },
         };
     }

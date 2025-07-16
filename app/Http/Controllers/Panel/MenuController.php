@@ -25,16 +25,13 @@ class MenuController extends Controller
      */
     public function index(Request $request)
     {
-        // Get hierarchical menu options for parent selection
         $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
 
-        // Handle DataTables AJAX request
         if ($request->ajax() && $request->has('draw')) {
             return $this->getDataTablesData($request);
         }
 
-        // Handle AJAX request for refreshing parent menu options
         if ($request->ajax()) {
             return response()->json([
                 'parentMenus' => $parentMenus,
@@ -57,12 +54,25 @@ class MenuController extends Controller
         $orderColumn = $request->get('order')[0]['column'] ?? 0;
         $orderDir = $request->get('order')[0]['dir'] ?? 'asc';
 
-        $columns = ['id', 'nama_menu', 'slug', 'parent_id', 'route_name', 'icon', 'urutan', 'is_active'];
-        $orderBy = $columns[$orderColumn] ?? 'urutan';
+        $columns = [
+            1 => 'id',
+            2 => 'nama_menu',
+            3 => 'slug',
+            4 => 'parent_id',
+            5 => 'route_name',
+            6 => null,
+            7 => 'urutan',
+            8 => null,
+            9 => null,
+            10 => null
+        ];
+
+        $orderBy = isset($columns[$orderColumn]) && $columns[$orderColumn] !== null
+            ? $columns[$orderColumn]
+            : 'urutan';
 
         $query = MasterMenu::with('roles', 'parent', 'children');
 
-        // Apply search
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_menu', 'like', "%{$search}%")
@@ -84,40 +94,21 @@ class MenuController extends Controller
 
         $data = [];
         foreach ($menus as $menu) {
-            $parentBadge = $menu->parent
-                ? '<span class="badge bg-secondary-lt">' . $menu->parent->nama_menu . '</span>'
-                : '<span class="text-muted">-</span>';
-
-            $statusBadge = $menu->is_active
-                ? '<span class="badge bg-success-lt">Active</span>'
-                : '<span class="badge bg-danger-lt">Inactive</span>';
-
-            $rolesBadges = '';
-            foreach ($menu->roles as $role) {
-                $rolesBadges .= '<span class="badge bg-secondary-lt me-1">' . $role->name . '</span>';
-            }
-
-            $actions = '<div class="btn-group" role="group">';
-            if (auth()->user()->can('update-menus')) {
-                $actions .= '<button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal(' . htmlspecialchars($menu->toJson()) . ')" title="Edit Menu"><i class="fas fa-edit"></i></button>';
-            }
-            if (auth()->user()->can('delete-menus')) {
-                $actions .= '<button type="button" class="btn btn-sm btn-outline-danger" onclick="openDeleteModal(' . htmlspecialchars($menu->toJson()) . ')" title="Delete Menu"><i class="fas fa-trash"></i></button>';
-            }
-            $actions .= '</div>';
-
-            $data[] = [
-                $menu->id,
-                '<strong>' . $menu->nama_menu . '</strong>',
-                '<code>' . $menu->slug . '</code>',
-                $parentBadge,
-                $menu->route_name ? '<code>' . $menu->route_name . '</code>' : '<span class="text-muted">-</span>',
-                $menu->icon ? '<i class="' . $menu->icon . '"></i>' : '<span class="text-muted">-</span>',
-                $menu->urutan,
-                $statusBadge,
-                $rolesBadges,
-                $actions
+            $menuData = [
+                'id' => $menu->id,
+                'nama_menu' => $menu->nama_menu,
+                'slug' => $menu->slug,
+                'parent' => $menu->parent ? $menu->parent->nama_menu : null,
+                'route_name' => $menu->route_name,
+                'icon' => $menu->icon,
+                'urutan' => $menu->urutan,
+                'is_active' => (bool) $menu->is_active,
+                'roles' => $menu->roles->pluck('name')->toArray(),
+                'parent_id' => $menu->parent_id,
+                'actions' => view('components.modals.menus.action', ['menu' => $menu->toArray()])->render()
             ];
+
+            $data[] = $menuData;
         }
 
         return response()->json([
@@ -133,7 +124,6 @@ class MenuController extends Controller
      */
     public function create()
     {
-        // Get hierarchical menu options for parent selection
         $parentMenus = $this->getMenuOptions();
         $roles = Role::all();
         return view('panel.menus.create', compact('parentMenus', 'roles'));
@@ -144,11 +134,6 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request)
     {
-        // Debug logging
-        \Log::info('Store Menu Request Data:', $request->all());
-        \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
-        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active'), 'has_checkbox' => $request->has('is_active')]);
-
         $menu = MasterMenu::create([
             'nama_menu' => $request->nama_menu,
             'slug' => $request->slug,
@@ -162,8 +147,6 @@ class MenuController extends Controller
         if ($request->has('roles')) {
             $menu->roles()->sync($request->roles);
         }
-
-        \Log::info('Menu created successfully:', ['menu_id' => $menu->id, 'is_active_saved' => $menu->is_active]);
 
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu created successfully');
@@ -182,7 +165,6 @@ class MenuController extends Controller
         }
 
         $menu = MasterMenu::findOrFail($menuId);
-        // Get all menus except current one to prevent circular reference
         $parentMenus = $this->getMenuOptions(null, 0, $menu->id);
         $roles = Role::all();
 
@@ -195,13 +177,6 @@ class MenuController extends Controller
     public function update(UpdateMenuRequest $request)
     {
         $menuId = $request->route('id') ?? $request->input('id');
-
-        // Debug logging
-        \Log::info('Update Menu Request Data:', $request->all());
-        \Log::info('Menu ID:', ['menu_id' => $menuId]);
-        \Log::info('Parent ID:', ['parent_id' => $request->parent_id, 'type' => gettype($request->parent_id)]);
-        \Log::info('Is Active:', ['is_active' => $request->boolean('is_active'), 'raw' => $request->get('is_active'), 'has_checkbox' => $request->has('is_active')]);
-
         $menu = MasterMenu::findOrFail($menuId);
 
         $menu->update([
@@ -216,8 +191,6 @@ class MenuController extends Controller
 
         $menu->roles()->sync($request->roles ?? []);
 
-        \Log::info('Menu updated successfully:', ['menu_id' => $menu->id, 'is_active_saved' => $menu->is_active]);
-
         return redirect()->route('panel.menus.index')
             ->with('success', 'Menu updated successfully');
     }
@@ -230,7 +203,6 @@ class MenuController extends Controller
         $menuId = $request->route('id') ?? $request->input('id');
         $menu = MasterMenu::findOrFail($menuId);
 
-        // Check if menu has children
         if ($menu->children()->count() > 0) {
             return redirect()->back()->with('error', 'Cannot delete menu with child menus');
         }
@@ -248,31 +220,24 @@ class MenuController extends Controller
     {
         $menus = MasterMenu::where('parent_id', $parentId)
             ->orderBy('urutan')
-            ->orderBy('id') // Add secondary sort to ensure consistent ordering
+            ->orderBy('id')
             ->get();
 
         $options = [];
 
         foreach ($menus as $menu) {
-            // Skip if this is the menu we're editing (to prevent circular reference)
             if ($excludeId && $menu->id == $excludeId) {
                 continue;
             }
 
             $prefix = str_repeat('└─ ', $level);
-
-            // Check if this menu has children to add "Parent" label
             $hasChildren = $menu->children()->count() > 0;
             $label = $hasChildren ? 'Parent' : '';
-
-            // Format: "└─ Parent - Menu Name" or "└─ Menu Name"
             $displayName = $prefix . ($label ? $label . ' - ' : '') . $menu->nama_menu;
 
             $options[$menu->id] = $displayName;
 
-            // Recursively get children
             $children = $this->getMenuOptions($menu->id, $level + 1, $excludeId);
-            // Use + operator instead of array_merge to preserve numeric keys
             $options = $options + $children;
         }
 

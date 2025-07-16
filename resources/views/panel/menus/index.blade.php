@@ -96,7 +96,7 @@
                                                     aria-label="Select all menus" id="select-all" />
                                             </th>
                                             <th class="w-1">ID</th>
-                                            <th style="width: 10%">Menu Name</th>
+                                            <th style="width: 10%">Nama Menu</th>
                                             <th style="width: 10%">Slug</th>
                                             <th style="width: 20%">Parent</th>
                                             <th style="width: 10%">Route</th>
@@ -104,6 +104,7 @@
                                             <th class="w-1">Order</th>
                                             <th style="width: 10%">Status</th>
                                             <th style="width: 30%">Roles</th>
+                                            {{-- <th class="w-3">Actions</th> --}}
                                             <th class="w-3">Actions</th>
                                         </tr>
                                     </thead>

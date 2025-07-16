@@ -15,17 +15,6 @@ class StoreMenuRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'parent_id' => $this->parent_id ?: null,
-            'is_active' => $this->has('is_active') && $this->input('is_active') == '1',
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
