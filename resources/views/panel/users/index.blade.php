@@ -120,204 +120,22 @@
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <!-- Users DataTable Module -->
+        <script src="{{ asset('js/datatable/users.js') }}"></script>
         <script>
-            // --- DataTable Initialization ---
-            let dataTable;
-            $(document).ready(function() {
-                dataTable = $('#datatable-users').DataTable({
-                    processing: true,
-                    autoWidth: false,
-                    serverSide: true,
-                    ajax: {
-                        url: '{{ route('panel.users.datatable') }}',
-                        type: 'GET',
-                    },
-                    columns: [{
-                            data: null,
-                            orderable: false,
-                            searchable: false,
-                            render: (data, type, row) =>
-                                `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="${row.id}"/>`
-                        },
-                        {
-                            data: 'name',
-                            name: 'name',
-                            render: (data) =>
-                                `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>${data}`
-                        },
-                        {
-                            data: 'email',
-                            name: 'email'
-                        },
-                        {
-                            data: 'roles',
-                            name: 'roles',
-                            orderable: false,
-                            searchable: false,
-                            render: (data) => {
-                                if (data && data.length > 0) {
-                                    return data.map(role =>
-                                            `<span class="badge bg-primary-lt me-1">${role}</span>`)
-                                        .join('');
-                                }
-                                return '<span class="badge bg-secondary-lt">No Role</span>';
-                            }
-                        },
-                        {
-                            data: 'created_at',
-                            name: 'created_at',
-                            render: (data) => new Date(data).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-end'
-                        },
-                    ],
-                    dom: 'rt',
-                    order: [
-                        [1, 'asc']
-                    ],
-                    columnDefs: [{
-                        targets: [0, 3, 5],
-                        orderable: false
-                    }],
-                    pageLength: 10,
-                    lengthMenu: [
-                        [10, 25, 50, 100],
-                        [10, 25, 50, 100]
-                    ],
-                    language: {
-                        processing: "Memuat...",
-                        zeroRecords: "Tidak ada pengguna ditemukan",
-                        info: "",
-                        infoEmpty: "",
-                        infoFiltered: "",
-                    },
-                    drawCallback: function(settings) {
-                        updatePagination(settings);
-                        updateRecordInfo(settings);
-                    }
-                });
-                // --- Event Listeners ---
-                $('#advanced-table-search').on('keyup', function() {
-                    dataTable.search(this.value).draw();
-                });
-                $('#select-all').on('change', function() {
-                    $('.table-selectable-check').prop('checked', this.checked);
-                });
-                $(document).on('keydown', function(e) {
-                    if (e.ctrlKey && e.key === 'k') {
-                        e.preventDefault();
-                        $('#advanced-table-search').focus();
-                    }
-                });
-                // Reset forms on modal close
-                $('#createUserModal').on('hidden.bs.modal', function() {
-                    document.getElementById('createUserForm').reset();
-                });
-                $('#editUserModal').on('hidden.bs.modal', function() {
-                    document.getElementById('editUserForm').reset();
-                });
+            // Initialize Users DataTable
+            UsersDataTable.initialize('{{ route('panel.users.datatable') }}').then(table => {
+                // Setup modal handlers
+                UsersDataTable.setupModalHandlers();
             });
-            // --- Helper Functions ---
-            function setPageListItems(event) {
-                event.preventDefault();
-                const value = parseInt(event.target.getAttribute('data-value'));
-                dataTable.page.len(value).draw();
-                $('#page-count').text(value);
-            }
 
-            function updatePagination(settings) {
-                const api = new $.fn.dataTable.Api(settings);
-                const pageInfo = api.page.info();
-                const pagination = $('#datatable-pagination');
-                pagination.empty();
-                // Previous button
-                const prevDisabled = pageInfo.page === 0 ? 'disabled' : '';
-                pagination.append(`
-                    <li class="page-item ${prevDisabled}">
-                        <a class="page-link" href="#" onclick="changePage(${pageInfo.page - 1})" ${prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                <path d="M15 6l-6 6l6 6"/>
-                            </svg>
-                            sebelumnya
-                        </a>
-                    </li>
-                `);
-                // Page numbers
-                for (let i = 0; i < pageInfo.pages; i++) {
-                    const active = i === pageInfo.page ? 'active' : '';
-                    pagination.append(`
-                        <li class="page-item ${active}">
-                            <a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a>
-                        </li>
-                    `);
-                }
-                // Next button
-                const nextDisabled = pageInfo.page === pageInfo.pages - 1 ? 'disabled' : '';
-                pagination.append(`
-                    <li class="page-item ${nextDisabled}">
-                        <a class="page-link" href="#" onclick="changePage(${pageInfo.page + 1})" ${nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>
-                            selanjutnya
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                <path d="M9 6l6 6l-6 6"/>
-                            </svg>
-                        </a>
-                    </li>
-                `);
-            }
-
-            function changePage(pageNumber) {
-                if (pageNumber >= 0) {
-                    dataTable.page(pageNumber).draw(false);
-                }
-            }
-
-            function updateRecordInfo(settings) {
-                // You can update record count displays here if needed
-            }
-            // --- User Actions ---
+            // User action functions (backward compatibility)
             function editUser(userId) {
-                fetch(`{{ route('panel.users.edit') }}?id=${userId}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const user = data.user;
-                        document.getElementById('edit_user_id').value = user.id;
-                        document.getElementById('edit_name').value = user.name;
-                        document.getElementById('edit_email').value = user.email;
-                        document.getElementById('edit_password').value = '';
-                        document.getElementById('edit_password_confirmation').value = '';
-                        const editRoleCheckboxes = document.querySelectorAll('#edit_roles_container input[name="roles[]"]');
-                        editRoleCheckboxes.forEach(checkbox => checkbox.checked = false);
-                        user.roles.forEach(role => {
-                            const editCheckbox = document.querySelector(
-                                `#edit_roles_container input[value="${role.name}"]`);
-                            if (editCheckbox) {
-                                editCheckbox.checked = true;
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error loading user data:', error);
-                        alert('Error loading user data');
-                    });
+                UsersDataTable.editUser(userId, '{{ route('panel.users.edit') }}');
             }
 
             function deleteUser(userId, userName) {
-                document.getElementById('delete_user_id').value = userId;
-                document.getElementById('delete_user_name').textContent = userName;
+                UsersDataTable.deleteUser(userId, userName);
             }
         </script>
     @endpush
