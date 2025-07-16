@@ -135,6 +135,7 @@
                 <x-modals.users.update :roles="$roles" />
                 @include('components.modals.users.delete')
                 @include('components.modals.users.delete-selected')
+                @include('components.modals.users.avatar-upload')
             </div>
         </div>
     </div>

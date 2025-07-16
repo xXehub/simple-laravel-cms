@@ -38,6 +38,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('/delete', [UserController::class, 'destroy'])->name('delete')->middleware('permission:delete-users');
             Route::delete('/destroy', [UserController::class, 'destroy'])->name('destroy')->middleware('permission:delete-users');
             Route::delete('/bulk-delete', [UserController::class, 'bulkDestroy'])->name('bulk-delete')->middleware('permission:delete-users');
+            
+            // Avatar Management
+            Route::post('/upload-avatar', [UserController::class, 'uploadAvatar'])->name('upload-avatar')->middleware('permission:update-users');
+            Route::delete('/delete-avatar', [UserController::class, 'deleteAvatar'])->name('delete-avatar')->middleware('permission:update-users');
         });
 
         // Roles Management

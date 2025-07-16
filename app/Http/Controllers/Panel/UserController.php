@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Panel\User\StoreUserRequest;
 use App\Http\Requests\Panel\User\UpdateUserRequest;
+use App\Http\Requests\Panel\User\UpdateUserAvatarRequest;
+use App\Services\AvatarService;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -18,7 +20,7 @@ class UserController extends Controller
         $this->middleware(['auth']);
         $this->middleware('permission:view-users')->only(['index', 'datatable']);
         $this->middleware('permission:create-users')->only(['create', 'store']);
-        $this->middleware('permission:update-users')->only(['edit', 'update']);
+        $this->middleware('permission:update-users')->only(['edit', 'update', 'uploadAvatar', 'deleteAvatar']);
         $this->middleware('permission:delete-users')->only(['destroy', 'bulkDestroy']);
     }
 
@@ -190,7 +192,9 @@ class UserController extends Controller
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
-                        'email' => $user->email
+                        'email' => $user->email,
+                        'avatar_url' => $user->avatar_url,
+                        'has_custom_avatar' => $user->hasCustomAvatar()
                     ]
                 ])->render();
             })
@@ -203,10 +207,92 @@ class UserController extends Controller
             ->addColumn('name', function ($user) {
                 return $user->name;
             })
+            ->addColumn('avatar_url', function ($user) {
+                return $user->avatar_url;
+            })
             ->addColumn('email', function ($user) {
                 return $user->email;
             })
             ->rawColumns(['action'])
             ->make(true);
+    }
+
+    /**
+     * Upload user avatar
+     */
+    public function uploadAvatar(UpdateUserAvatarRequest $request, AvatarService $avatarService)
+    {
+        $userId = $request->route('id') ?? $request->input('id');
+        $user = User::findOrFail($userId);
+
+        try {
+            $filename = $avatarService->uploadAvatar(
+                $request->file('avatar'),
+                $user->avatar
+            );
+
+            $user->update(['avatar' => $filename]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Avatar uploaded successfully',
+                    'avatar_url' => $user->avatar_url
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Avatar uploaded successfully');
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 400);
+            }
+
+            return redirect()->back()->with('error', 'Failed to upload avatar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete user avatar
+     */
+    public function deleteAvatar(Request $request, AvatarService $avatarService)
+    {
+        $userId = $request->route('id') ?? $request->input('id');
+        $user = User::findOrFail($userId);
+
+        // Check permission
+        if (!auth()->user()->can('update-users') && auth()->id() != $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        try {
+            if ($user->avatar) {
+                $avatarService->deleteAvatar($user->avatar);
+                $user->update(['avatar' => null]);
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Avatar deleted successfully',
+                    'avatar_url' => $user->avatar_url
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Avatar deleted successfully');
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 400);
+            }
+
+            return redirect()->back()->with('error', 'Failed to delete avatar: ' . $e->getMessage());
+        }
     }
 }

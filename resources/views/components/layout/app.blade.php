@@ -85,6 +85,9 @@
 
         @includeWhen($pakaiTopBar, 'components.layout.footer')
     </div>
+    {{-- untuk setting tema --}}
+<x-layout.tema-builder />
+
     <!-- Profile & Settings Modals -->
     <x-modals.profile />
     <x-modals.settings />
@@ -94,7 +97,7 @@
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="{{ asset('dist/js/tabler.min.js') }}"></script>
     <script src="{{ asset('js/modal-alert.js') }}"></script>
-    
+
     <!-- DataTable Global Components -->
     <script src="{{ asset('js/datatable-global.js') }}"></script>
 
@@ -112,7 +115,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-    
+
     <!-- Third Party Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -120,7 +123,7 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"></script>
-    
+
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>

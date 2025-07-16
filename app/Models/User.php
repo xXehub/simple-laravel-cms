@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
     ];
 
     /**
@@ -45,5 +46,68 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the avatar URL attribute.
+     * Returns secure avatar URL or default avatar if none exists
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar && file_exists(public_path('storage/avatars/' . $this->avatar))) {
+            return asset('storage/avatars/' . $this->avatar);
+        }
+        
+        // Return default avatar based on user's name initials
+        return $this->getDefaultAvatarUrl();
+    }
+
+    /**
+     * Generate default avatar URL with user initials
+     */
+    public function getDefaultAvatarUrl(): string
+    {
+        $initials = $this->getInitials();
+        return "https://ui-avatars.com/api/?name=" . urlencode($initials) . 
+               "&color=ffffff&background=0ea5e9&size=128&rounded=false&bold=true";
+    }
+
+    /**
+     * Get user's initials for avatar
+     */
+    public function getInitials(): string
+    {
+        $names = explode(' ', trim($this->name));
+        $initials = '';
+        
+        foreach ($names as $name) {
+            if (strlen($name) > 0) {
+                $initials .= strtoupper(substr($name, 0, 1));
+            }
+            if (strlen($initials) >= 2) break;
+        }
+        
+        return $initials ?: 'U';
+    }
+
+    /**
+     * Check if user has a custom avatar
+     */
+    public function hasCustomAvatar(): bool
+    {
+        return $this->avatar && file_exists(public_path('storage/avatars/' . $this->avatar));
+    }
+
+    /**
+     * Delete user's avatar file
+     */
+    public function deleteAvatar(): bool
+    {
+        if ($this->avatar && file_exists(public_path('storage/avatars/' . $this->avatar))) {
+            unlink(public_path('storage/avatars/' . $this->avatar));
+            $this->update(['avatar' => null]);
+            return true;
+        }
+        return false;
     }
 }
