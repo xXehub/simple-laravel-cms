@@ -5,7 +5,7 @@
             <div class="container-xl">
                 <div class="row g-2 align-items-center">
                     <div class="col">
-                        <h2 class="page-title">Menus Management</h2>
+                        {{-- <h2 class="page-title">Menus Management</h2> --}}
                     </div>
                 </div>
             </div>
@@ -96,14 +96,14 @@
                                                     aria-label="Select all menus" id="select-all" />
                                             </th>
                                             <th class="w-1">ID</th>
-                                            <th>Menu Name</th>
-                                            <th>Slug</th>
-                                            <th>Parent</th>
-                                            <th>Route</th>
-                                            <th>Icon</th>
+                                            <th style="width: 10%">Menu Name</th>
+                                            <th style="width: 10%">Slug</th>
+                                            <th style="width: 20%">Parent</th>
+                                            <th style="width: 10%">Route</th>
+                                            <th style="width: 10%">Icon</th>
                                             <th class="w-1">Order</th>
-                                            <th>Status</th>
-                                            <th>Roles</th>
+                                            <th style="width: 10%">Status</th>
+                                            <th style="width: 30%">Roles</th>
                                             <th class="w-3">Actions</th>
                                         </tr>
                                     </thead>
@@ -116,20 +116,20 @@
                                 <div class="dropdown">
                                     <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
                                         <span id="page-count" class="me-1">15</span>
-                                        <span>records</span>
+                                        <span>data ditampilkan</span>
                                     </a>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" onclick="setPageListItems(event)" data-value="10">10
-                                            records</a>
+                                            data</a>
                                         <a class="dropdown-item" onclick="setPageListItems(event)" data-value="15">15
-                                            records</a>
+                                            data</a>
                                         <a class="dropdown-item" onclick="setPageListItems(event)" data-value="25">25
-                                            records</a>
+                                            data</a>
                                         <a class="dropdown-item" onclick="setPageListItems(event)" data-value="50">50
-                                            records</a>
+                                            data</a>
                                         <a class="dropdown-item" onclick="setPageListItems(event)"
                                             data-value="100">100
-                                            records</a>
+                                            data</a>
                                     </div>
                                 </div>
                                 <ul class="pagination m-0 ms-auto" id="datatable-pagination">
