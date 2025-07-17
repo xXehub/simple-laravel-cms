@@ -79,14 +79,14 @@
         @includeWhen($pakaiTopBar, 'components.layout.top-bar')
 
         <div class="page-wrapper">
-            <x-layout.flash-messages />
+            {{-- <x-layout.flash-messages /> --}}
             {{ $slot }}
         </div>
 
         @includeWhen($pakaiTopBar, 'components.layout.footer')
     </div>
     {{-- untuk setting tema --}}
-<x-layout.tema-builder />
+    <x-layout.tema-builder />
 
     <!-- Profile & Settings Modals -->
     <x-modals.profile />

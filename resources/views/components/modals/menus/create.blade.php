@@ -72,7 +72,18 @@
                                 </select>
                             </div>
                         </div>
+                        {{-- urutan --}}
                         <div class="col-md-6">
+                            <label for="create_urutan" class="form-label">Urutan <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="create_urutan" name="urutan"
+                                value="{{ old('urutan', 1) }}" required>
+                        </div>
+                    </div>
+
+                    {{-- Order & Status --}}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Assign to Roles</label>
                                 <select class="form-select" id="create_roles" name="roles[]" multiple>
@@ -84,20 +95,11 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="form-text">Select multiple roles</div>
+                                <div class="form-text">Bisa memilih lebih dari satu role</div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Order & Status --}}
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="create_urutan" class="form-label">Order <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="create_urutan" name="urutan"
-                                value="{{ old('urutan', 1) }}" required>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-check">
                                 <!-- Hidden input untuk memastikan nilai 0 dikirim jika checkbox tidak dicentang -->
                                 <input type="hidden" name="is_active" value="0">
