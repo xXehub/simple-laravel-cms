@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/store', [MenuController::class, 'store'])->name('store')->middleware('permission:create-menus');
             Route::get('/edit', [MenuController::class, 'edit'])->name('edit')->middleware('permission:update-menus');
             Route::match(['PUT', 'POST'], '/update', [MenuController::class, 'update'])->name('update')->middleware('permission:update-menus');
+            Route::post('/move-order', [MenuController::class, 'moveOrder'])->name('move-order')->middleware('permission:update-menus');
             Route::delete('/delete', [MenuController::class, 'destroy'])->name('delete')->middleware('permission:delete-menus');
             Route::delete('/bulk-delete', [MenuController::class, 'bulkDestroy'])->name('bulk-delete')->middleware('permission:delete-menus');
         });

@@ -323,26 +323,102 @@ class MenuController extends Controller
         $direction = $request->input('direction');
 
         try {
-            $menu = MasterMenu::with('children')->findOrFail($menuId);
+            $menu = MasterMenu::findOrFail($menuId);
             
-            // Get siblings (menus with same parent)
-            $siblings = $this->getSiblings($menu->parent_id);
-            
-            // Find target menu to swap with
-            $targetMenu = $this->findTargetMenu($menu, $siblings, $direction);
-            
-            if (!$targetMenu) {
+            // Get all menus at the root level (parent_id = null) or at the same parent level
+            $parentId = $menu->parent_id;
+            $siblings = MasterMenu::where('parent_id', $parentId)
+                ->orderBy('urutan', 'asc')
+                ->get();
+
+            // Find current menu position in the list
+            $currentIndex = $siblings->search(function ($item) use ($menuId) {
+                return $item->id == $menuId;
+            });
+
+            if ($currentIndex === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Menu not found in siblings list'
+                ], 404);
+            }
+
+            // Determine target position
+            $targetIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+
+            // Check if move is valid
+            if ($targetIndex < 0 || $targetIndex >= $siblings->count()) {
                 return response()->json([
                     'success' => false,
                     'message' => $direction === 'up' ? 'Menu sudah di posisi teratas' : 'Menu sudah di posisi terbawah'
                 ], 400);
             }
 
-            // Perform the swap with transaction
-            DB::transaction(function () use ($menu, $targetMenu) {
-                $this->swapMenuGroups($menu, $targetMenu);
-                $this->reorderAllMenus();
-            });
+            // Get the menus to swap
+            $currentMenu = $siblings[$currentIndex];
+            $targetMenu = $siblings[$targetIndex];
+
+            // Get all children of both menus (for hierarchy management)
+            $currentChildren = $this->getAllChildrenWithOrder($currentMenu->id);
+            $targetChildren = $this->getAllChildrenWithOrder($targetMenu->id);
+
+            // Calculate the space needed for each menu group (menu + its children)
+            $currentGroupSize = 1 + count($currentChildren);
+            $targetGroupSize = 1 + count($targetChildren);
+
+            // Start transaction to ensure data consistency
+            \DB::beginTransaction();
+
+            if ($direction === 'up') {
+                // Moving current menu up means it takes target's position
+                $newCurrentUrutan = $targetMenu->urutan;
+                $newTargetUrutan = $newCurrentUrutan + $currentGroupSize;
+                
+                // Update current menu and its children
+                $currentMenu->urutan = $newCurrentUrutan;
+                $currentMenu->save();
+                
+                foreach ($currentChildren as $index => $child) {
+                    $child->urutan = $newCurrentUrutan + $index + 1;
+                    $child->save();
+                }
+                
+                // Update target menu and its children
+                $targetMenu->urutan = $newTargetUrutan;
+                $targetMenu->save();
+                
+                foreach ($targetChildren as $index => $child) {
+                    $child->urutan = $newTargetUrutan + $index + 1;
+                    $child->save();
+                }
+            } else {
+                // Moving current menu down means target moves up
+                $newTargetUrutan = $currentMenu->urutan;
+                $newCurrentUrutan = $newTargetUrutan + $targetGroupSize;
+                
+                // Update target menu and its children first
+                $targetMenu->urutan = $newTargetUrutan;
+                $targetMenu->save();
+                
+                foreach ($targetChildren as $index => $child) {
+                    $child->urutan = $newTargetUrutan + $index + 1;
+                    $child->save();
+                }
+                
+                // Update current menu and its children
+                $currentMenu->urutan = $newCurrentUrutan;
+                $currentMenu->save();
+                
+                foreach ($currentChildren as $index => $child) {
+                    $child->urutan = $newCurrentUrutan + $index + 1;
+                    $child->save();
+                }
+            }
+
+            // Reorder all menus to ensure sequential ordering
+            $this->reorderMenusSequentially($parentId);
+
+            \DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -350,6 +426,7 @@ class MenuController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \DB::rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
@@ -368,110 +445,7 @@ class MenuController extends Controller
     }
 
     /**
-     * Get siblings of a menu (menus with same parent)
-     */
-    private function getSiblings($parentId)
-    {
-        return MasterMenu::where('parent_id', $parentId)
-            ->orderBy('urutan', 'asc')
-            ->get();
-    }
-
-    /**
-     * Find target menu to swap with based on direction
-     */
-    private function findTargetMenu($menu, $siblings, $direction)
-    {
-        $currentIndex = $siblings->search(function ($item) use ($menu) {
-            return $item->id == $menu->id;
-        });
-
-        if ($currentIndex === false) {
-            return null;
-        }
-
-        $targetIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
-
-        if ($targetIndex < 0 || $targetIndex >= $siblings->count()) {
-            return null;
-        }
-
-        return $siblings[$targetIndex];
-    }
-
-    /**
-     * Swap two menu groups (menu + their children) while maintaining hierarchy
-     */
-    private function swapMenuGroups($menu1, $menu2)
-    {
-        // Get children of both menus
-        $menu1Children = $menu1->children()->orderBy('urutan')->get();
-        $menu2Children = $menu2->children()->orderBy('urutan')->get();
-
-        // Store original orders
-        $menu1Order = $menu1->urutan;
-        $menu2Order = $menu2->urutan;
-
-        // Calculate group sizes
-        $menu1GroupSize = 1 + $menu1Children->count();
-        $menu2GroupSize = 1 + $menu2Children->count();
-
-        // Determine which menu comes first
-        if ($menu1Order < $menu2Order) {
-            // Menu1 is moving down, Menu2 is moving up
-            $this->moveMenuGroup($menu1, $menu1Children, $menu2Order);
-            $this->moveMenuGroup($menu2, $menu2Children, $menu1Order);
-        } else {
-            // Menu1 is moving up, Menu2 is moving down  
-            $this->moveMenuGroup($menu2, $menu2Children, $menu1Order);
-            $this->moveMenuGroup($menu1, $menu1Children, $menu2Order);
-        }
-    }
-
-    /**
-     * Move a menu and its children to a new order position
-     */
-    private function moveMenuGroup($menu, $children, $newOrder)
-    {
-        // Update parent menu order
-        $menu->update(['urutan' => $newOrder]);
-
-        // Update children orders sequentially after parent
-        $currentOrder = $newOrder + 1;
-        foreach ($children as $child) {
-            $child->update(['urutan' => $currentOrder]);
-            $currentOrder++;
-        }
-    }
-
-    /**
      * Reorder all menus sequentially to ensure clean ordering
-     */
-    private function reorderAllMenus()
-    {
-        // Get all root level menus first
-        $rootMenus = MasterMenu::whereNull('parent_id')
-            ->orderBy('urutan', 'asc')
-            ->get();
-
-        $currentOrder = 1;
-
-        foreach ($rootMenus as $menu) {
-            // Update parent menu order
-            $menu->update(['urutan' => $currentOrder]);
-            $currentOrder++;
-
-            // Update all children sequentially after parent
-            $children = $menu->children()->orderBy('urutan', 'asc')->get();
-            foreach ($children as $child) {
-                $child->update(['urutan' => $currentOrder]);
-                $currentOrder++;
-            }
-        }
-    }
-
-    /**
-     * @deprecated Use reorderAllMenus() instead
      */
     private function reorderMenusSequentially($parentId = null)
     {
@@ -481,13 +455,15 @@ class MenuController extends Controller
 
         $order = 1;
         foreach ($menus as $menu) {
-            $menu->update(['urutan' => $order]);
+            $menu->urutan = $order;
+            $menu->save();
             $order++;
 
             // Recursively reorder children
             $children = $this->getAllChildrenWithOrder($menu->id);
             foreach ($children as $child) {
-                $child->update(['urutan' => $order]);
+                $child->urutan = $order;
+                $child->save();
                 $order++;
             }
         }

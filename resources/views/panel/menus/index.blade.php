@@ -161,6 +161,8 @@
     </div>
 
     @push('scripts')
+        <!-- Toast Notification System -->
+        <script src="{{ asset('js/toast.js') }}"></script>
         <!-- Menus DataTable Module -->
         <script src="{{ asset('js/datatable/menus.js') }}"></script>
         <script>
@@ -173,6 +175,7 @@
 
                     // Setup all handlers
                     MenusDataTable.setupModalHandlers();
+                    MenusDataTable.setupMenuOrderHandlers('{{ route('panel.menus.move-order') }}');
                     MenusDataTable.initializeAllHandlers(
                         '{{ route('panel.menus.bulk-delete') }}',
                         '{{ csrf_token() }}'

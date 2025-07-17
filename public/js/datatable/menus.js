@@ -635,6 +635,104 @@ window.MenusDataTable = (function () {
         };
     }
 
+    // Menu order functionality
+    function moveMenuOrder(menuId, direction, moveOrderRoute) {
+        // Show loading state
+        const buttons = document.querySelectorAll(`[data-menu-id="${menuId}"]`);
+        buttons.forEach((btn) => {
+            btn.disabled = true;
+            btn.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        });
+
+        // Send AJAX request to move menu
+        fetch(moveOrderRoute, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({
+                menu_id: menuId,
+                direction: direction,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Show success message
+                    if (typeof window.showToast === "function") {
+                        window.showToast(
+                            "success",
+                            data.message || "Menu order updated successfully"
+                        );
+                    }
+
+                    // Refresh the DataTable
+                    refreshDataTable();
+                } else {
+                    throw new Error(
+                        data.message || "Failed to update menu order"
+                    );
+                }
+            })
+            .catch((error) => {
+                console.error("Error moving menu:", error);
+
+                // Show error message
+                if (typeof window.showToast === "function") {
+                    window.showToast(
+                        "error",
+                        error.message || "Failed to update menu order"
+                    );
+                } else {
+                    alert(
+                        "Error: " +
+                            (error.message || "Failed to update menu order")
+                    );
+                }
+            })
+            .finally(() => {
+                // Restore button states after a delay (in case table refresh is slow)
+                setTimeout(() => {
+                    buttons.forEach((btn) => {
+                        btn.disabled = false;
+                        const direction = btn.getAttribute("data-direction");
+                        btn.innerHTML =
+                            direction === "up"
+                                ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>'
+                                : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+                    });
+                }, 1000);
+            });
+    }
+
+    // Setup menu order handlers
+    function setupMenuOrderHandlers(moveOrderRoute) {
+        // Remove existing handlers to prevent duplicates
+        document.removeEventListener("click", handleMenuOrderClick);
+
+        // Add event delegation for move buttons
+        document.addEventListener("click", handleMenuOrderClick);
+
+        function handleMenuOrderClick(e) {
+            if (e.target.closest(".move-menu-btn")) {
+                e.preventDefault();
+                const button = e.target.closest(".move-menu-btn");
+                const menuId = button.getAttribute("data-menu-id");
+                const direction = button.getAttribute("data-direction");
+
+                if (menuId && direction && moveOrderRoute) {
+                    moveMenuOrder(menuId, direction, moveOrderRoute);
+                }
+            }
+        }
+    }
+
     // Initialize all handlers
     function initializeAllHandlers(bulkDeleteRoute, csrfToken) {
         setupCheckboxHandlers();
@@ -654,6 +752,8 @@ window.MenusDataTable = (function () {
         setupModalHandlers: setupModalHandlers,
         initializeAllHandlers: initializeAllHandlers,
         updateRecordInfo: updateRecordInfo,
+        moveMenuOrder: moveMenuOrder,
+        setupMenuOrderHandlers: setupMenuOrderHandlers,
         getTable: function () {
             return menusTable;
         },
