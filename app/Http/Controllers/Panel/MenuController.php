@@ -135,12 +135,12 @@ class MenuController extends Controller
     public function store(StoreMenuRequest $request)
     {
         $menu = MasterMenu::create([
-            'nama_menu' => $request->nama_menu,
-            'slug' => $request->slug,
-            'route_name' => $request->route_name,
-            'icon' => $request->icon,
-            'parent_id' => $request->parent_id,
-            'urutan' => $request->urutan,
+            'nama_menu' => $request->input('nama_menu'),
+            'slug' => $request->input('slug'),
+            'route_name' => $request->input('route_name'),
+            'icon' => $request->input('icon'),
+            'parent_id' => $request->input('parent_id'),
+            'urutan' => $request->input('urutan'),
             'is_active' => $request->boolean('is_active'),
         ]);
 

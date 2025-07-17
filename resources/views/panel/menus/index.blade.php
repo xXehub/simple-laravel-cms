@@ -1,4 +1,4 @@
-<x-layout.app title="Menus Management - Panel Admin" :pakai-sidebar="true">
+<x-layout.app title="Menus Management - Panel Admin" :pakaiSidebar="true" :pakaiTopBar="false">
     <div class="page-header d-print-none" aria-label="Page header">
         <div class="container-xl">
             <div class="row g-2 align-items-center">

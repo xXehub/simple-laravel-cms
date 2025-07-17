@@ -1,4 +1,4 @@
-@props(['title' => 'KantorKu SuperApp', 'pakaiSidebar' => false])
+@props(['title' => 'KantorKu SuperApp', 'pakaiSidebar' => false, 'pakaiTopBar' => null])
 
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -66,7 +66,9 @@
         'verification.notice',
         'verification.verify',
     ];
-    $pakaiTopBar = !in_array(Route::currentRouteName(), $authRoutes);
+    
+    // If pakaiTopBar is explicitly set, use it; otherwise auto-detect based on auth routes
+    $showTopBar = $pakaiTopBar !== null ? $pakaiTopBar : !in_array(Route::currentRouteName(), $authRoutes);
 @endphp
 
 <body>
@@ -76,14 +78,14 @@
         <x-layout.tema-builder />
 
         @includeWhen($pakaiSidebar, 'components.layout.sidebar')
-        @includeWhen($pakaiTopBar, 'components.layout.top-bar')
+        @includeWhen($showTopBar, 'components.layout.top-bar')
 
         <div class="page-wrapper">
             {{-- <x-layout.flash-messages /> --}}
             {{ $slot }}
         </div>
 
-        @includeWhen($pakaiTopBar, 'components.layout.footer')
+        @includeWhen($showTopBar, 'components.layout.footer')
     </div>
     {{-- untuk setting tema --}}
     <x-layout.tema-builder />

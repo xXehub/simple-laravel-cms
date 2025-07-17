@@ -1,4 +1,4 @@
-<x-layout.app title="Users Management - Panel Admin" :pakai-sidebar="true">
+<x-layout.app title="Menus Management - Panel Admin" :pakaiSidebar="true" :pakaiTopBar="false">
     <div class="page-header d-print-none" aria-label="Page header">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -84,7 +84,7 @@
                                             @can('delete-users')
                                                 <button type="button" id="delete-selected-btn" class="btn btn-danger"
                                                     data-bs-toggle="modal" data-bs-target="#deleteSelectedModal" disabled>
-                                              
+
                                                     Hapus Terpilih (<span id="selected-count">0</span>)
                                                 </button>
                                             @endcan
