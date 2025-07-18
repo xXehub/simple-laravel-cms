@@ -4,13 +4,13 @@
 <div class="btn-list flex-nowrap">
     @can('update-menus')
         {{-- Menu Order Controls --}}
-        <x-menu.order-controls :menu="$menu" />
+        <x-modals.menus.order-controls :menu="$menu" />
     @endcan
-    
+
     @can('view-menus')
         <button type="button" class="btn btn-sm btn-primary"
             style="padding: 4px 8px; font-size: 12px;"onclick="openEditModal({{ json_encode($menu) }})" title="Edit Menu">
-          <i class="fa-solid fa-expand"></i>
+            <i class="fa-solid fa-expand"></i>
         </button>
     @endcan
     @can('update-menus')
