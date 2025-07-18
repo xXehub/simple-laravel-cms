@@ -102,6 +102,7 @@
                                                         aria-label="Select all users" id="select-all" />
                                                 </th>
                                                 <th>Name</th>
+                                                <th>Username</th>
                                                 <th>Email</th>
                                                 <th>Role</th>
                                                 <th>Registered</th>

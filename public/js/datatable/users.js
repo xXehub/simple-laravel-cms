@@ -8,10 +8,10 @@
 window.UsersDataTable = (function () {
     "use strict";
 
-    let usersTable;
-    let selectedUsers = [];
+    let usersTable; // DataTable instance
+    let selectedUsers = []; // Array of selected user IDs for bulk actions
 
-    // Users table configuration with server-side processing
+    // --- DataTable Configuration ---
     function getTableConfig(route) {
         return {
             processing: true,
@@ -27,25 +27,39 @@ window.UsersDataTable = (function () {
                     console.error("DataTable Ajax Error:", error, thrown);
                 },
             },
-            columns: [{
+            columns: [
+                // Checkbox column for selection
+                {
                     data: null,
                     orderable: false,
                     searchable: false,
                     render: (data, type, row) =>
                         `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="${row.id}"/>`,
                 },
+                // Name with avatar
                 {
                     data: "name",
                     name: "name",
                     render: (data, type, row) => {
-                        const avatarUrl = row.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.charAt(0)) + '&color=ffffff&background=0ea5e9&size=32&rounded=false&bold=true';
+                        const avatarUrl =
+                            row.avatar_url ||
+                            "https://ui-avatars.com/api/?name=" +
+                                encodeURIComponent(data.charAt(0)) +
+                                "&color=ffffff&background=0ea5e9&size=32&rounded=false&bold=true";
                         return `<span class="avatar avatar-xs me-2" style="background-image: url('${avatarUrl}');"></span>${data}`;
                     },
                 },
+                // Username
+                {
+                    data: "username",
+                    name: "username",
+                },
+                // Email
                 {
                     data: "email",
                     name: "email",
                 },
+                // Roles badges
                 {
                     data: "roles",
                     name: "roles",
@@ -56,13 +70,14 @@ window.UsersDataTable = (function () {
                             return data
                                 .map(
                                     (role) =>
-                                    `<span class="badge bg-primary-lt me-1">${role}</span>`
+                                        `<span class="badge bg-primary-lt me-1">${role}</span>`
                                 )
                                 .join("");
                         }
                         return '<span class="badge bg-secondary-lt">No Role</span>';
                     },
                 },
+                // Created at (formatted)
                 {
                     data: "created_at",
                     name: "created_at",
@@ -73,6 +88,7 @@ window.UsersDataTable = (function () {
                             day: "numeric",
                         }),
                 },
+                // Action buttons
                 {
                     data: "action",
                     name: "action",
@@ -81,9 +97,7 @@ window.UsersDataTable = (function () {
                     className: "text-end",
                 },
             ],
-            order: [
-                [1, "asc"]
-            ],
+            order: [[1, "asc"]],
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
             language: {
@@ -104,11 +118,10 @@ window.UsersDataTable = (function () {
         };
     }
 
-    // Initialize users DataTable
+    // --- Initialize DataTable and Setup Event Handlers ---
     function initialize(route) {
         return DataTableGlobal.waitForLibraries().then(() => {
             const usersTableConfig = getTableConfig(route);
-
             return DataTableGlobal.initializeDataTable("#datatable-users", {
                 tableConfig: usersTableConfig,
                 drawCallbackOptions: {
@@ -120,26 +133,23 @@ window.UsersDataTable = (function () {
                 enableKeyboardShortcuts: true,
             }).then((table) => {
                 usersTable = table;
-                window.usersTable = table;
-
-                // Setup event handlers
+                window.usersTable = table; // For debugging
                 setupEventHandlers();
-
                 return table;
             });
         });
     }
 
-    // Setup all event handlers
+    // --- Setup All Event Handlers ---
     function setupEventHandlers() {
         setupCheckboxHandlers();
         setupBulkDeleteHandlers();
         setupDataTableEvents();
     }
 
-    // Setup checkbox handlers for bulk operations
+    // --- Checkbox Handlers for Bulk Selection ---
     function setupCheckboxHandlers() {
-        // Handle select all checkbox
+        // Select all checkbox
         $("#select-all")
             .off("change.users")
             .on("change.users", function () {
@@ -149,39 +159,29 @@ window.UsersDataTable = (function () {
                 updateBulkDeleteButton();
             });
 
-        // Handle individual checkboxes
+        // Individual row checkboxes
         $(document)
             .off("change.users", ".table-selectable-check")
             .on("change.users", ".table-selectable-check", function () {
                 updateSelectedUsers();
                 updateSelectAllState();
                 updateBulkDeleteButton();
-
             });
     }
 
-    // Update selected users array
+    // --- Update Array of Selected Users ---
     function updateSelectedUsers() {
         selectedUsers = [];
         $(".table-selectable-check:checked").each(function () {
-            const row = usersTable.row($(this).closest("tr")).data();
-            if (row) {
-                selectedUsers.push({
-                    id: row.id,
-                    name: row.name,
-                    email: row.email,
-                });
-            }
+            selectedUsers.push($(this).val());
         });
-
         $("#selected-count").text(selectedUsers.length);
     }
 
-    // Update select all checkbox state
+    // --- Update Select All Checkbox State (indeterminate/checked) ---
     function updateSelectAllState() {
         const totalCheckboxes = $(".table-selectable-check").length;
         const checkedCheckboxes = $(".table-selectable-check:checked").length;
-
         $("#select-all").prop(
             "indeterminate",
             checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
@@ -192,145 +192,76 @@ window.UsersDataTable = (function () {
         );
     }
 
-    // Update bulk delete button state
+    // --- Enable/Disable Bulk Delete Button ---
     function updateBulkDeleteButton() {
         const hasSelected = selectedUsers.length > 0;
         $("#delete-selected-btn").prop("disabled", !hasSelected);
         $("#selected-count").text(selectedUsers.length);
     }
 
-    // Setup bulk delete handlers
+    // --- Bulk Delete Handlers ---
     function setupBulkDeleteHandlers() {
         // Show selected users in delete modal
         $("#deleteSelectedModal")
             .off("show.bs.modal.users")
             .on("show.bs.modal.users", function () {
-                $("#delete-selected-count").text(selectedUsers.length);
-
-                let usersList = "";
-                selectedUsers.forEach((user) => {
-                    usersList += `<div class="border rounded p-2 mb-1">
-                    <strong>${user.name}</strong><br>
-                    <small class="text-muted">Email: ${user.email}</small>
-                </div>`;
-                });
-
-                $("#selected-users-list").html(usersList);
+                const selectedList = selectedUsers
+                    .map((id) => `<li>User ID: <strong>${id}</strong></li>`)
+                    .join("");
+                $("#selected-users-list").html(selectedList);
             });
 
-        // Handle bulk delete confirmation
+        // Confirm bulk delete
         $("#confirm-delete-selected")
             .off("click.users")
             .on("click.users", function () {
-                const userIds = selectedUsers.map((user) => user.id);
-                const button = $(this);
-
-                // Disable button and show loading
-                button.prop("disabled", true).html(`
-                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                Deleting...
-            `);
-
-                // Send request
-                fetch(bulkDeleteRoute, {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document
-                                .querySelector('meta[name="csrf-token"]')
-                                .getAttribute("content"),
-                            Accept: "application/json",
-                        },
-                        body: JSON.stringify({
-                            user_ids: userIds,
-                        }),
-                    })
-                    .then((response) => {
-                        if (response.ok) {
-                            // Close modal and refresh table
-                            $("#deleteSelectedModal").modal("hide");
-                            location.reload(); // Simple reload to show flash messages
-                        } else {
-                            throw new Error("Network response was not ok");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        alert("Error deleting users. Please try again.");
-                    })
-                    .finally(() => {
-                        // Reset button
-                        button.prop("disabled", false).html(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
-                    <polyline points="3,6 5,6 21,6"></polyline>
-                    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-                Delete Selected
-            `);
-                    });
+                // Implement AJAX bulk delete here if needed
             });
     }
 
-    // Setup DataTable specific events
+    // --- DataTable Draw Event Handlers ---
     function setupDataTableEvents() {
-        // Override draw callback to update record info
+        // Update record info on draw
         $(document)
             .off("draw.dt.users", "#datatable-users")
             .on("draw.dt.users", "#datatable-users", function () {
                 updateRecordInfo();
-                updateSelectedUsers();
-                updateSelectAllState();
-                updateBulkDeleteButton();
             });
     }
 
-    // Update record information
+    // --- Update Record Info (footer) ---
     function updateRecordInfo() {
         if (usersTable && usersTable.page) {
             const info = usersTable.page.info();
-            if (info) {
-                const start = info.start + 1;
-                const end = info.end;
-                const total = info.recordsTotal;
-                const filtered = info.recordsFiltered;
-
-                let infoText = "";
-                if (total === 0) {
-                    infoText =
-                        "Showing <strong>0 to 0</strong> of <strong>0 entries</strong>";
-                } else if (filtered !== total) {
-                    infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${filtered} entries</strong> (filtered from ${total} total entries)`;
-                } else {
-                    infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${total} entries</strong>`;
-                }
-
-                $("#record-info").html(infoText);
-            }
+            $("#record-info").html(
+                `Showing <strong>${info.start + 1} to ${
+                    info.end
+                }</strong> of <strong>${info.recordsDisplay}</strong> entries`
+            );
         }
     }
 
-    // Refresh DataTable
+    // --- Refresh DataTable ---
     function refreshDataTable() {
         if (usersTable) {
             usersTable.ajax.reload(null, false);
         }
     }
 
-    // User action functions
+    // --- Edit User (AJAX load for modal) ---
     function editUser(userId, editRoute) {
         fetch(`${editRoute}?id=${userId}`, {
-                headers: {
-                    Accept: "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-            })
+            headers: {
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
             .then((response) => response.json())
             .then((data) => {
                 const user = data.user;
                 document.getElementById("edit_user_id").value = user.id;
                 document.getElementById("edit_name").value = user.name;
+                document.getElementById("edit_username").value = user.username;
                 document.getElementById("edit_email").value = user.email;
                 document.getElementById("edit_password").value = "";
                 document.getElementById("edit_password_confirmation").value =
@@ -358,13 +289,14 @@ window.UsersDataTable = (function () {
             });
     }
 
+    // --- Delete User (set modal fields) ---
     function deleteUser(userId, userName) {
         document.getElementById("delete_user_id").value = userId;
         document.getElementById("delete_user_name").textContent = userName;
     }
 
+    // --- Modal Handlers (reset forms on close) ---
     function setupModalHandlers() {
-        // Reset forms on modal close
         $("#createUserModal").on("hidden.bs.modal", function () {
             document.getElementById("createUserForm").reset();
         });
@@ -373,7 +305,7 @@ window.UsersDataTable = (function () {
         });
     }
 
-    // Page length handler
+    // --- Page Length Dropdown Handler ---
     function setPageListItems(event) {
         event.preventDefault();
         const value = parseInt(event.target.getAttribute("data-value"));
@@ -383,14 +315,13 @@ window.UsersDataTable = (function () {
         }
     }
 
-    // Initialize bulk delete route (will be set from Blade)
+    // --- Set Bulk Delete Route (from Blade) ---
     let bulkDeleteRoute = "";
-
     function setBulkDeleteRoute(route) {
         bulkDeleteRoute = route;
     }
 
-    // Public API
+    // --- Public API ---
     return {
         initialize,
         updateRecordInfo,
@@ -406,7 +337,7 @@ window.UsersDataTable = (function () {
     };
 })();
 
-// Global compatibility functions
+// --- Global compatibility functions (for legacy usage) ---
 window.editUser = (userId, editRoute) =>
     UsersDataTable.editUser(userId, editRoute);
 window.deleteUser = (userId, userName) =>

@@ -11,7 +11,10 @@ window.MenusDataTable = (function () {
     let menusTable;
     let tomSelectInstances = {};
 
-    // Table configuration with server-side processing
+    /**
+     * Build DataTable configuration for Menus
+     * @param {string} route - The AJAX endpoint for server-side processing
+     */
     function getTableConfig(route) {
         return {
             processing: true,
@@ -21,7 +24,7 @@ window.MenusDataTable = (function () {
                 url: route,
                 type: "GET",
                 data: function (d) {
-                    // Send additional parameters for server-side processing
+                    // Pass DataTables parameters to server
                     return d;
                 },
                 error: function (xhr, error, thrown) {
@@ -29,6 +32,7 @@ window.MenusDataTable = (function () {
                 },
             },
             columns: [
+                // Checkbox for bulk selection
                 {
                     data: null,
                     orderable: false,
@@ -37,86 +41,82 @@ window.MenusDataTable = (function () {
                         return `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select menu" value="${row.id}"/>`;
                     },
                 },
+                // Icon column
                 {
                     data: "icon",
                     name: "icon",
                     orderable: false, // Icons should not be orderable
                     className: "text-center",
-                    //  render: (data) =>
-                    //     `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"></span>${data}`,
                     render: function (data, type, row) {
                         return data
                             ? `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"><i class="${data}"></i></span>`
                             : '<span class="text-muted">-</span>';
                     },
                 },
-                // {
-                //     data: "id",
-                //     name: "id",
-                //     className: "text-secondary",
-                // },
+                // Menu name
                 {
                     data: "nama_menu",
                     name: "nama_menu",
-                    // className: "text-secondary",
-                    // render: function(data, type, row) {
-                    //     return `<strong>${data}</strong>`;
-                    // }
-                    render: function (data, type, row) {
+                    render: function (data) {
                         return `${data}`;
                     },
                 },
+                // Slug (code style)
                 {
                     data: "slug",
                     name: "slug",
                     className: "text-secondary",
-                    render: function (data, type, row) {
+                    render: function (data) {
                         return `<code>${data}</code>`;
                     },
                 },
+                // Parent menu badge
                 {
                     data: "parent",
                     name: "parent_id",
                     orderable: false,
                     className: "text-secondary",
-                    render: function (data, type, row) {
+                    render: function (data) {
                         return data
                             ? `<span class="badge bg-secondary-lt">${data}</span>`
                             : '<span class="text-muted">-</span>';
                     },
                 },
+                // Route name (code style)
                 {
                     data: "route_name",
                     name: "route_name",
-                    render: function (data, type, row) {
+                    render: function (data) {
                         return data
                             ? `<code>${data}</code>`
                             : '<span class="text-muted">-</span>';
                     },
                 },
-
+                // Order (urutan)
                 {
                     data: "urutan",
                     name: "urutan",
                     className: "text-center",
                 },
+                // Active status badge
                 {
                     data: "is_active",
                     name: "is_active",
                     orderable: false,
                     className: "text-center",
-                    render: function (data, type, row) {
-                        // Handle boolean values properly
+                    render: function (data) {
+                        // Show badge for active/inactive
                         return data === true || data === 1 || data === "1"
                             ? '<span class="badge bg-success-lt">Active</span>'
                             : '<span class="badge bg-danger-lt">Inactive</span>';
                     },
                 },
+                // Roles badges
                 {
                     data: "roles",
                     name: "roles",
                     orderable: false,
-                    render: function (data, type, row) {
+                    render: function (data) {
                         if (data && data.length > 0) {
                             return data
                                 .map(
@@ -128,14 +128,15 @@ window.MenusDataTable = (function () {
                         return '<span class="badge bg-danger-lt me-1">Tidak Ada</span>';
                     },
                 },
+                // Action buttons (edit/delete)
                 {
                     data: "actions",
                     name: "actions",
                     orderable: false,
                     searchable: false,
                     className: "text-end",
-                    render: function (data, type, row) {
-                        // Return the pre-rendered action HTML from component
+                    render: function (data) {
+                        // Render pre-built action HTML
                         return data;
                     },
                 },

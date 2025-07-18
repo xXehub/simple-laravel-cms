@@ -152,6 +152,10 @@
                                     <input id="name" type="text" class="form-control" placeholder="Masukkan nama lengkap" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus />
                                 </div>
                                 <div class="mb-3">
+                                    <label class="form-label">Username</label>
+                                    <input id="username" type="text" class="form-control" placeholder="Masukkan username unik" name="username" value="{{ old('username') }}" required autocomplete="username" />
+                                </div>
+                                <div class="mb-3">
                                     <label class="form-label">Email</label>
                                     <input id="email" type="email" class="form-control" placeholder="Masukkan email aktif" name="email" value="{{ old('email') }}" required autocomplete="email" />
                                 </div>
@@ -177,8 +181,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Konfirmasi Kata Sandi</label>
                                     <div class="input-group input-group-flat">
-                                        <input id="password" type="password" class="form-control" placeholder="Ulangi kata sandi"
-                                            autocomplete="off" name="password" required autocomplete="new-password" />
+                                        <input id="password_confirmation" type="password" class="form-control" placeholder="Ulangi kata sandi"
+                                            autocomplete="off" name="password_confirmation" required autocomplete="new-password" />
                                         <span class="input-group-text">
                                             <a href="#" class="link-secondary" title="Show password"
                                                 data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
@@ -207,7 +211,7 @@
                             </form>
                         </div>
                     </div>
-                    <div class="text-center text-secondary mt-3">Sudah punya akun? <a href="./sign-up.html"
+                    <div class="text-center text-secondary mt-3">Sudah punya akun? <a href="{{ route(name: 'login') }}"
                             tabindex="-1">Masuk.</a></div>
                 </div>
             </div>

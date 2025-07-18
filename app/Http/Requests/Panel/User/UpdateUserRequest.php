@@ -23,6 +23,7 @@ class UpdateUserRequest extends FormRequest
         
         return [
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $userId,
             'email' => 'required|string|email|max:255|unique:users,email,' . $userId,
             'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'array',
@@ -37,6 +38,8 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name.required' => 'Nama user harus diisi',
+            'username.required' => 'Username harus diisi',
+            'username.unique' => 'Username sudah digunakan',
             'email.required' => 'Email harus diisi',
             'email.unique' => 'Email sudah digunakan',
             'password.min' => 'Password minimal 8 karakter',

@@ -64,7 +64,7 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create($permission);
+            Permission::create(['name' => $permission['name']]);
         }
 
         // Create roles and assign permissions - Clean approach
@@ -92,6 +92,7 @@ class RolePermissionSeeder extends Seeder
         // Create admin user
         $adminUser = User::create([
             'name' => 'Admin User',
+            'username' => 'admin',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
         ]);
@@ -100,6 +101,7 @@ class RolePermissionSeeder extends Seeder
         // Create editor user
         $editorUser = User::create([
             'name' => 'Editor User',
+            'username' => 'editor',
             'email' => 'editor@example.com',
             'password' => bcrypt('password'),
         ]);
@@ -108,6 +110,7 @@ class RolePermissionSeeder extends Seeder
         // Create viewer user
         $viewerUser = User::create([
             'name' => 'Viewer User',
+            'username' => 'viewer',
             'email' => 'viewer@example.com',
             'password' => bcrypt('password'),
         ]);

@@ -150,8 +150,8 @@
                                     @csrf
                                     <div class="mb-3">
                                         <label class="form-label">Email/Username</label>
-                                        <input id="email" name="email" value="{{ old('email') }}" type="email" class="form-control"
-                                            placeholder="your@email.com" autocomplete="off" />
+                                        <input id="email" name="email" value="{{ old('email') }}" type="text" class="form-control"
+                                            placeholder="your@email.com atau username" autocomplete="off" />
                                     </div>
 
                                     @error('email')
@@ -205,7 +205,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-center text-secondary mt-3">Belum punya akun? <a href="./sign-up.html"
+                        <div class="text-center text-secondary mt-3">Belum punya akun? <a href="{{ route('register') }}"
                                 tabindex="-1">Daftar disini.</a></div>
                     </div>
                 </div>

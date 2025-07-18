@@ -49,6 +49,7 @@ class UserController extends Controller
     {
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -91,6 +92,7 @@ class UserController extends Controller
 
         $user->update([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
         ]);
 
@@ -206,6 +208,9 @@ class UserController extends Controller
             })
             ->addColumn('name', function ($user) {
                 return $user->name;
+            })
+            ->addColumn('username', function ($user) {
+                return $user->username;
             })
             ->addColumn('avatar_url', function ($user) {
                 return $user->avatar_url;

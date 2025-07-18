@@ -33,6 +33,18 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="mb-3">
+                                    <label for="edit_username" class="form-label">
+                                        Username <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_username" name="username" required
+                                           placeholder="Enter username">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="mb-3">
                                     <label for="edit_email" class="form-label">
                                         Email <span class="text-danger">*</span>
                                     </label>

@@ -21,6 +21,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'roles' => 'array',
@@ -35,6 +36,8 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name.required' => 'Nama user harus diisi',
+            'username.required' => 'Username harus diisi',
+            'username.unique' => 'Username sudah digunakan',
             'email.required' => 'Email harus diisi',
             'email.unique' => 'Email sudah digunakan',
             'password.required' => 'Password harus diisi',
