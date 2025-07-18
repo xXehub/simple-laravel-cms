@@ -41,6 +41,18 @@ window.MenusDataTable = (function () {
                         return `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select menu" value="${row.id}"/>`;
                     },
                 },
+                // GESER - Menu Order Controls
+                {
+                    data: "order_controls",
+                    name: "order_controls",
+                    orderable: false,
+                    searchable: false,
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        // Return the pre-built order controls HTML from server
+                        return data;
+                    },
+                },
                 // Icon column
                 {
                     data: "icon",
@@ -142,8 +154,8 @@ window.MenusDataTable = (function () {
                 },
             ],
             order: [
-                [7, "asc"], // urutan column
-                [2, "asc"], // nama_menu column
+                [8, "asc"], // urutan column (sekarang index 8)
+                [3, "asc"], // nama_menu column (sekarang index 3)
             ],
             pageLength: 15,
             lengthMenu: [10, 15, 25, 50, 100],
@@ -233,13 +245,13 @@ window.MenusDataTable = (function () {
     function filterTable(type) {
         if (!menusTable) return;
         if (type === "active") {
-            menusTable.column(8).search("Active").draw();
+            menusTable.column(9).search("Active").draw(); // status column sekarang index 9
         } else if (type === "inactive") {
-            menusTable.column(8).search("Inactive").draw();
+            menusTable.column(9).search("Inactive").draw(); // status column sekarang index 9
         } else if (type === "parent") {
-            menusTable.column(4).search("^-$", true, false).draw();
+            menusTable.column(5).search("^-$", true, false).draw(); // parent column sekarang index 5
         } else if (type === "child") {
-            menusTable.column(4).search("^(?!-).*", true, false).draw();
+            menusTable.column(5).search("^(?!-).*", true, false).draw(); // parent column sekarang index 5
         } else {
             menusTable.columns().search("").draw();
         }

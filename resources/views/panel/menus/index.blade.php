@@ -122,6 +122,7 @@
                                                     <input class="form-check-input m-0 align-middle" type="checkbox"
                                                         aria-label="Select all menus" id="select-all" />
                                                 </th>
+                                                <th></th>
                                                 <th>ICO</th>
                                                 <th style="width: 20%">Nama Menu</th>
                                                 <th style="width: 10%">Slug</th>

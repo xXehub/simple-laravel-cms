@@ -100,10 +100,11 @@ class MenuController extends Controller
                 ->orderBy('urutan', 'asc')
                 ->pluck('id')
                 ->toArray();
-            
+
             $currentPosition = array_search($menu->id, $siblings);
             $isFirst = $currentPosition === 0;
             $isLast = $currentPosition === (count($siblings) - 1);
+
 
             $menuData = [
                 'id' => $menu->id,
@@ -118,6 +119,7 @@ class MenuController extends Controller
                 'parent_id' => $menu->parent_id,
                 'is_first' => $isFirst,
                 'is_last' => $isLast,
+                'order_controls' => view('components.modals.menus.order-controls', ['menu' => array_merge($menu->toArray(), ['is_first' => $isFirst, 'is_last' => $isLast])])->render(),
                 'actions' => view('components.modals.menus.action', ['menu' => array_merge($menu->toArray(), ['is_first' => $isFirst, 'is_last' => $isLast])])->render()
             ];
 
@@ -324,13 +326,13 @@ class MenuController extends Controller
 
         try {
             $menu = MasterMenu::with('children')->findOrFail($menuId);
-            
+
             // Get siblings (menus with same parent)
             $siblings = $this->getSiblings($menu->parent_id);
-            
+
             // Find target menu to swap with
             $targetMenu = $this->findTargetMenu($menu, $siblings, $direction);
-            
+
             if (!$targetMenu) {
                 return response()->json([
                     'success' => false,
