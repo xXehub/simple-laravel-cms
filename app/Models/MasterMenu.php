@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Console\Commands\CacheDynamicRoutes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,12 +19,36 @@ class MasterMenu extends Model
         'route_name',
         'icon',
         'urutan',
-        'is_active'
+        'is_active',
+        'route_type',
+        'controller_class',
+        'view_path',
+        'middleware_list',
+        'meta_title',
+        'meta_description'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'middleware_list' => 'array',
     ];
+
+    /**
+     * Boot method - add model event listeners
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Invalidate cache when menu data changes
+        static::saved(function ($menu) {
+            CacheDynamicRoutes::invalidateCache();
+        });
+
+        static::deleted(function ($menu) {
+            CacheDynamicRoutes::invalidateCache();
+        });
+    }
 
     /**
      * Relationship to parent menu
@@ -71,6 +96,36 @@ class MasterMenu extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope for menus ordered by sort order
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('urutan')->orderBy('id');
+    }
+
+    /**
+     * Scope for searching menus by name
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('nama_menu', 'like', "%{$search}%")
+              ->orWhere('slug', 'like', "%{$search}%")
+              ->orWhere('route_name', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope for menus with specific role
+     */
+    public function scopeWithRole($query, $roleId)
+    {
+        return $query->whereHas('roles', function ($q) use ($roleId) {
+            $q->where('role_id', $roleId);
+        });
     }
 
     /**
@@ -317,5 +372,180 @@ class MasterMenu extends Model
     /**
      * Debug method to see all menus structure
      */
+
+    // =====================================
+    // DYNAMIC ROUTING METHODS - PHASE 1
+    // =====================================
+
+    /**
+     * Get the dynamic view path for this menu
+     */
+    public function getDynamicViewPath(): ?string
+    {
+        return $this->view_path;
+    }
+
+    /**
+     * Check if this menu should use a view instead of controller
+     */
+    public function shouldUseView(): bool
+    {
+        return !empty($this->view_path) && empty($this->controller_class);
+    }
+
+    /**
+     * Check if this menu should use controller
+     */
+    public function shouldUseController(): bool
+    {
+        return !empty($this->controller_class);
+    }
+
+    /**
+     * Get the controller class for this menu
+     */
+    public function getControllerClass(): ?string
+    {
+        return $this->controller_class;
+    }
+
+    /**
+     * Get the middleware list for this menu
+     */
+    public function getMiddlewareList(): array
+    {
+        return is_string($this->middleware_list) 
+            ? json_decode($this->middleware_list, true) ?? []
+            : (array) $this->middleware_list;
+    }
+
+    /**
+     * Get the middleware list for this menu (alias for compatibility)
+     */
+    public function getMiddleware(): array
+    {
+        return $this->getMiddlewareList();
+    }
+
+    /**
+     * Get the route name for this menu (for helper functions)
+     */
+    public function getRouteName(): ?string
+    {
+        return $this->route_name;
+    }
+
+    /**
+     * Get SEO title with fallback
+     */
+    public function getSeoTitle(): string
+    {
+        return $this->meta_title ?? $this->nama_menu;
+    }
+
+    /**
+     * Get SEO description with fallback
+     */
+    public function getSeoDescription(): ?string
+    {
+        return $this->meta_description;
+    }
+
+    /**
+     * Scope for routes that have controllers
+     */
+    public function scopeWithController($query)
+    {
+        return $query->whereNotNull('controller_class');
+    }
+
+    /**
+     * Scope for routes that use views
+     */
+    public function scopeWithView($query)
+    {
+        return $query->whereNotNull('view_path');
+    }
+
+    /**
+     * Scope for admin routes only
+     */
+    public function scopeAdminRoutes($query)
+    {
+        return $query->where('route_type', 'admin');
+    }
+
+    /**
+     * Scope for public routes only
+     */
+    public function scopePublicRoutes($query)
+    {
+        return $query->where('route_type', 'public');
+    }
+
+    /**
+     * Get the full route name including prefix
+     */
+    public function getFullRouteName(): string
+    {
+        if ($this->route_name) {
+            return $this->route_name;
+        }
+
+        // Generate route name based on route type and slug
+        $prefix = $this->route_type === 'admin' ? 'panel.' : '';
+        $slug = $this->slug ?: str_replace('/', '.', trim($this->menu_url, '/'));
+        
+        return $prefix . $slug;
+    }
+
+    /**
+     * Check if this menu has permissions configured
+     */
+    public function hasPermissions(): bool
+    {
+        if ($this->route_type === 'public') {
+            return false;
+        }
+
+        // Check if middleware contains permission
+        $middleware = $this->getMiddleware();
+        foreach ($middleware as $mid) {
+            if (str_starts_with($mid, 'permission:')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // =====================================
+    // AUTO-SCAN CONTROLLER METHODS - NEW IMPLEMENTATION
+    // =====================================
+
+    /**
+     * Get all controller methods from controller_class using auto-scan
+     */
+    public function getAllControllerMethods(): array
+    {
+        if (!$this->controller_class) {
+            return [];
+        }
+        
+        $scanner = new \App\Services\SimpleControllerScanner();
+        return $scanner->scanController($this->controller_class);
+    }
+
+    /**
+     * Generate view path for specific method
+     */
+    public function getViewPathForMethod(string $method): ?string
+    {
+        if (!$this->view_path) {
+            return null;
+        }
+        
+        return $this->view_path . '.' . $method;
+    }
 
 }

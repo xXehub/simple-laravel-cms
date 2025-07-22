@@ -7,15 +7,24 @@ use App\Models\Page;
 use Illuminate\Http\Request;
 use App\Http\Requests\Panel\Page\StorePageRequest;
 use App\Http\Requests\Panel\Page\UpdatePageRequest;
+use App\Helpers\ResponseHelper;
 
 class PageController extends Controller
 {
+    /**
+     * Get page by ID from request
+     */
+    protected function getPageById($request)
+    {
+        return Page::findOrFail($request->route('id') ?? $request->input('id'));
+    }
+
     /**
      * Display pages listing
      */
     public function index()
     {
-        $pages = Page::paginate(20);
+        $pages = Page::ordered()->paginate(20);
         return view('panel.pages.index', compact('pages'));
     }
 
@@ -32,19 +41,13 @@ class PageController extends Controller
      */
     public function store(StorePageRequest $request)
     {
-        Page::create([
-            'title' => $request->title,
-            'slug' => $request->slug,
-            'content' => $request->content,
-            'template' => $request->template,
-            'is_published' => $request->has('is_published'),
-            'meta_title' => $request->meta_title,
-            'meta_description' => $request->meta_description,
-            'sort_order' => $request->sort_order ?? 0,
-        ]);
+        $data = $request->validated();
+        $data['is_published'] = $request->has('is_published');
+        $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        return redirect()->route('panel.pages.index')
-            ->with('success', 'Page created successfully');
+        Page::create($data);
+
+        return ResponseHelper::redirect('panel.pages.index', 'Page created successfully');
     }
 
     /**
@@ -52,9 +55,7 @@ class PageController extends Controller
      */
     public function edit(Request $request)
     {
-        $pageId = $request->route('id') ?? $request->input('id');
-        $page = Page::findOrFail($pageId);
-        
+        $page = $this->getPageById($request);
         return view('panel.pages.edit', compact('page'));
     }
 
@@ -63,22 +64,15 @@ class PageController extends Controller
      */
     public function update(UpdatePageRequest $request)
     {
-        $pageId = $request->route('id') ?? $request->input('id');
-        $page = Page::findOrFail($pageId);
+        $page = $this->getPageById($request);
 
-        $page->update([
-            'title' => $request->title,
-            'slug' => $request->slug,
-            'content' => $request->content,
-            'template' => $request->template,
-            'is_published' => $request->has('is_published'),
-            'meta_title' => $request->meta_title,
-            'meta_description' => $request->meta_description,
-            'sort_order' => $request->sort_order ?? 0,
-        ]);
+        $data = $request->validated();
+        $data['is_published'] = $request->has('is_published');
+        $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        return redirect()->route('panel.pages.index')
-            ->with('success', 'Page updated successfully');
+        $page->update($data);
+
+        return ResponseHelper::redirect('panel.pages.index', 'Page updated successfully');
     }
 
     /**
@@ -86,12 +80,9 @@ class PageController extends Controller
      */
     public function destroy(Request $request)
     {
-        $pageId = $request->route('id') ?? $request->input('id');
-        $page = Page::findOrFail($pageId);
-
+        $page = $this->getPageById($request);
         $page->delete();
 
-        return redirect()->route('panel.pages.index')
-            ->with('success', 'Page deleted successfully');
+        return ResponseHelper::redirect('panel.pages.index', 'Page deleted successfully');
     }
 }

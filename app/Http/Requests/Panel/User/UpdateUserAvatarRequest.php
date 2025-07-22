@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Panel\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class UpdateUserAvatarRequest extends FormRequest
+class UpdateUserAvatarRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,35 +19,22 @@ class UpdateUserAvatarRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'avatar' => [
-                'required',
-                'image',
-                'mimes:jpeg,jpg,png,gif,webp',
-                'max:2048', // 2MB max
-                'dimensions:min_width=50,min_height=50,max_width=2048,max_height=2048'
-            ]
+            'avatar' => $this->imageRule(true) . '|dimensions:min_width=50,min_height=50,max_width=2048,max_height=2048'
         ];
     }
 
     /**
      * Get custom validation messages
-     *
-     * @return array<string, string>
      */
     public function messages(): array
     {
-        return [
+        return array_merge(parent::messages(), [
             'avatar.required' => 'Please select an avatar image.',
-            'avatar.image' => 'The file must be an image.',
-            'avatar.mimes' => 'Avatar must be a JPEG, PNG, GIF, or WebP image.',
-            'avatar.max' => 'Avatar size must not exceed 2MB.',
             'avatar.dimensions' => 'Avatar dimensions must be between 50x50 and 2048x2048 pixels.',
-        ];
+        ]);
     }
 }

@@ -21,7 +21,7 @@
                         @endphp
 
                         @if ($panelMenu)
-                            <a class="btn btn-light btn-lg" href="{{ route('panel.dashboard') }}" role="button">
+                            <a class="btn btn-light btn-lg" href="{{ $panelMenu->getUrl() }}" role="button">
                                 <i class="fas fa-tachometer-alt"></i> Go to Panel
                             </a>
                         @endif

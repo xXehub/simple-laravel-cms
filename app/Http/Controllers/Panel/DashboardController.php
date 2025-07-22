@@ -14,18 +14,18 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     /**
-     * Handle panel index - redirect to dashboard
+     * Handle panel dashboard - Fully dynamic using database view_path
      */
-    public function index()
+    public function index(Request $request)
     {
-        return redirect()->route('panel.dashboard');
-    }
+        // Get current menu from request or find by slug
+        $currentSlug = $request->route()->uri ?? 'panel/dashboard';
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
 
-    /**
-     * Handle panel dashboard - Clean approach
-     */
-    public function dashboard()
-    {
+        // Get dynamic view path from database
+        $viewPath = $menu?->getDynamicViewPath() ?? 'panel.dashboard';
+
+        // Prepare dashboard data
         $stats = [
             'users' => User::count(),
             'pages' => Page::count(),
@@ -37,6 +37,15 @@ class DashboardController extends Controller
         $recentUsers = User::latest()->take(5)->get();
         $recentPages = Page::latest()->take(5)->get();
 
-        return view('panel.dashboard', compact('stats', 'recentUsers', 'recentPages'));
+        // Return dynamic view with all necessary data
+        return view($viewPath, compact('stats', 'recentUsers', 'recentPages', 'menu'));
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     */
+    public function dashboard()
+    {
+        return $this->index(request());
     }
 }

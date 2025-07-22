@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">{{ $page->title }}</h1>
         <x-auth.can permission="manage posts">
-            <a href="{{ route('panel.pages.edit') }}?id={{ $page->id }}" class="btn btn-outline-primary">
+            <a href="{{ route('panel.pages.edit', $page->id) }}" class="btn btn-outline-primary">
                 <i class="fas fa-edit"></i> Edit Page
             </a>
         </x-auth.can>

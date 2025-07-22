@@ -15,7 +15,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteUserForm" method="POST" action="{{ route('panel.users.destroy') }}" style="display: inline;">
+                <form id="deleteUserForm" method="POST" action="{{ route('panel.users.destroy', ':id') }}" style="display: inline;">
                     @csrf
                     @method('DELETE')
                     <input type="hidden" id="delete_user_id" name="id" value="">

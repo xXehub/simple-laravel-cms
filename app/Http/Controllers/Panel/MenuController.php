@@ -9,11 +9,16 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Panel\Menu\StoreMenuRequest;
 use App\Http\Requests\Panel\Menu\UpdateMenuRequest;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\ResponseHelper;
+use App\Services\MenuService;
 
 class MenuController extends Controller
 {
-    public function __construct()
+    protected $menuService;
+
+    public function __construct(MenuService $menuService)
     {
+        $this->menuService = $menuService;
         $this->middleware(['auth']);
         $this->middleware('permission:view-menus')->only(['index']);
         $this->middleware('permission:create-menus')->only(['create', 'store']);
@@ -26,7 +31,7 @@ class MenuController extends Controller
      */
     public function index(Request $request)
     {
-        $parentMenus = $this->getMenuOptions();
+        $parentMenus = $this->menuService->getMenuOptions();
         $roles = Role::all();
 
         if ($request->ajax() && $request->has('draw')) {
@@ -139,7 +144,7 @@ class MenuController extends Controller
      */
     public function create()
     {
-        $parentMenus = $this->getMenuOptions();
+        $parentMenus = $this->menuService->getMenuOptions();
         $roles = Role::all();
         return view('panel.menus.create', compact('parentMenus', 'roles'));
     }
@@ -149,22 +154,15 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request)
     {
-        $menu = MasterMenu::create([
-            'nama_menu' => $request->input('nama_menu'),
-            'slug' => $request->input('slug'),
-            'route_name' => $request->input('route_name'),
-            'icon' => $request->input('icon'),
-            'parent_id' => $request->input('parent_id'),
-            'urutan' => $request->input('urutan'),
-            'is_active' => $request->boolean('is_active'),
-        ]);
+        $data = $request->validated();
+
+        $menu = MasterMenu::create($data);
 
         if ($request->has('roles')) {
-            $menu->roles()->sync($request->roles);
+            $menu->roles()->sync($request->input('roles'));
         }
 
-        return redirect()->route('panel.menus.index')
-            ->with('success', 'Menu created successfully');
+        return ResponseHelper::redirect('panel.menus.index', 'Menu created successfully');
     }
 
     /**
@@ -175,12 +173,11 @@ class MenuController extends Controller
         $menuId = $request->route('id') ?? $request->input('id');
 
         if (!$menuId) {
-            return redirect()->route('panel.menus.index')
-                ->with('error', 'Menu ID not provided');
+            return ResponseHelper::redirect('panel.menus.index', 'Menu ID not provided', 'error');
         }
 
         $menu = MasterMenu::findOrFail($menuId);
-        $parentMenus = $this->getMenuOptions(null, 0, $menu->id);
+        $parentMenus = $this->menuService->getMenuOptions(null, 0, $menu->id);
         $roles = Role::all();
 
         return view('panel.menus.edit', compact('menu', 'parentMenus', 'roles'));
@@ -194,20 +191,12 @@ class MenuController extends Controller
         $menuId = $request->route('id') ?? $request->input('id');
         $menu = MasterMenu::findOrFail($menuId);
 
-        $menu->update([
-            'nama_menu' => $request->nama_menu,
-            'slug' => $request->slug,
-            'route_name' => $request->route_name,
-            'icon' => $request->icon,
-            'parent_id' => $request->parent_id,
-            'urutan' => $request->urutan,
-            'is_active' => $request->boolean('is_active'),
-        ]);
+        $data = $request->validated();
+        $menu->update($data);
 
-        $menu->roles()->sync($request->roles ?? []);
+        $menu->roles()->sync($request->input('roles', []));
 
-        return redirect()->route('panel.menus.index')
-            ->with('success', 'Menu updated successfully');
+        return ResponseHelper::redirect('panel.menus.index', 'Menu updated successfully');
     }
 
     /**
@@ -219,13 +208,12 @@ class MenuController extends Controller
         $menu = MasterMenu::findOrFail($menuId);
 
         if ($menu->children()->count() > 0) {
-            return redirect()->back()->with('error', 'Cannot delete menu with child menus');
+            return ResponseHelper::back('Cannot delete menu with child menus', 'error');
         }
 
         $menu->delete();
 
-        return redirect()->route('panel.menus.index')
-            ->with('success', 'Menu deleted successfully');
+        return ResponseHelper::redirect('panel.menus.index', 'Menu deleted successfully');
     }
 
     /**
@@ -238,7 +226,7 @@ class MenuController extends Controller
             'menu_ids.*' => 'exists:master_menus,id'
         ]);
 
-        $menuIds = $request->menu_ids;
+        $menuIds = $request->input('menu_ids');
         $deletedCount = 0;
         $errors = [];
 
@@ -249,7 +237,7 @@ class MenuController extends Controller
                 continue;
             }
 
-            if ($menu->children()->count() > 0) {
+            if (!$this->menuService->canDelete($menuId)) {
                 $errors[] = "Cannot delete '{$menu->nama_menu}' - has child menus";
                 continue;
             }
@@ -260,24 +248,18 @@ class MenuController extends Controller
 
         if ($deletedCount > 0) {
             $message = "Successfully deleted {$deletedCount} menu(s)";
-            $status = 'success';
+            $type = 'success';
             if (!empty($errors)) {
                 $message .= ". However, some menus could not be deleted: " . implode(', ', $errors);
             }
         } else {
             $message = 'No menus were deleted. ' . implode(', ', $errors);
-            $status = 'error';
+            $type = 'error';
         }
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => $status,
-                'message' => $message,
-                'deleted_count' => $deletedCount
-            ]);
-        }
-
-        return redirect()->route('panel.menus.index')->with($status, $message);
+        return ResponseHelper::handle($request, 'panel.menus.index', $message, [
+            'deleted_count' => $deletedCount
+        ], $type);
     }
 
     /**

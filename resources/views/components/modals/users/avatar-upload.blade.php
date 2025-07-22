@@ -6,7 +6,7 @@
                 <h5 class="modal-title">Upload Avatar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="uploadAvatarForm" action="{{ route('panel.users.upload-avatar') }}" method="POST" enctype="multipart/form-data">
+            {{-- <form id="uploadAvatarForm" action="{{ route('panel.users.uploadAvatar') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" id="upload_user_id" name="id" value="">
                 <div class="modal-body">
@@ -61,7 +61,7 @@
                         Upload Avatar
                     </button>
                 </div>
-            </form>
+            </form> --}}
         </div>
     </div>
 </div>
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
             Deleting...
         `;
 
-        fetch('{{ route('panel.users.delete-avatar') }}', {
+        fetch('{{ route('panel.users.deleteAvatar') }}', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

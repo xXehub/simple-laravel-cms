@@ -1,4 +1,4 @@
-@props(['roles'])
+@props(['roles', 'user'])
 
 @can('update-users')
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
@@ -15,10 +15,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <form method="POST" action="{{ route('panel.users.update') }}" id="editUserForm">
+                <form method="POST" action="{{ route('panel.users.update', $user->id ?? ':id') }}" id="editUserForm">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="id" id="edit_user_id">
+                    <input type="hidden" name="id" id="edit_user_id" value="{{ $user->id ?? '' }}">
                     
                     <div class="modal-body">
                         <div class="row">
@@ -137,10 +137,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-                    <form method="POST" action="{{ route('panel.users.delete') }}" id="deleteUserForm">
+                    <form method="POST" action="{{ route('panel.users.destroy', $user->id ?? ':id') }}" id="deleteUserForm">
                         @csrf
                         @method('DELETE')
-                        <input type="hidden" name="id" id="delete_user_id">
+                        <input type="hidden" name="id" id="delete_user_id" value="{{ $user->id ?? '' }}">
                         
                         <div class="modal-body">
                             <div class="text-center">

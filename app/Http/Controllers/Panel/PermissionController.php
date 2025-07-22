@@ -24,7 +24,7 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        return view('panel.permissions.create');
+        return view('panel.permissions.index.create');
     }
 
     /**
@@ -37,7 +37,7 @@ class PermissionController extends Controller
             'group' => $request->group
         ]);
 
-        return redirect()->route('panel.permissions.index')
+        return redirect()->route('panel.permissions')
             ->with('success', 'Permission created successfully');
     }
 
@@ -48,15 +48,15 @@ class PermissionController extends Controller
     {
         $permissionId = $request->route('id') ?? $request->input('id');
         $permission = Permission::findOrFail($permissionId);
-        
+
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'permission' => $permission
             ]);
         }
-        
-        return view('panel.permissions.edit', compact('permission'));
+
+        return view('panel.permissions.index.edit', compact('permission'));
     }
 
     /**
@@ -72,7 +72,7 @@ class PermissionController extends Controller
             'group' => $request->group
         ]);
 
-        return redirect()->route('panel.permissions.index')
+        return redirect()->route('panel.permissions')
             ->with('success', 'Permission updated successfully');
     }
 
@@ -86,7 +86,7 @@ class PermissionController extends Controller
 
         $permission->delete();
 
-        return redirect()->route('panel.permissions.index')
+        return redirect()->route('panel.permissions')
             ->with('success', 'Permission deleted successfully');
     }
 }

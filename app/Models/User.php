@@ -58,7 +58,7 @@ class User extends Authenticatable
         if ($this->avatar && file_exists(public_path('storage/avatars/' . $this->avatar))) {
             return asset('storage/avatars/' . $this->avatar);
         }
-        
+
         // Return default avatar based on user's name initials
         return $this->getDefaultAvatarUrl();
     }
@@ -69,8 +69,8 @@ class User extends Authenticatable
     public function getDefaultAvatarUrl(): string
     {
         $initials = $this->getInitials();
-        return "https://ui-avatars.com/api/?name=" . urlencode($initials) . 
-               "&color=ffffff&background=0ea5e9&size=128&rounded=false&bold=true";
+        return "https://ui-avatars.com/api/?name=" . urlencode($initials) .
+            "&color=ffffff&background=0ea5e9&size=128&rounded=false&bold=true";
     }
 
     /**
@@ -80,14 +80,15 @@ class User extends Authenticatable
     {
         $names = explode(' ', trim($this->name));
         $initials = '';
-        
+
         foreach ($names as $name) {
             if (strlen($name) > 0) {
                 $initials .= strtoupper(substr($name, 0, 1));
             }
-            if (strlen($initials) >= 2) break;
+            if (strlen($initials) >= 2)
+                break;
         }
-        
+
         return $initials ?: 'U';
     }
 
@@ -110,5 +111,25 @@ class User extends Authenticatable
             return true;
         }
         return false;
+    }
+
+    /**
+     * Scope for including user roles
+     */
+    public function scopeWithRoles($query)
+    {
+        return $query->with('roles');
+    }
+
+    /**
+     * Scope for searching users
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhere('username', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        });
     }
 }

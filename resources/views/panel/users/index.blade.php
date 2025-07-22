@@ -152,7 +152,7 @@
                 .then(table => {
                     usersTable = table;
                     UsersDataTable.setupModalHandlers();
-                    UsersDataTable.setBulkDeleteRoute('{{ route('panel.users.bulk-delete') }}');
+                    UsersDataTable.setBulkDeleteRoute('{{ route('panel.users.bulkDestroy') }}');
                 })
                 .catch(error => {
                     console.error('Failed to initialize Users DataTable:', error);
@@ -168,7 +168,7 @@
             @endif
 
             // Backward compatibility (optional, can be removed if not used elsewhere)
-            window.editUser = (userId) => UsersDataTable.editUser(userId, '{{ route('panel.users.edit') }}');
+            window.editUser = (userId) => UsersDataTable.editUser(userId, '{{ route('panel.users.edit', ':id') }}');
             window.deleteUser = (userId, userName) => UsersDataTable.deleteUser(userId, userName);
         </script>
     @endpush

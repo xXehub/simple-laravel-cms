@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Panel\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class StoreUserRequest extends FormRequest
+class StoreUserRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,11 +20,11 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'roles' => 'array',
+            'name' => $this->textRule(),
+            'username' => $this->usernameRule(),
+            'email' => $this->emailRule(),
+            'password' => $this->passwordRule(),
+            'roles' => $this->arrayRule(),
             'roles.*' => 'exists:roles,name'
         ];
     }
@@ -34,7 +34,7 @@ class StoreUserRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
+        return array_merge(parent::messages(), [
             'name.required' => 'Nama user harus diisi',
             'username.required' => 'Username harus diisi',
             'username.unique' => 'Username sudah digunakan',
@@ -43,6 +43,6 @@ class StoreUserRequest extends FormRequest
             'password.required' => 'Password harus diisi',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
-        ];
+        ]);
     }
 }

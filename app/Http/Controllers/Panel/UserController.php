@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\MasterMenu;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,7 @@ use App\Http\Requests\Panel\User\StoreUserRequest;
 use App\Http\Requests\Panel\User\UpdateUserRequest;
 use App\Http\Requests\Panel\User\UpdateUserAvatarRequest;
 use App\Services\AvatarService;
+use App\Helpers\ResponseHelper;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -25,21 +27,35 @@ class UserController extends Controller
     }
 
     /**
-     * Display users listing
+     * Display users listing with dynamic view from database
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Get current menu from request
+        $currentSlug = $request->route()->uri ?? 'panel/users';
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Get dynamic view path from database
+        $viewPath = $menu?->getDynamicViewPath() ?? 'panel.users.index';
+
         $roles = Role::all();
-        return view('panel.users.index', compact('roles'));
+        return view($viewPath, compact('roles', 'menu'));
     }
 
     /**
-     * Show create user form
+     * Show create user form with dynamic view
      */
-    public function create()
+    public function create(Request $request)
     {
+        // Get current menu for dynamic view resolution
+        $currentSlug = str_replace('/create', '', $request->route()->uri ?? 'panel/users');
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Use create view path or fallback
+        $viewPath = 'panel.users.create'; // Static for forms
+
         $roles = Role::all();
-        return view('panel.users.create', compact('roles'));
+        return view($viewPath, compact('roles', 'menu'));
     }
 
     /**
@@ -47,19 +63,16 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $userData = $request->validated();
+        $userData['password'] = Hash::make($userData['password']);
+
+        $user = User::create($userData);
 
         if ($request->has('roles')) {
-            $user->syncRoles($request->roles);
+            $user->syncRoles($request->validated()['roles'] ?? []);
         }
 
-        return redirect()->route('panel.users.index')
-            ->with('success', 'User created successfully');
+        return ResponseHelper::redirect('panel.users', 'User created successfully');
     }
 
     /**
@@ -67,8 +80,7 @@ class UserController extends Controller
      */
     public function edit(Request $request)
     {
-        $userId = $request->route('id') ?? $request->input('id');
-        $user = User::findOrFail($userId);
+        $user = $this->getUserById($request);
         $roles = Role::all();
 
         // If this is an AJAX request, return JSON data
@@ -87,23 +99,20 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request)
     {
-        $userId = $request->route('id') ?? $request->input('id');
-        $user = User::findOrFail($userId);
+        $user = $this->getUserById($request);
 
-        $user->update([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-        ]);
+        $userData = $request->validated();
 
-        if ($request->filled('password')) {
-            $user->update(['password' => Hash::make($request->password)]);
+        if (isset($userData['password']) && $userData['password']) {
+            $userData['password'] = Hash::make($userData['password']);
+        } else {
+            unset($userData['password']);
         }
 
-        $user->syncRoles($request->roles ?? []);
+        $user->update($userData);
+        $user->syncRoles($request->validated()['roles'] ?? []);
 
-        return redirect()->route('panel.users.index')
-            ->with('success', 'User updated successfully');
+        return ResponseHelper::redirect('panel.users', 'User updated successfully');
     }
 
     /**
@@ -111,17 +120,15 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        $userId = $request->route('id') ?? $request->input('id');
-        $user = User::findOrFail($userId);
+        $user = $this->getUserById($request);
 
         if ($user->id === auth()->id()) {
-            return redirect()->back()->with('error', 'You cannot delete your own account');
+            return ResponseHelper::error('You cannot delete your own account');
         }
 
         $user->delete();
 
-        return redirect()->route('panel.users.index')
-            ->with('success', 'User deleted successfully');
+        return ResponseHelper::redirect('panel.users', 'User deleted successfully');
     }
 
     /**
@@ -134,14 +141,14 @@ class UserController extends Controller
             'user_ids.*' => 'exists:users,id'
         ]);
 
-        $userIds = $request->user_ids;
+        $userIds = $request->input('user_ids');
         $deletedCount = 0;
         $errors = [];
         $currentUserId = auth()->id();
 
         foreach ($userIds as $userId) {
             $user = User::find($userId);
-            
+
             if (!$user) {
                 continue;
             }
@@ -158,24 +165,18 @@ class UserController extends Controller
 
         if ($deletedCount > 0) {
             $message = "Successfully deleted {$deletedCount} user(s)";
-            $status = 'success';
+            $type = 'success';
             if (!empty($errors)) {
                 $message .= ". However, some users could not be deleted: " . implode(', ', $errors);
             }
         } else {
             $message = 'No users were deleted. ' . implode(', ', $errors);
-            $status = 'error';
+            $type = 'error';
         }
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => $status,
-                'message' => $message,
-                'deleted_count' => $deletedCount
-            ]);
-        }
-
-        return redirect()->route('panel.users.index')->with($status, $message);
+        return ResponseHelper::handle($request, 'panel.users', $message, [
+            'deleted_count' => $deletedCount
+        ], $type);
     }
 
     /**
@@ -183,7 +184,13 @@ class UserController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = User::with('roles');
+        $query = User::withRoles();
+
+        // Add search if provided
+        if ($search = $request->get('search')['value'] ?? null) {
+            $query->search($search);
+        }
+
         return DataTables::of($query)
             ->addColumn('roles', function ($user) {
                 return $user->roles->pluck('name')->toArray();
@@ -222,13 +229,17 @@ class UserController extends Controller
             ->make(true);
     }
 
+    protected function getUserById($request)
+    {
+        return User::findOrFail($request->route('id') ?? $request->input('id'));
+    }
+
     /**
      * Upload user avatar
      */
     public function uploadAvatar(UpdateUserAvatarRequest $request, AvatarService $avatarService)
     {
-        $userId = $request->route('id') ?? $request->input('id');
-        $user = User::findOrFail($userId);
+        $user = $this->getUserById($request);
 
         try {
             $filename = $avatarService->uploadAvatar(
@@ -237,26 +248,14 @@ class UserController extends Controller
             );
 
             $user->update(['avatar' => $filename]);
+            $user->refresh();
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Avatar uploaded successfully',
-                    'avatar_url' => $user->avatar_url
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'Avatar uploaded successfully');
+            return ResponseHelper::handleBack($request, 'Avatar uploaded successfully', [
+                'avatar_url' => $user->avatar_url
+            ]);
 
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ], 400);
-            }
-
-            return redirect()->back()->with('error', 'Failed to upload avatar: ' . $e->getMessage());
+            return ResponseHelper::handleBack($request, 'Failed to upload avatar: ' . $e->getMessage(), null, 'error');
         }
     }
 
@@ -265,8 +264,7 @@ class UserController extends Controller
      */
     public function deleteAvatar(Request $request, AvatarService $avatarService)
     {
-        $userId = $request->route('id') ?? $request->input('id');
-        $user = User::findOrFail($userId);
+        $user = $this->getUserById($request);
 
         // Check permission
         if (!auth()->user()->can('update-users') && auth()->id() != $user->id) {
@@ -277,27 +275,15 @@ class UserController extends Controller
             if ($user->avatar) {
                 $avatarService->deleteAvatar($user->avatar);
                 $user->update(['avatar' => null]);
+                $user->refresh();
             }
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Avatar deleted successfully',
-                    'avatar_url' => $user->avatar_url
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'Avatar deleted successfully');
+            return ResponseHelper::handleBack($request, 'Avatar deleted successfully', [
+                'avatar_url' => $user->avatar_url
+            ]);
 
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ], 400);
-            }
-
-            return redirect()->back()->with('error', 'Failed to delete avatar: ' . $e->getMessage());
+            return ResponseHelper::handleBack($request, 'Failed to delete avatar: ' . $e->getMessage(), null, 'error');
         }
     }
 }

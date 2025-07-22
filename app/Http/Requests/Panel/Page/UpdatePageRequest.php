@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Panel\Page;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class UpdatePageRequest extends FormRequest
+class UpdatePageRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,14 @@ class UpdatePageRequest extends FormRequest
         $pageId = $this->route('id') ?? $this->input('id');
         
         return [
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:pages,slug,' . $pageId,
-            'content' => 'required|string',
-            'template' => 'nullable|string|max:255',
-            'is_published' => 'boolean',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'sort_order' => 'integer|min:0',
+            'title' => $this->textRule(),
+            'slug' => $this->slugRule('pages', $pageId),
+            'content' => $this->textRule(true, 65535), // for text field
+            'template' => $this->textRule(false),
+            'is_published' => $this->booleanRule(),
+            'meta_title' => $this->textRule(false),
+            'meta_description' => $this->textRule(false, 500),
+            'sort_order' => $this->numericRule(false, 0),
         ];
     }
 
@@ -38,13 +38,13 @@ class UpdatePageRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
+        return array_merge(parent::messages(), [
             'title.required' => 'Judul halaman harus diisi',
             'slug.required' => 'Slug harus diisi',
             'slug.unique' => 'Slug sudah digunakan',
             'content.required' => 'Konten harus diisi',
             'sort_order.integer' => 'Urutan harus berupa angka',
             'sort_order.min' => 'Urutan minimal 0',
-        ];
+        ]);
     }
 }

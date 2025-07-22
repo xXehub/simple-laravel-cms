@@ -208,14 +208,86 @@ window.UsersDataTable = (function () {
                 const selectedList = selectedUsers
                     .map((id) => `<li>User ID: <strong>${id}</strong></li>`)
                     .join("");
-                $("#selected-users-list").html(selectedList);
+                $("#selected-users-list").html(`<ul>${selectedList}</ul>`);
+                $("#delete-selected-count").text(selectedUsers.length);
             });
 
         // Confirm bulk delete
         $("#confirm-delete-selected")
             .off("click.users")
             .on("click.users", function () {
-                // Implement AJAX bulk delete here if needed
+                if (selectedUsers.length === 0) {
+                    alert('No users selected');
+                    return;
+                }
+
+                const btn = this;
+                const originalText = btn.innerHTML;
+                
+                // Show loading state
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Deleting...
+                `;
+
+                // Make AJAX request to bulk delete
+                fetch(bulkDeleteRoute, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        user_ids: selectedUsers
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Close modal using Tabler.io way
+                    const modalElement = document.getElementById('deleteSelectedModal');
+                    if (modalElement) {
+                        // Try to close modal properly
+                        const modalInstance = modalElement.querySelector('[data-bs-dismiss="modal"]');
+                        if (modalInstance) {
+                            modalInstance.click();
+                        } else {
+                            // Fallback - hide modal directly
+                            modalElement.style.display = 'none';
+                            modalElement.classList.remove('show');
+                            document.body.classList.remove('modal-open');
+                            
+                            // Remove backdrop if exists
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) {
+                                backdrop.remove();
+                            }
+                        }
+                    }
+                    
+                    // Show result message
+                    if (data.status === 'success') {
+                        alert(`Success: ${data.message}`);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                    
+                    // Refresh table and reset selections
+                    refreshDataTable();
+                    selectedUsers = [];
+                    updateBulkDeleteButton();
+                    $("#select-all").prop("checked", false);
+                })
+                .catch(error => {
+                    console.error('Bulk delete error:', error);
+                    alert('Failed to delete selected users. Please try again.');
+                })
+                .finally(() => {
+                    // Reset button
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
             });
     }
 
@@ -250,7 +322,10 @@ window.UsersDataTable = (function () {
 
     // --- Edit User (AJAX load for modal) ---
     function editUser(userId, editRoute) {
-        fetch(`${editRoute}?id=${userId}`, {
+        // Replace :id placeholder with actual userId
+        const actualEditRoute = editRoute.replace(':id', userId);
+        
+        fetch(actualEditRoute, {
             headers: {
                 Accept: "application/json",
                 "X-Requested-With": "XMLHttpRequest",
@@ -266,6 +341,16 @@ window.UsersDataTable = (function () {
                 document.getElementById("edit_password").value = "";
                 document.getElementById("edit_password_confirmation").value =
                     "";
+
+                // Update form action URL with user ID
+                const editForm = document.getElementById("editUserForm");
+                // Reset to original template first, then replace
+                let baseAction = editForm.action;
+                if (!baseAction.includes(':id')) {
+                    // If already replaced, restore the template
+                    baseAction = baseAction.replace(/\/\d+$/, '/:id');
+                }
+                editForm.action = baseAction.replace(':id', user.id);
 
                 const editRoleCheckboxes = document.querySelectorAll(
                     '#edit_roles_container input[name="roles[]"]'
@@ -293,6 +378,16 @@ window.UsersDataTable = (function () {
     function deleteUser(userId, userName) {
         document.getElementById("delete_user_id").value = userId;
         document.getElementById("delete_user_name").textContent = userName;
+        
+        // Update delete form action URL with user ID
+        const deleteForm = document.getElementById("deleteUserForm");
+        // Reset to original template first, then replace
+        let baseAction = deleteForm.action;
+        if (!baseAction.includes(':id')) {
+            // If already replaced, restore the template
+            baseAction = baseAction.replace(/\/\d+$/, '/:id');
+        }
+        deleteForm.action = baseAction.replace(':id', userId);
     }
 
     // --- Modal Handlers (reset forms on close) ---

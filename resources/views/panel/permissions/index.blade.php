@@ -123,7 +123,7 @@
                             <h5 class="modal-title" id="editPermissionModalLabel">Edit Permission</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('panel.permissions.update') }}" id="editPermissionForm">
+                        <form method="POST" action="{{ route('panel.permissions.update', ':id') }}" id="editPermissionForm">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="id" id="edit_permission_id">
@@ -164,7 +164,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('panel.permissions.delete') }}" id="deletePermissionForm">
+                        <form method="POST" action="{{ route('panel.permissions.destroy', ':id') }}" id="deletePermissionForm">
                             @csrf
                             @method('DELETE')
                             <input type="hidden" name="id" id="delete_permission_id">
@@ -189,8 +189,12 @@
     <script>
         // Edit Permission function
         function editPermission(permissionId) {
+            // Update form action URL
+            const editForm = document.getElementById('editPermissionForm');
+            editForm.action = editForm.action.replace(':id', permissionId);
+            
             // Fetch permission data via AJAX
-            fetch(`{{ route('panel.permissions.edit') }}?id=${permissionId}`, {
+            fetch(`{{ route('panel.permissions.edit', ':id') }}`.replace(':id', permissionId), {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -213,6 +217,10 @@
 
         // Delete Permission function
         function deletePermission(permissionId, permissionName) {
+            // Update form action URL
+            const deleteForm = document.getElementById('deletePermissionForm');
+            deleteForm.action = deleteForm.action.replace(':id', permissionId);
+            
             document.getElementById('delete_permission_id').value = permissionId;
             document.getElementById('delete_permission_name').textContent = permissionName;
         }
@@ -227,7 +235,20 @@
         // Clear form when edit modal is closed
         @can('update-permissions')
             document.getElementById('editPermissionModal').addEventListener('hidden.bs.modal', function() {
-                document.getElementById('editPermissionForm').reset();
+                const editForm = document.getElementById('editPermissionForm');
+                editForm.reset();
+                // Reset form action URL
+                editForm.action = `{{ route('panel.permissions.update', ':id') }}`;
+            });
+        @endcan
+
+        // Clear form when delete modal is closed  
+        @can('delete-permissions')
+            document.getElementById('deletePermissionModal').addEventListener('hidden.bs.modal', function() {
+                const deleteForm = document.getElementById('deletePermissionForm');
+                deleteForm.reset();
+                // Reset form action URL
+                deleteForm.action = `{{ route('panel.permissions.destroy', ':id') }}`;
             });
         @endcan
     </script>

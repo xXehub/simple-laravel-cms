@@ -4,6 +4,9 @@
     $hasChildren = $menu->hasAccessibleChildren();
     $isActive = $menu->isActive();
     $isNested = $level > 0;
+    
+    // Use dynamic route helper - try route name first, then URL
+    $menuUrl = $menu->getRouteName() ? menu_route($menu->getRouteName()) : $menu->getUrl();
 @endphp
 
 @if ($menu->canAccess())
@@ -23,7 +26,7 @@
                 </div>
             </div>
         @else
-            <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $menu->getUrl() }}">
+            <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $menuUrl }}">
                 {{ $menu->nama_menu }}
             </a>
         @endif
@@ -50,7 +53,7 @@
                 </div>
             @else
                 {{-- Single root menu item --}}
-                <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $menu->getUrl() }}">
+                <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $menuUrl }}">
                     @if ($menu->icon)
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <i class="{{ $menu->icon }}"></i>

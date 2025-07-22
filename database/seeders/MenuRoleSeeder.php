@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\MenuRole;
 use App\Models\MasterMenu;
@@ -15,59 +14,49 @@ class MenuRoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = Role::all();
-        $menus = MasterMenu::all();
-
-        // Admin has access to ALL menus (including all panel menus)
-        $adminRole = $roles->where('name', 'admin')->first();
-        if ($adminRole) {
-            foreach ($menus as $menu) {
+        // Superadmin - akses semua menu
+        $superadmin = Role::where('name', 'superadmin')->first();
+        if ($superadmin) {
+            foreach (MasterMenu::all() as $menu) {
                 MenuRole::firstOrCreate([
-                    'role_id' => $adminRole->id,
-                    'mastermenu_id' => $menu->id,
+                    'role_id' => $superadmin->id,
+                    'mastermenu_id' => $menu->getKey(),
                 ]);
             }
         }
 
-        // Editor has access to profile and limited panel features
-        $editorRole = $roles->where('name', 'editor')->first();
-        if ($editorRole) {
-            // Editor menu access by menu names
-            $editorMenuNames = [
-                'Beranda', // Homepage
-                'Dashboard', // Dashboard
-                'Panel Management', // Container - needs access to see Pages
-                'Pages', // Pages management only
-                'About Us', // Public pages
-                'Contact',
-            ];
+        // Admin - akses menu panel dan public
+        $admin = Role::where('name', 'admin')->first();
+        if ($admin) {
+            $adminMenus = MasterMenu::whereIn('nama_menu', [
+                'Beranda', 'About Us', 'Articles', 'Contact', // Public menus
+                'Dashboard', 'Panel Management', 'Users', 'Pages', // Panel menus
+                'Advanced Management', 'Content Management', 'Media'
+            ])->get();
 
-            $editorMenus = $menus->whereIn('nama_menu', $editorMenuNames);
-            foreach ($editorMenus as $menu) {
+            foreach ($adminMenus as $menu) {
                 MenuRole::firstOrCreate([
-                    'role_id' => $editorRole->id,
-                    'mastermenu_id' => $menu->id,
+                    'role_id' => $admin->id,
+                    'mastermenu_id' => $menu->getKey(),
                 ]);
             }
         }
 
-        // Viewer has access to public pages and profile only (NO panel access)
-        $viewerRole = $roles->where('name', 'viewer')->first();
-        if ($viewerRole) {
-            // Viewer menu access by menu names - very restricted
-            $viewerMenuNames = [
-                'Beranda', // Homepage only
-                'About Us', // Public pages
-                'Contact',
-            ];
+        // User - hanya menu public
+        $user = Role::where('name', 'user')->first();
+        if ($user) {
+            $userMenus = MasterMenu::whereIn('nama_menu', [
+                'Beranda', 'About Us', 'Articles', 'Contact' // Hanya public menus
+            ])->get();
 
-            $viewerMenus = $menus->whereIn('nama_menu', $viewerMenuNames);
-            foreach ($viewerMenus as $menu) {
+            foreach ($userMenus as $menu) {
                 MenuRole::firstOrCreate([
-                    'role_id' => $viewerRole->id,
-                    'mastermenu_id' => $menu->id,
+                    'role_id' => $user->id,
+                    'mastermenu_id' => $menu->getKey(),
                 ]);
             }
         }
+
+        $this->command->info("✅ Menu roles assigned for 3 roles");
     }
 }
