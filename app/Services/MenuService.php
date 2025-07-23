@@ -29,7 +29,7 @@ class MenuService
 
             // Recursively get child options
             $childOptions = $this->getMenuOptions($menu->id, $level + 1, $excludeId);
-            $options = array_merge($options, $childOptions);
+            $options = $options + $childOptions; // Use + instead of array_merge to preserve keys
         }
 
         return $options;

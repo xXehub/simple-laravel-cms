@@ -170,15 +170,15 @@
             let menusTable;
 
             // Initialize Menus DataTable
-            MenusDataTable.initialize('{{ route('panel.menus.index') }}')
+            MenusDataTable.initialize('{{ route('panel.menus') }}')
                 .then(table => {
                     menusTable = table;
 
                     // Setup all handlers
                     MenusDataTable.setupModalHandlers();
-                    MenusDataTable.setupMenuOrderHandlers('{{ route('panel.menus.move-order') }}');
+                    MenusDataTable.setupMenuOrderHandlers('{{ route('panel.menus.moveOrder') }}');
                     MenusDataTable.initializeAllHandlers(
-                        '{{ route('panel.menus.bulk-delete') }}',
+                        '{{ route('panel.menus.bulkDestroy') }}',
                         '{{ csrf_token() }}'
                     );
                 })
@@ -191,13 +191,13 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         MenusDataTable.refreshDataTable();
-                        MenusDataTable.refreshParentMenuOptions('{{ route('panel.menus.index') }}');
+                        MenusDataTable.refreshParentMenuOptions('{{ route('panel.menus') }}');
                     }, 1000);
                 });
             @endif
 
             // Backward compatibility (optional, can be removed if not used elsewhere)
-            window.openEditModal = (menu) => MenusDataTable.openEditModal(menu, '{{ route('panel.menus.index') }}');
+            window.openEditModal = (menu) => MenusDataTable.openEditModal(menu, '{{ route('panel.menus') }}');
             window.openDeleteModal = (menu) => MenusDataTable.openDeleteModal(menu);
             window.filterTable = (type) => MenusDataTable.filterTable(type);
         </script>

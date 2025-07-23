@@ -44,6 +44,17 @@ class UpdateMenuRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        // Convert empty string to null for parent_id
+        if ($this->input('parent_id') === '') {
+            $this->merge(['parent_id' => null]);
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
      */
     public function messages(): array

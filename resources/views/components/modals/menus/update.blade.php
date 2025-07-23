@@ -8,7 +8,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ route('panel.menus.update') }}" id="editMenuForm">
+            <form method="POST" action="{{ route('panel.menus.update', ':id') }}" id="editMenuForm">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" id="edit_menu_id">

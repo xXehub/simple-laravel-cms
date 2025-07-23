@@ -8,7 +8,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ route('panel.menus.delete') }}" id="deleteMenuForm">
+            <form method="POST" action="{{ route('panel.menus.destroy', ':id') }}" id="deleteMenuForm">
                 @csrf
                 @method('DELETE')
                 <input type="hidden" name="id" id="delete_menu_id">

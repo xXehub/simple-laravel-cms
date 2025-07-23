@@ -39,6 +39,15 @@ class MenuController extends Controller
         }
 
         if ($request->ajax()) {
+            $excludeId = $request->get('exclude_id');
+            $parentMenus = $this->menuService->getMenuOptions(null, 0, $excludeId);
+            
+            // Debug: Log the parent menus data
+            \Log::info('Parent menus data:', ['parentMenus' => $parentMenus, 'excludeId' => $excludeId]);
+            
+            // Ensure parentMenus is treated as an object in JSON, not an array
+            $parentMenus = (object) $parentMenus;
+            
             return response()->json([
                 'parentMenus' => $parentMenus,
                 'roles' => $roles->pluck('name', 'id')
@@ -162,7 +171,7 @@ class MenuController extends Controller
             $menu->roles()->sync($request->input('roles'));
         }
 
-        return ResponseHelper::redirect('panel.menus.index', 'Menu created successfully');
+        return ResponseHelper::redirect('panel.menus', 'Menu created successfully');
     }
 
     /**
@@ -173,7 +182,7 @@ class MenuController extends Controller
         $menuId = $request->route('id') ?? $request->input('id');
 
         if (!$menuId) {
-            return ResponseHelper::redirect('panel.menus.index', 'Menu ID not provided', 'error');
+            return ResponseHelper::redirect('panel.menus', 'Menu ID not provided', 'error');
         }
 
         $menu = MasterMenu::findOrFail($menuId);
@@ -196,7 +205,7 @@ class MenuController extends Controller
 
         $menu->roles()->sync($request->input('roles', []));
 
-        return ResponseHelper::redirect('panel.menus.index', 'Menu updated successfully');
+        return ResponseHelper::redirect('panel.menus', 'Menu updated successfully');
     }
 
     /**
@@ -213,7 +222,7 @@ class MenuController extends Controller
 
         $menu->delete();
 
-        return ResponseHelper::redirect('panel.menus.index', 'Menu deleted successfully');
+        return ResponseHelper::redirect('panel.menus', 'Menu deleted successfully');
     }
 
     /**
@@ -257,7 +266,7 @@ class MenuController extends Controller
             $type = 'error';
         }
 
-        return ResponseHelper::handle($request, 'panel.menus.index', $message, [
+        return ResponseHelper::handle($request, 'panel.menus', $message, [
             'deleted_count' => $deletedCount
         ], $type);
     }

@@ -159,7 +159,7 @@ class MasterMenuSeeder extends Seeder
             'nama_menu' => 'Menus',
             'slug' => 'panel/menus',
             'parent_id' => $panelManagementId,
-            'route_name' => 'panel.menus.index',
+            'route_name' => 'panel.menus',
             'icon' => 'fas fa-bars',
             'urutan' => 24,
             'is_active' => 1,

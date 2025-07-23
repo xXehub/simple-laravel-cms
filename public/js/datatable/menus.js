@@ -193,7 +193,15 @@ window.MenusDataTable = (function () {
                 for (var i = 0; i < ids.length; i++) {
                     var el = document.getElementById(ids[i]);
                     if (el && !el.tomselect) {
-                        tomSelectInstances[ids[i]] = new TomSelect(el, {});
+                        // Use consistent configuration for all TomSelect instances
+                        var config = {};
+                        if (ids[i].includes("parent_id")) {
+                            config = {
+                                allowEmptyOption: true,
+                                placeholder: "-- Root Menu --",
+                            };
+                        }
+                        tomSelectInstances[ids[i]] = new TomSelect(el, config);
                     }
                 }
                 window.tomSelectInstances = tomSelectInstances;
@@ -299,8 +307,15 @@ window.MenusDataTable = (function () {
     }
 
     // Menu operations (tanpa perulangan)
-    function refreshParentMenuOptions(route) {
-        return fetch(route, {
+    function refreshParentMenuOptions(route, excludeId = null) {
+        const params = new URLSearchParams();
+        if (excludeId) {
+            params.append("exclude_id", excludeId);
+        }
+
+        const url = route + (params.toString() ? "?" + params.toString() : "");
+
+        return fetch(url, {
             method: "GET",
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
@@ -315,21 +330,39 @@ window.MenusDataTable = (function () {
                 if (data.parentMenus) {
                     var createSel = document.getElementById("create_parent_id");
                     var editSel = document.getElementById("edit_parent_id");
+
                     if (createSel) {
                         updateSelectOptions(createSel, data.parentMenus);
+
+                        // Properly reinitialize TomSelect for create modal
                         if (tomSelectInstances["create_parent_id"]) {
                             tomSelectInstances["create_parent_id"].destroy();
-                            tomSelectInstances["create_parent_id"] =
-                                new TomSelect(createSel, {});
+                            delete tomSelectInstances["create_parent_id"];
                         }
+                        tomSelectInstances["create_parent_id"] = new TomSelect(
+                            createSel,
+                            {
+                                allowEmptyOption: true,
+                                placeholder: "-- Root Menu --",
+                            }
+                        );
                     }
+
                     if (editSel) {
                         updateSelectOptions(editSel, data.parentMenus);
+
+                        // Properly reinitialize TomSelect for edit modal
                         if (tomSelectInstances["edit_parent_id"]) {
                             tomSelectInstances["edit_parent_id"].destroy();
-                            tomSelectInstances["edit_parent_id"] =
-                                new TomSelect(editSel, {});
+                            delete tomSelectInstances["edit_parent_id"];
                         }
+                        tomSelectInstances["edit_parent_id"] = new TomSelect(
+                            editSel,
+                            {
+                                allowEmptyOption: true,
+                                placeholder: "-- Root Menu --",
+                            }
+                        );
                     }
                 }
                 return data;
@@ -338,6 +371,49 @@ window.MenusDataTable = (function () {
 
     function refreshDataTable() {
         if (menusTable) menusTable.ajax.reload(null, false);
+    }
+
+    // Helper function to update select options
+    function updateSelectOptions(selectElement, options) {
+        if (!selectElement) return;
+
+        // Clear all existing options
+        selectElement.innerHTML = "";
+
+        // Add default empty option
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Root Menu --";
+        selectElement.appendChild(defaultOption);
+
+        // Handle both array and object formats
+        if (options) {
+            // If it's an array, this indicates a server-side issue
+            if (Array.isArray(options)) {
+                console.warn(
+                    "Received parent menus as array instead of object. This may cause incorrect parent_id values."
+                );
+                // Handle gracefully but warn developer
+                options.forEach((name, index) => {
+                    const option = document.createElement("option");
+                    option.value = String(index + 1); // Fallback: assume 1-based indexing
+                    option.textContent = name
+                        .replace(/[└─ ]/g, "")
+                        .replace(/Parent - /g, "");
+                    selectElement.appendChild(option);
+                });
+            } else if (typeof options === "object") {
+                // Proper object format with database ID as key
+                Object.entries(options).forEach(([id, name]) => {
+                    const option = document.createElement("option");
+                    option.value = String(id); // Use the actual database ID
+                    option.textContent = name
+                        .replace(/[└─ ]/g, "")
+                        .replace(/Parent - /g, "");
+                    selectElement.appendChild(option);
+                });
+            }
+        }
     }
 
     // Form utilities
@@ -369,7 +445,18 @@ window.MenusDataTable = (function () {
             // Handle TomSelect dropdown
             tomSelectInstance.clear();
             if (value) {
-                tomSelectInstance.setValue(value.toString());
+                const valueStr = value.toString();
+                // Check if the value exists in the options
+                if (tomSelectInstance.options[valueStr]) {
+                    tomSelectInstance.setValue(valueStr);
+                } else {
+                    console.warn(
+                        "Parent ID not found in options:",
+                        valueStr,
+                        "Available:",
+                        Object.keys(tomSelectInstance.options)
+                    );
+                }
             }
         } else {
             // Handle regular select element
@@ -440,19 +527,40 @@ window.MenusDataTable = (function () {
                 tomSelectInstances[key].sync();
         showModal(document.getElementById("editMenuModal"));
     }
-
     function openEditModal(menu, route) {
+        // Replace :id placeholder in form action with actual menu ID
+        const editForm = document.getElementById("editMenuForm");
+        if (editForm && menu.id) {
+            editForm.action = editForm.action.replace(":id", menu.id);
+        }
+
         fillEditModal(menu);
-        refreshParentMenuOptions(route)
+        refreshParentMenuOptions(route, menu.id)
             .then(function () {
-                setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
+                // Add a small delay to ensure TomSelect is properly initialized
+                setTimeout(() => {
+                    setSelect(
+                        "edit_parent_id",
+                        menu.parent_id,
+                        "edit_parent_id"
+                    );
+                }, 100);
             })
-            .catch(function () {});
+            .catch(function (error) {
+                console.error("Error refreshing parent options:", error);
+            });
     }
 
     function openDeleteModal(menu) {
         var modal = document.getElementById("deleteMenuModal");
         if (!modal) return;
+
+        // Replace :id placeholder in form action with actual menu ID
+        const deleteForm = document.getElementById("deleteMenuForm");
+        if (deleteForm && menu.id) {
+            deleteForm.action = deleteForm.action.replace(":id", menu.id);
+        }
+
         setValue("delete_menu_id", menu.id);
         setText("delete_menu_name", menu.nama_menu);
         setText("delete_menu_slug", menu.slug);
@@ -470,6 +578,92 @@ window.MenusDataTable = (function () {
                 for (var i = 0; i < modals.length; i++) hideModal(modals[i]);
             }
         });
+
+        // Clear form when create modal is opened
+        const createModal = document.getElementById("createMenuModal");
+        if (createModal) {
+            createModal.addEventListener("show.bs.modal", function () {
+                const createForm = document.getElementById("createMenuForm");
+                if (createForm) {
+                    createForm.reset();
+                    // Reset TomSelect instances for create modal
+                    if (tomSelectInstances["create_parent_id"]) {
+                        tomSelectInstances["create_parent_id"].clear();
+                    }
+                    if (tomSelectInstances["create_roles"]) {
+                        tomSelectInstances["create_roles"].clear();
+                    }
+                }
+            });
+        }
+
+        // Clear form when edit modal is closed
+        const editModal = document.getElementById("editMenuModal");
+        if (editModal) {
+            editModal.addEventListener("hidden.bs.modal", function () {
+                const editForm = document.getElementById("editMenuForm");
+                if (editForm) {
+                    editForm.reset();
+                    // Reset form action URL back to placeholder
+                    editForm.action = editForm.action.replace(/\/\d+$/, "/:id");
+                }
+            });
+        }
+
+        // Clear form when delete modal is closed
+        const deleteModal = document.getElementById("deleteMenuModal");
+        if (deleteModal) {
+            deleteModal.addEventListener("hidden.bs.modal", function () {
+                const deleteForm = document.getElementById("deleteMenuForm");
+                if (deleteForm) {
+                    deleteForm.reset();
+                    // Reset form action URL back to placeholder if it has one
+                    deleteForm.action = deleteForm.action.replace(
+                        /\/\d+$/,
+                        "/:id"
+                    );
+                }
+            });
+        }
+
+        // Debug form submissions
+        const createForm = document.getElementById("createMenuForm");
+        if (createForm) {
+            createForm.addEventListener("submit", function (e) {
+                const formData = new FormData(this);
+                console.log("Create form submission data:");
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ": " + value);
+                }
+
+                // Also log the selected parent from TomSelect
+                if (tomSelectInstances["create_parent_id"]) {
+                    console.log(
+                        "TomSelect parent_id value:",
+                        tomSelectInstances["create_parent_id"].getValue()
+                    );
+                }
+            });
+        }
+
+        const editForm = document.getElementById("editMenuForm");
+        if (editForm) {
+            editForm.addEventListener("submit", function (e) {
+                const formData = new FormData(this);
+                console.log("Edit form submission data:");
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ": " + value);
+                }
+
+                // Also log the selected parent from TomSelect
+                if (tomSelectInstances["edit_parent_id"]) {
+                    console.log(
+                        "TomSelect parent_id value:",
+                        tomSelectInstances["edit_parent_id"].getValue()
+                    );
+                }
+            });
+        }
     }
 
     // State management for bulk operations
