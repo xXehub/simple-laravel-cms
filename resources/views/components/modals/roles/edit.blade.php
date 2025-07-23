@@ -9,14 +9,13 @@
                     <h5 class="modal-title" id="editRoleModalLabel">Edit Role</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('panel.roles.update') }}" id="editRoleForm">
+                <form method="POST" action="{{ route('panel.roles.update', ':id') }}" id="editRoleForm">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="id" id="edit_role_id">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="edit_name" class="form-label">Role Name <span
-                                    class="text-danger">*</span></label>
+                            <label for="edit_name" class="form-label">Role Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_name" name="name" required>
                             <div class="invalid-feedback" id="edit_name_error"></div>
                         </div>
@@ -32,8 +31,7 @@
                                                 <input class="form-check-input" type="checkbox"
                                                     id="edit_permission_{{ $permission->id }}" name="permissions[]"
                                                     value="{{ $permission->name }}">
-                                                <label class="form-check-label"
-                                                    for="edit_permission_{{ $permission->id }}">
+                                                <label class="form-check-label" for="edit_permission_{{ $permission->id }}">
                                                     {{ ucfirst(str_replace('-', ' ', $permission->name)) }}
                                                 </label>
                                             </div>
@@ -57,8 +55,12 @@
     <script>
         // Edit Role function
         function editRole(roleId) {
+            // Update form action URL with the actual role ID
+            const editForm = document.getElementById('editRoleForm');
+            editForm.action = editForm.action.replace(':id', roleId);
+            
             // Fetch role data via AJAX
-            fetch(`{{ route('panel.roles.edit') }}?id=${roleId}`, {
+            fetch(`{{ route('panel.roles.edit', ':id') }}`.replace(':id', roleId), {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -99,7 +101,10 @@
             const editModal = document.getElementById('editRoleModal');
             if (editModal) {
                 editModal.addEventListener('hidden.bs.modal', function() {
-                    document.getElementById('editRoleForm').reset();
+                    const editForm = document.getElementById('editRoleForm');
+                    editForm.reset();
+                    // Reset form action URL to use placeholder
+                    editForm.action = `{{ route('panel.roles.update', ':id') }}`;
                     // Clear validation errors
                     const errorElements = editModal.querySelectorAll('.invalid-feedback');
                     errorElements.forEach(el => {

@@ -42,7 +42,7 @@ class RoleController extends Controller
                 $role->givePermissionTo($request->permissions);
             }
 
-            return redirect()->route('panel.roles.index')
+            return redirect()->route('panel.roles')
                 ->with('success', 'Role created successfully');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -82,7 +82,7 @@ class RoleController extends Controller
         $role->update(['name' => $request->name]);
         $role->syncPermissions($request->permissions ?? []);
 
-        return redirect()->route('panel.roles.index')
+        return redirect()->route('panel.roles')
             ->with('success', 'Role updated successfully');
     }
 
@@ -101,7 +101,7 @@ class RoleController extends Controller
 
         $role->delete();
 
-        return redirect()->route('panel.roles.index')
+        return redirect()->route('panel.roles')
             ->with('success', 'Role deleted successfully');
     }
 }

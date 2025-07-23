@@ -8,7 +8,7 @@
                     <h5 class="modal-title" id="deleteRoleModalLabel">Delete Role</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('panel.roles.delete') }}" id="deleteRoleForm">
+                <form method="POST" action="{{ route('panel.roles.destroy', ':id') }}" id="deleteRoleForm">
                     @csrf
                     @method('DELETE')
                     <input type="hidden" name="id" id="delete_role_id">
@@ -30,8 +30,25 @@
     <script>
         // Delete Role function
         function deleteRole(roleId, roleName) {
+            // Update form action URL with the actual role ID
+            const deleteForm = document.getElementById('deleteRoleForm');
+            deleteForm.action = deleteForm.action.replace(':id', roleId);
+            
             document.getElementById('delete_role_id').value = roleId;
             document.getElementById('delete_role_name').textContent = roleName;
         }
+
+        // Reset delete modal when closed
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteModal = document.getElementById('deleteRoleModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('hidden.bs.modal', function() {
+                    const deleteForm = document.getElementById('deleteRoleForm');
+                    deleteForm.reset();
+                    // Reset form action URL to use placeholder
+                    deleteForm.action = `{{ route('panel.roles.destroy', ':id') }}`;
+                });
+            }
+        });
     </script>
 @endcan
