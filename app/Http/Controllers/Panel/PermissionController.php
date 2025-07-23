@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use App\Http\Requests\Panel\Permission\StorePermissionRequest;
 use App\Http\Requests\Panel\Permission\UpdatePermissionRequest;
+use Yajra\DataTables\Facades\DataTables;
 
 class PermissionController extends Controller
 {
@@ -15,8 +16,51 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::paginate(20);
-        return view('panel.permissions.index', compact('permissions'));
+        return view('panel.permissions.index');
+    }
+
+    /**
+     * Server-side datatable for permissions
+     */
+    public function datatable(Request $request)
+    {
+        $query = Permission::query();
+
+        // Add search if provided
+        if ($search = $request->get('search')['value'] ?? null) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('group', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return DataTables::of($query)
+            ->addColumn('checkbox', function ($permission) {
+                return '<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select permission" value="' . $permission->id . '"/>';
+            })
+            ->addColumn('DT_RowIndex', function ($permission) {
+                return '';
+            })
+            ->addColumn('action', function ($permission) {
+                // Render action buttons using the component
+                return view('components.modals.permissions.action', [
+                    'permission' => [
+                        'id' => $permission->id,
+                        'name' => $permission->name,
+                    ]
+                ])->render();
+            })
+            ->editColumn('created_at', function ($permission) {
+                return $permission->created_at->toISOString();
+            })
+            ->addColumn('group_badge', function ($permission) {
+                if ($permission->group) {
+                    return '<span class="badge bg-primary-lt me-1">' . $permission->group . '</span>';
+                }
+                return '<span class="text-muted">-</span>';
+            })
+            ->rawColumns(['checkbox', 'action', 'group_badge'])
+            ->make(true);
     }
 
     /**
@@ -88,5 +132,42 @@ class PermissionController extends Controller
 
         return redirect()->route('panel.permissions')
             ->with('success', 'Permission deleted successfully');
+    }
+
+    /**
+     * Bulk delete permissions
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:permissions,id'
+        ]);
+
+        $deletedCount = Permission::whereIn('id', $request->ids)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully deleted {$deletedCount} permission(s)",
+            'deleted_count' => $deletedCount
+        ]);
+    }
+
+    /**
+     * Get permissions for DataTables
+     */
+    public function getPermissions(Request $request)
+    {
+        if ($request->ajax()) {
+            $permissions = Permission::query();
+
+            return DataTables::of($permissions)
+                ->addColumn('action', function ($permission) {
+                    return view('panel.permissions.index.partials.actions', compact('permission'));
+                })
+                ->make(true);
+        }
+
+        return abort(404);
     }
 }

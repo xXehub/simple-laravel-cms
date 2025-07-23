@@ -17,35 +17,60 @@ class PermissionSeeder extends Seeder
 
         $permissions = [
             // Panel & Dashboard
-            'access-panel', 'view-dashboard',
-            
+            ['name' => 'access-panel', 'group' => 'panel'],
+            ['name' => 'view-dashboard', 'group' => 'panel'],
+
             // User Management
-            'view-users', 'create-users', 'update-users', 'delete-users',
-            
+            ['name' => 'view-users', 'group' => 'users'],
+            ['name' => 'create-users', 'group' => 'users'],
+            ['name' => 'update-users', 'group' => 'users'],
+            ['name' => 'delete-users', 'group' => 'users'],
+
             // Role & Permission Management
-            'view-roles', 'create-roles', 'update-roles', 'delete-roles',
-            'view-permissions', 'create-permissions', 'update-permissions', 'delete-permissions',
-            
+            ['name' => 'view-roles', 'group' => 'roles'],
+            ['name' => 'create-roles', 'group' => 'roles'],
+            ['name' => 'update-roles', 'group' => 'roles'],
+            ['name' => 'delete-roles', 'group' => 'roles'],
+            ['name' => 'view-permissions', 'group' => 'permissions'],
+            ['name' => 'create-permissions', 'group' => 'permissions'],
+            ['name' => 'update-permissions', 'group' => 'permissions'],
+            ['name' => 'delete-permissions', 'group' => 'permissions'],
+
             // Menu Management
-            'view-menus', 'create-menus', 'update-menus', 'delete-menus',
-            
+            ['name' => 'view-menus', 'group' => 'menus'],
+            ['name' => 'create-menus', 'group' => 'menus'],
+            ['name' => 'update-menus', 'group' => 'menus'],
+            ['name' => 'delete-menus', 'group' => 'menus'],
+
             // Content Management
-            'view-pages', 'create-pages', 'update-pages', 'delete-pages',
-            'view-articles', 'create-articles', 'update-articles', 'delete-articles',
-            
+            ['name' => 'view-pages', 'group' => 'pages'],
+            ['name' => 'create-pages', 'group' => 'pages'],
+            ['name' => 'update-pages', 'group' => 'pages'],
+            ['name' => 'delete-pages', 'group' => 'pages'],
+            ['name' => 'view-articles', 'group' => 'articles'],
+            ['name' => 'create-articles', 'group' => 'articles'],
+            ['name' => 'update-articles', 'group' => 'articles'],
+            ['name' => 'delete-articles', 'group' => 'articles'],
+
             // Media Management
-            'view-media', 'create-media', 'update-media', 'delete-media',
-            
+            ['name' => 'view-media', 'group' => 'media'],
+            ['name' => 'create-media', 'group' => 'media'],
+            ['name' => 'update-media', 'group' => 'media'],
+            ['name' => 'delete-media', 'group' => 'media'],
+
             // System & Settings
-            'view-settings', 'update-settings',
-            'view-system', 'update-system',
-            
+            ['name' => 'view-settings', 'group' => 'settings'],
+            ['name' => 'update-settings', 'group' => 'settings'],
+            ['name' => 'view-system', 'group' => 'system'],
+            ['name' => 'update-system', 'group' => 'system'],
+
             // Profile
-            'view-profile', 'update-profile',
+            ['name' => 'view-profile', 'group' => 'profile'],
+            ['name' => 'update-profile', 'group' => 'profile'],
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::create($permission);
         }
 
         $this->command->info("✅ " . count($permissions) . " permissions created");
