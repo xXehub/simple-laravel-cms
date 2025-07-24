@@ -24,9 +24,10 @@
                         fill-rule="evenodd" clip-rule="evenodd" fill="#4a4a4a"></path>
                 </svg> --}}
             </a>
-          
-               <i class="fa-solid fa-screwdriver-wrench"></i><h3 class="h2 ms-2 mb-0">Panel</h3>
-         
+
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <h3 class="h2 ms-2 mb-0">Panel</h3>
+
         </div>
 
         <div class="navbar-nav flex-row d-lg-none">

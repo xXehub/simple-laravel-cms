@@ -66,7 +66,7 @@
         'verification.notice',
         'verification.verify',
     ];
-    
+
     // If pakaiTopBar is explicitly set, use it; otherwise auto-detect based on auth routes
     $showTopBar = $pakaiTopBar !== null ? $pakaiTopBar : !in_array(Route::currentRouteName(), $authRoutes);
 @endphp
@@ -111,7 +111,7 @@
     <script src="{{ asset('libs/nouislider/dist/nouislider.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/litepicker/dist/litepicker.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
-    <script src="{{ asset('preview/js/demo.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('preview/js/demo.min.js?1667333929') }}"></script>
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">

@@ -4,7 +4,7 @@
     $hasChildren = $menu->hasAccessibleChildren();
     $isActive = $menu->isActive();
     $isNested = $level > 0;
-    
+
     // Use dynamic route helper - try route name first, then URL
     $menuUrl = $menu->getRouteName() ? menu_route($menu->getRouteName()) : $menu->getUrl();
 @endphp
@@ -13,22 +13,24 @@
     @if ($isNested)
         {{-- Nested menu item --}}
         @if ($hasChildren)
-            <div class="dropend">
+            <li class="dropdown dropend">
                 <a class="dropdown-item dropdown-toggle {{ $isActive ? 'active' : '' }}"
                     href="#navbar-submenu-{{ $menu->id }}-level-{{ $level }}" data-bs-toggle="dropdown"
                     data-bs-auto-close="false" role="button" aria-expanded="{{ $isActive ? 'true' : 'false' }}">
                     {{ $menu->nama_menu }}
                 </a>
-                <div class="dropdown-menu">
+                <ul class="dropdown-menu">
                     @foreach ($menu->getAccessibleChildren() as $child)
-                        <x-.layout.sidebar-menu :menu="$child" :level="$level + 1" />
+                        <x-layout.sidebar-menu :menu="$child" :level="$level + 1" />
                     @endforeach
-                </div>
-            </div>
+                </ul>
+            </li>
         @else
-            <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $menuUrl }}">
-                {{ $menu->nama_menu }}
-            </a>
+            <li>
+                <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $menuUrl }}">
+                    {{ $menu->nama_menu }}
+                </a>
+            </li>
         @endif
     @else
         {{-- Root level menu item --}}
@@ -46,11 +48,11 @@
                     <span class="nav-link-title">{{ $menu->nama_menu }}</span>
                 </a>
 
-                <div class="dropdown-menu {{ $isActive ? 'show' : '' }}">
+                <ul class="dropdown-menu {{ $isActive ? 'show' : '' }}">
                     @foreach ($menu->getAccessibleChildren() as $child)
-                        <x-sidebar-menu :menu="$child" :level="1" />
+                        <x-layout.sidebar-menu :menu="$child" :level="1" />
                     @endforeach
-                </div>
+                </ul>
             @else
                 {{-- Single root menu item --}}
                 <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $menuUrl }}">
@@ -65,3 +67,19 @@
         </li>
     @endif
 @endif
+
+<style>
+    /* Tabler.io chevron animation - using built-in pseudo-element */
+    .dropdown-toggle::after {
+        transition: transform 0.15s ease-in-out;
+        transform-origin: center;
+    }
+
+    .nav-link.dropdown-toggle[aria-expanded="true"]::after {
+        transform: rotate(135deg);
+    }
+
+    .dropend .dropdown-toggle[aria-expanded="true"]::after {
+        transform: rotate(135deg);
+    }
+</style>

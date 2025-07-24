@@ -341,10 +341,10 @@ window.MenusDataTable = (function () {
     function updateParentMenuSelects(parentMenus) {
         const selectors = [
             { id: "create_parent_id", key: "create_parent_id" },
-            { id: "edit_parent_id", key: "edit_parent_id" }
+            { id: "edit_parent_id", key: "edit_parent_id" },
         ];
 
-        selectors.forEach(selector => {
+        selectors.forEach((selector) => {
             const element = document.getElementById(selector.id);
             if (element) {
                 updateSelectOptions(element, parentMenus);
@@ -390,7 +390,9 @@ window.MenusDataTable = (function () {
             Object.entries(options).forEach(([id, name]) => {
                 const option = document.createElement("option");
                 option.value = String(id);
-                option.textContent = name.replace(/[└─ ]/g, "").replace(/Parent - /g, "");
+                option.textContent = name
+                    .replace(/[└─ ]/g, "")
+                    .replace(/Parent - /g, "");
                 selectElement.appendChild(option);
             });
         }
@@ -776,8 +778,8 @@ window.MenusDataTable = (function () {
     // Menu order functionality
     function moveMenuOrder(menuId, direction, moveOrderRoute) {
         // Debug: Log the route being called
-        console.log('Move order route:', moveOrderRoute);
-        console.log('Menu ID:', menuId, 'Direction:', direction);
+        console.log("Move order route:", moveOrderRoute);
+        console.log("Menu ID:", menuId, "Direction:", direction);
 
         // Show loading state
         const buttons = document.querySelectorAll(`[data-menu-id="${menuId}"]`);
@@ -804,11 +806,11 @@ window.MenusDataTable = (function () {
             }),
         })
             .then((response) => {
-                console.log('Response status:', response.status);
+                console.log("Response status:", response.status);
                 return response.json();
             })
             .then((data) => {
-                console.log('Response data:', data);
+                console.log("Response data:", data);
                 if (data.success) {
                     // Show success message
                     if (typeof window.showToast === "function") {

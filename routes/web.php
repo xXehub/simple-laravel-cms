@@ -43,11 +43,6 @@ Route::get('/', [DynamicController::class, 'handleWelcome'])->name('welcome');
 // Profile route - Keep this as it's user-specific functionality
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [DynamicController::class, 'handleProfile'])->name('profile');
-    
-    // Manual route for moveOrder (temporary fix)
-    Route::post('/panel/menus/moveOrder', [\App\Http\Controllers\Panel\MenuController::class, 'moveOrder'])
-        ->name('panel.menus.moveOrder')
-        ->middleware(['permission:update-menus']);
 });
 
 /*
