@@ -183,28 +183,24 @@ window.MenusDataTable = (function () {
             .then(waitForTomSelect)
             .then(function () {
                 destroyTomSelects();
-                // Inisialisasi TomSelect hanya pada elemen yang ada
-                var ids = [
+
+                // Initialize TomSelect instances for all required elements
+                const tomSelectElements = [
                     "create_roles",
                     "edit_roles",
                     "create_parent_id",
                     "edit_parent_id",
                 ];
-                for (var i = 0; i < ids.length; i++) {
-                    var el = document.getElementById(ids[i]);
-                    if (el && !el.tomselect) {
-                        // Use consistent configuration for all TomSelect instances
-                        var config = {};
-                        if (ids[i].includes("parent_id")) {
-                            config = {
-                                allowEmptyOption: true,
-                                placeholder: "-- Root Menu --",
-                            };
-                        }
-                        tomSelectInstances[ids[i]] = new TomSelect(el, config);
+
+                tomSelectElements.forEach(function (elementId) {
+                    const element = document.getElementById(elementId);
+                    if (element && !element.tomselect) {
+                        recreateTomSelect(elementId, element);
                     }
-                }
+                });
+
                 window.tomSelectInstances = tomSelectInstances;
+
                 return DataTableGlobal.initializeDataTable("#menusTable", {
                     tableConfig: getTableConfig(route),
                     drawCallbackOptions: {
@@ -249,19 +245,25 @@ window.MenusDataTable = (function () {
         tomSelectInstances = {};
     }
 
-    // Table filtering (tanpa perulangan)
+    // Table filtering
     function filterTable(type) {
         if (!menusTable) return;
-        if (type === "active") {
-            menusTable.column(9).search("Active").draw(); // status column sekarang index 9
-        } else if (type === "inactive") {
-            menusTable.column(9).search("Inactive").draw(); // status column sekarang index 9
-        } else if (type === "parent") {
-            menusTable.column(5).search("^-$", true, false).draw(); // parent column sekarang index 5
-        } else if (type === "child") {
-            menusTable.column(5).search("^(?!-).*", true, false).draw(); // parent column sekarang index 5
-        } else {
-            menusTable.columns().search("").draw();
+
+        switch (type) {
+            case "active":
+                menusTable.column(9).search("Active").draw();
+                break;
+            case "inactive":
+                menusTable.column(9).search("Inactive").draw();
+                break;
+            case "parent":
+                menusTable.column(5).search("^-$", true, false).draw();
+                break;
+            case "child":
+                menusTable.column(5).search("^(?!-).*", true, false).draw();
+                break;
+            default:
+                menusTable.columns().search("").draw();
         }
     }
 
@@ -306,7 +308,7 @@ window.MenusDataTable = (function () {
         if (bd) bd.remove();
     }
 
-    // Menu operations (tanpa perulangan)
+    // Menu operations - optimized and clean
     function refreshParentMenuOptions(route, excludeId = null) {
         const params = new URLSearchParams();
         if (excludeId) {
@@ -328,92 +330,74 @@ window.MenusDataTable = (function () {
             })
             .then(function (data) {
                 if (data.parentMenus) {
-                    var createSel = document.getElementById("create_parent_id");
-                    var editSel = document.getElementById("edit_parent_id");
-
-                    if (createSel) {
-                        updateSelectOptions(createSel, data.parentMenus);
-
-                        // Properly reinitialize TomSelect for create modal
-                        if (tomSelectInstances["create_parent_id"]) {
-                            tomSelectInstances["create_parent_id"].destroy();
-                            delete tomSelectInstances["create_parent_id"];
-                        }
-                        tomSelectInstances["create_parent_id"] = new TomSelect(
-                            createSel,
-                            {
-                                allowEmptyOption: true,
-                                placeholder: "-- Root Menu --",
-                            }
-                        );
-                    }
-
-                    if (editSel) {
-                        updateSelectOptions(editSel, data.parentMenus);
-
-                        // Properly reinitialize TomSelect for edit modal
-                        if (tomSelectInstances["edit_parent_id"]) {
-                            tomSelectInstances["edit_parent_id"].destroy();
-                            delete tomSelectInstances["edit_parent_id"];
-                        }
-                        tomSelectInstances["edit_parent_id"] = new TomSelect(
-                            editSel,
-                            {
-                                allowEmptyOption: true,
-                                placeholder: "-- Root Menu --",
-                            }
-                        );
-                    }
+                    // Update options for both create and edit modals efficiently
+                    updateParentMenuSelects(data.parentMenus);
                 }
                 return data;
             });
     }
 
-    function refreshDataTable() {
-        if (menusTable) menusTable.ajax.reload(null, false);
+    // Efficiently update all parent menu select elements
+    function updateParentMenuSelects(parentMenus) {
+        const selectors = [
+            { id: "create_parent_id", key: "create_parent_id" },
+            { id: "edit_parent_id", key: "edit_parent_id" }
+        ];
+
+        selectors.forEach(selector => {
+            const element = document.getElementById(selector.id);
+            if (element) {
+                updateSelectOptions(element, parentMenus);
+                recreateTomSelect(selector.key, element);
+            }
+        });
     }
 
-    // Helper function to update select options
+    // Helper function to recreate TomSelect instances efficiently
+    function recreateTomSelect(instanceKey, element) {
+        // Destroy existing instance if it exists
+        if (tomSelectInstances[instanceKey]) {
+            tomSelectInstances[instanceKey].destroy();
+            delete tomSelectInstances[instanceKey];
+        }
+
+        // Create new instance with appropriate config
+        const config = instanceKey.includes("parent_id")
+            ? {
+                  allowEmptyOption: true,
+                  placeholder: "-- Root Menu --",
+              }
+            : {};
+
+        tomSelectInstances[instanceKey] = new TomSelect(element, config);
+    }
+
+    // Optimized select options update
     function updateSelectOptions(selectElement, options) {
         if (!selectElement) return;
 
-        // Clear all existing options
+        // Clear existing options
         selectElement.innerHTML = "";
 
-        // Add default empty option
+        // Add default empty option for parent selection
         const defaultOption = document.createElement("option");
         defaultOption.value = "";
         defaultOption.textContent = "-- Root Menu --";
         selectElement.appendChild(defaultOption);
 
-        // Handle both array and object formats
-        if (options) {
-            // If it's an array, this indicates a server-side issue
-            if (Array.isArray(options)) {
-                console.warn(
-                    "Received parent menus as array instead of object. This may cause incorrect parent_id values."
-                );
-                // Handle gracefully but warn developer
-                options.forEach((name, index) => {
-                    const option = document.createElement("option");
-                    option.value = String(index + 1); // Fallback: assume 1-based indexing
-                    option.textContent = name
-                        .replace(/[└─ ]/g, "")
-                        .replace(/Parent - /g, "");
-                    selectElement.appendChild(option);
-                });
-            } else if (typeof options === "object") {
-                // Proper object format with database ID as key
-                Object.entries(options).forEach(([id, name]) => {
-                    const option = document.createElement("option");
-                    option.value = String(id); // Use the actual database ID
-                    option.textContent = name
-                        .replace(/[└─ ]/g, "")
-                        .replace(/Parent - /g, "");
-                    selectElement.appendChild(option);
-                });
-            }
+        // Add menu options (expects object format with database IDs as keys)
+        if (options && typeof options === "object" && !Array.isArray(options)) {
+            Object.entries(options).forEach(([id, name]) => {
+                const option = document.createElement("option");
+                option.value = String(id);
+                option.textContent = name.replace(/[└─ ]/g, "").replace(/Parent - /g, "");
+                selectElement.appendChild(option);
+            });
         }
+    }
+
+    function refreshDataTable() {
+        if (menusTable) menusTable.ajax.reload(null, false);
     }
 
     // Form utilities
@@ -442,24 +426,11 @@ window.MenusDataTable = (function () {
         const tomSelectInstance = tomSelectInstances[tomSelectKey];
 
         if (tomSelectInstance) {
-            // Handle TomSelect dropdown
             tomSelectInstance.clear();
-            if (value) {
-                const valueStr = value.toString();
-                // Check if the value exists in the options
-                if (tomSelectInstance.options[valueStr]) {
-                    tomSelectInstance.setValue(valueStr);
-                } else {
-                    console.warn(
-                        "Parent ID not found in options:",
-                        valueStr,
-                        "Available:",
-                        Object.keys(tomSelectInstance.options)
-                    );
-                }
+            if (value && tomSelectInstance.options[value.toString()]) {
+                tomSelectInstance.setValue(value.toString());
             }
         } else {
-            // Handle regular select element
             const element = document.getElementById(id);
             if (element) {
                 element.value = value || "";
@@ -502,31 +473,7 @@ window.MenusDataTable = (function () {
         }
     }
 
-    // Modal operations (tanpa perulangan)
-    function fillEditModal(menu) {
-        if (!document.getElementById("edit_menu_id")) return;
-        setValue("edit_menu_id", menu.id);
-        setValue("edit_nama_menu", menu.nama_menu);
-        setValue("edit_slug", menu.slug);
-        setValue("edit_route_name", menu.route_name || "");
-        setValue("edit_icon", menu.icon || "");
-        setValue("edit_urutan", menu.urutan);
-        setChecked("edit_is_active", menu.is_active == 1);
-        setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
-        setRoles(
-            "edit_roles",
-            (menu.roles || []).map(function (r) {
-                return r.id;
-            })
-        );
-        for (var key in tomSelectInstances)
-            if (
-                tomSelectInstances[key] &&
-                typeof tomSelectInstances[key].sync === "function"
-            )
-                tomSelectInstances[key].sync();
-        showModal(document.getElementById("editMenuModal"));
-    }
+    // Modal operations - clean and efficient
     function openEditModal(menu, route) {
         // Replace :id placeholder in form action with actual menu ID
         const editForm = document.getElementById("editMenuForm");
@@ -534,21 +481,44 @@ window.MenusDataTable = (function () {
             editForm.action = editForm.action.replace(":id", menu.id);
         }
 
-        fillEditModal(menu);
+        // First refresh parent options (excluding current menu), then fill the modal
         refreshParentMenuOptions(route, menu.id)
             .then(function () {
-                // Add a small delay to ensure TomSelect is properly initialized
-                setTimeout(() => {
-                    setSelect(
-                        "edit_parent_id",
-                        menu.parent_id,
-                        "edit_parent_id"
-                    );
-                }, 100);
+                // Fill modal with all data including the correct parent selection
+                fillEditModal(menu);
             })
             .catch(function (error) {
                 console.error("Error refreshing parent options:", error);
+                // Fallback: fill modal without refreshing parent options
+                fillEditModal(menu);
             });
+    }
+
+    function fillEditModal(menu) {
+        if (!document.getElementById("edit_menu_id")) return;
+
+        // Fill all form fields
+        setValue("edit_menu_id", menu.id);
+        setValue("edit_nama_menu", menu.nama_menu);
+        setValue("edit_slug", menu.slug);
+        setValue("edit_route_name", menu.route_name || "");
+        setValue("edit_icon", menu.icon || "");
+        setValue("edit_urutan", menu.urutan);
+        setChecked("edit_is_active", menu.is_active == 1);
+
+        // Set parent_id selection
+        setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
+
+        // Set roles selection
+        setRoles(
+            "edit_roles",
+            (menu.roles || []).map(function (r) {
+                return r.id;
+            })
+        );
+
+        // Show the modal
+        showModal(document.getElementById("editMenuModal"));
     }
 
     function openDeleteModal(menu) {
@@ -621,45 +591,6 @@ window.MenusDataTable = (function () {
                     deleteForm.action = deleteForm.action.replace(
                         /\/\d+$/,
                         "/:id"
-                    );
-                }
-            });
-        }
-
-        // Debug form submissions
-        const createForm = document.getElementById("createMenuForm");
-        if (createForm) {
-            createForm.addEventListener("submit", function (e) {
-                const formData = new FormData(this);
-                console.log("Create form submission data:");
-                for (let [key, value] of formData.entries()) {
-                    console.log(key + ": " + value);
-                }
-
-                // Also log the selected parent from TomSelect
-                if (tomSelectInstances["create_parent_id"]) {
-                    console.log(
-                        "TomSelect parent_id value:",
-                        tomSelectInstances["create_parent_id"].getValue()
-                    );
-                }
-            });
-        }
-
-        const editForm = document.getElementById("editMenuForm");
-        if (editForm) {
-            editForm.addEventListener("submit", function (e) {
-                const formData = new FormData(this);
-                console.log("Edit form submission data:");
-                for (let [key, value] of formData.entries()) {
-                    console.log(key + ": " + value);
-                }
-
-                // Also log the selected parent from TomSelect
-                if (tomSelectInstances["edit_parent_id"]) {
-                    console.log(
-                        "TomSelect parent_id value:",
-                        tomSelectInstances["edit_parent_id"].getValue()
                     );
                 }
             });
@@ -844,6 +775,10 @@ window.MenusDataTable = (function () {
 
     // Menu order functionality
     function moveMenuOrder(menuId, direction, moveOrderRoute) {
+        // Debug: Log the route being called
+        console.log('Move order route:', moveOrderRoute);
+        console.log('Menu ID:', menuId, 'Direction:', direction);
+
         // Show loading state
         const buttons = document.querySelectorAll(`[data-menu-id="${menuId}"]`);
         buttons.forEach((btn) => {
@@ -868,8 +803,12 @@ window.MenusDataTable = (function () {
                 direction: direction,
             }),
         })
-            .then((response) => response.json())
+            .then((response) => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then((data) => {
+                console.log('Response data:', data);
                 if (data.success) {
                     // Show success message
                     if (typeof window.showToast === "function") {
@@ -948,7 +887,7 @@ window.MenusDataTable = (function () {
         setupPageLengthHandler();
     }
 
-    // Public API
+    // Public API - clean and organized
     return {
         initialize: initialize,
         filterTable: filterTable,
@@ -970,13 +909,7 @@ window.MenusDataTable = (function () {
     };
 })();
 
-// Global compatibility functions (optional, for legacy usage)
-window.filterTable = function (type) {
-    MenusDataTable.filterTable(type);
-};
-window.openEditModal = function (menu, route) {
-    MenusDataTable.openEditModal(menu, route);
-};
-window.openDeleteModal = function (menu) {
-    MenusDataTable.openDeleteModal(menu);
-};
+// Global compatibility functions for backward compatibility
+window.filterTable = MenusDataTable.filterTable;
+window.openEditModal = MenusDataTable.openEditModal;
+window.openDeleteModal = MenusDataTable.openDeleteModal;

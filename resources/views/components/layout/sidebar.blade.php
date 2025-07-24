@@ -25,7 +25,7 @@
                 </svg> --}}
             </a>
           
-               <i class="fa-solid fa-building-columns"></i><h3 class="h2 ms-2 mb-0">Panel</h3>
+               <i class="fa-solid fa-screwdriver-wrench"></i><h3 class="h2 ms-2 mb-0">Panel</h3>
          
         </div>
 

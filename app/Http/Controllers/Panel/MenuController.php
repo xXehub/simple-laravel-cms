@@ -22,7 +22,7 @@ class MenuController extends Controller
         $this->middleware(['auth']);
         $this->middleware('permission:view-menus')->only(['index']);
         $this->middleware('permission:create-menus')->only(['create', 'store']);
-        $this->middleware('permission:update-menus')->only(['edit', 'update']);
+        $this->middleware('permission:update-menus')->only(['edit', 'update', 'moveOrder']);
         $this->middleware('permission:delete-menus')->only(['destroy', 'bulkDestroy']);
     }
 
@@ -41,9 +41,6 @@ class MenuController extends Controller
         if ($request->ajax()) {
             $excludeId = $request->get('exclude_id');
             $parentMenus = $this->menuService->getMenuOptions(null, 0, $excludeId);
-            
-            // Debug: Log the parent menus data
-            \Log::info('Parent menus data:', ['parentMenus' => $parentMenus, 'excludeId' => $excludeId]);
             
             // Ensure parentMenus is treated as an object in JSON, not an array
             $parentMenus = (object) $parentMenus;
@@ -307,6 +304,13 @@ class MenuController extends Controller
      */
     public function moveOrder(Request $request)
     {
+        // Debug logging
+        \Log::info('MoveOrder called', [
+            'method' => $request->method(),
+            'input' => $request->all(),
+            'route' => $request->route()->getName()
+        ]);
+
         $request->validate([
             'menu_id' => 'required|exists:master_menus,id',
             'direction' => 'required|in:up,down'
@@ -343,6 +347,11 @@ class MenuController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('MoveOrder error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()

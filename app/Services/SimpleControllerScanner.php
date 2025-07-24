@@ -101,7 +101,8 @@ class SimpleControllerScanner
             'destroy' => 'DELETE',
             'delete' => 'DELETE',
             'bulkDestroy' => 'POST',
-            'bulkDelete' => 'POST'
+            'bulkDelete' => 'POST',
+            'moveOrder' => 'POST',
         ];
 
         return $httpMethods[$methodName] ?? 'GET';
