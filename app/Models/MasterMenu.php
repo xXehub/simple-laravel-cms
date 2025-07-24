@@ -30,7 +30,6 @@ class MasterMenu extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'middleware_list' => 'array',
     ];
 
     /**
@@ -414,9 +413,37 @@ class MasterMenu extends Model
      */
     public function getMiddlewareList(): array
     {
-        return is_string($this->middleware_list) 
-            ? json_decode($this->middleware_list, true) ?? []
-            : (array) $this->middleware_list;
+        // Handle null or empty middleware_list
+        if (empty($this->middleware_list)) {
+            return [];
+        }
+        
+        // If it's already an array, return it
+        if (is_array($this->middleware_list)) {
+            return $this->middleware_list;
+        }
+        
+        // If it's a string, try to parse it
+        if (is_string($this->middleware_list)) {
+            // Try JSON decode first (for JSON format)
+            $decoded = json_decode($this->middleware_list, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+            
+            // Clean up the string by removing quotes that might be embedded
+            $cleanString = trim($this->middleware_list, '"\'');
+            
+            // Fallback to comma-separated string parsing
+            $parts = explode(',', $cleanString);
+            return array_values(array_filter(array_map(function($part) {
+                // Remove any surrounding quotes and trim whitespace
+                return trim(trim($part), '"\'');
+            }, $parts)));
+        }
+        
+        // Fallback for other types
+        return [];
     }
 
     /**
