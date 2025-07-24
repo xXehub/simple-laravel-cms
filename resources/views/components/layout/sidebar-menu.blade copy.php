@@ -5,8 +5,8 @@
     $isActive = $menu->isActive();
     $isNested = $level > 0;
 
-    // Simply use direct URL to avoid any helper issues
-    $menuUrl = $menu->slug ? url($menu->slug) : '#';
+    // Use dynamic route helper - try route name first, then URL
+    $menuUrl = $menu->getRouteName() ? menu_route($menu->getRouteName()) : $menu->getUrl();
 @endphp
 
 @if ($menu->canAccess())

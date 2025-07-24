@@ -8,7 +8,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ route('panel.menus.update', ':id') }}" id="editMenuForm">
+            <form method="POST" action="" id="editMenuForm" data-route-template="{{ route('panel.menus.update', ':id') }}">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" id="edit_menu_id">
@@ -48,9 +48,55 @@
                             <small class="form-text text-muted">Optional. Example: users.index</small>
                         </div>
                         <div class="col-md-6">
+                            <label for="edit_route_type" class="form-label">Route Type</label>
+                            <select class="form-select" id="edit_route_type" name="route_type">
+                                <option value="public">Public</option>
+                                <option value="admin">Admin</option>
+                                <option value="api">API</option>
+                            </select>
+                            <small class="form-text text-muted">Access level for this menu</small>
+                        </div>
+                    </div>
+
+                    {{-- Controller & View Configuration --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_controller_class" class="form-label">Controller Class</label>
+                            <input type="text" class="form-control" id="edit_controller_class" name="controller_class">
+                            <small class="form-text text-muted">Example: Panel\UserController</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_view_path" class="form-label">View Path</label>
+                            <input type="text" class="form-control" id="edit_view_path" name="view_path">
+                            <small class="form-text text-muted">Example: panel.users.index</small>
+                        </div>
+                    </div>
+
+                    {{-- Icon & Middleware --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="edit_icon" class="form-label">Icon</label>
                             <input type="text" class="form-control" id="edit_icon" name="icon">
                             <small class="form-text text-muted">Font Awesome class. Example: fas fa-users</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_middleware_list" class="form-label">Middleware</label>
+                            <input type="text" class="form-control" id="edit_middleware_list" name="middleware_list">
+                            <small class="form-text text-muted">Comma-separated. Example: auth,admin</small>
+                        </div>
+                    </div>
+
+                    {{-- SEO Meta Information --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit_meta_title" class="form-label">Meta Title</label>
+                            <input type="text" class="form-control" id="edit_meta_title" name="meta_title">
+                            <small class="form-text text-muted">Page title for SEO</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_meta_description" class="form-label">Meta Description</label>
+                            <textarea class="form-control" id="edit_meta_description" name="meta_description" rows="2"></textarea>
+                            <small class="form-text text-muted">Page description for SEO</small>
                         </div>
                     </div>
 

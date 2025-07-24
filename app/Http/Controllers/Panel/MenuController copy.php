@@ -123,22 +123,10 @@ class MenuController extends Controller
                 'slug' => $menu->slug,
                 'parent' => $menu->parent ? $menu->parent->nama_menu : null,
                 'route_name' => $menu->route_name,
-                'route_type' => $menu->route_type,
-                'controller_class' => $menu->controller_class,
-                'view_path' => $menu->view_path,
-                'middleware_list' => $menu->middleware_list,
-                'meta_title' => $menu->meta_title,
-                'meta_description' => $menu->meta_description,
                 'icon' => $menu->icon,
                 'urutan' => $menu->urutan,
                 'is_active' => (bool) $menu->is_active,
-            
-                'roles' => $menu->roles->map(function($role) {
-                    return [
-                        'id' => $role->id,
-                        'name' => $role->name
-                    ];
-                })->toArray(),
+                'roles' => $menu->roles->pluck('name')->toArray(),
                 'parent_id' => $menu->parent_id,
                 'is_first' => $isFirst,
                 'is_last' => $isLast,
@@ -180,9 +168,6 @@ class MenuController extends Controller
             $menu->roles()->sync($request->input('roles'));
         }
 
-        // Clear route cache to ensure new menu routes are available
-        $this->clearRouteCache();
-
         return ResponseHelper::redirect('panel.menus', 'Menu created successfully');
     }
 
@@ -217,9 +202,6 @@ class MenuController extends Controller
 
         $menu->roles()->sync($request->input('roles', []));
 
-        // Clear route cache to ensure updated menu routes take effect
-        $this->clearRouteCache();
-
         return ResponseHelper::redirect('panel.menus', 'Menu updated successfully');
     }
 
@@ -236,9 +218,6 @@ class MenuController extends Controller
         }
 
         $menu->delete();
-
-        // Clear route cache to ensure deleted menu routes are removed
-        $this->clearRouteCache();
 
         return ResponseHelper::redirect('panel.menus', 'Menu deleted successfully');
     }
@@ -274,9 +253,6 @@ class MenuController extends Controller
         }
 
         if ($deletedCount > 0) {
-            // Clear route cache when menus are deleted
-            $this->clearRouteCache();
-
             $message = "Successfully deleted {$deletedCount} menu(s)";
             $type = 'success';
             if (!empty($errors)) {
@@ -516,26 +492,6 @@ class MenuController extends Controller
                 $child->update(['urutan' => $order]);
                 $order++;
             }
-        }
-    }
-
-    /**
-     * Clear route cache to ensure menu changes take effect immediately
-     */
-    protected function clearRouteCache(): void
-    {
-        try {
-            // Clear Laravel's route cache
-            \Artisan::call('route:clear');
-
-            // Clear dynamic route cache if exists
-            if (class_exists('\App\Console\Commands\CacheDynamicRoutes')) {
-                \App\Console\Commands\CacheDynamicRoutes::invalidateCache();
-            }
-        } catch (\Exception $e) {
-            \Log::warning('Failed to clear route cache', [
-                'error' => $e->getMessage()
-            ]);
         }
     }
 }

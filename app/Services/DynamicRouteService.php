@@ -6,6 +6,7 @@ use App\Models\MasterMenu;
 use App\Console\Commands\CacheDynamicRoutes;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class DynamicRouteService
 {
@@ -288,8 +289,8 @@ class DynamicRouteService
      */
     protected function registerDynamicRoute(MasterMenu $menu, string $url, array $middleware, string $routeName): void
     {
-        $route = Route::get($url, function () use ($menu) {
-            return app('App\Http\Controllers\DynamicController')->handleDynamicRoute($menu);
+        $route = Route::get($url, function (Request $request) use ($menu) {
+            return app('App\Http\Controllers\DynamicController')->handleDynamicRoute($menu, $request);
         });
 
         if (!empty($middleware)) {

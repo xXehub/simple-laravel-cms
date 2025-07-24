@@ -131,11 +131,10 @@ window.MenusDataTable = (function () {
                     render: function (data) {
                         if (data && data.length > 0) {
                             return data
-                                .map((role) => {
-                                    // Handle both old format (strings) and new format (objects)
-                                    const roleName = typeof role === 'object' ? role.name : role;
-                                    return `<span class="badge bg-secondary-lt me-1">${roleName}</span>`;
-                                })
+                                .map(
+                                    (role) =>
+                                        `<span class="badge bg-secondary-lt me-1">${role}</span>`
+                                )
                                 .join("");
                         }
                         return '<span class="badge bg-danger-lt me-1">Tidak Ada</span>';
@@ -184,22 +183,26 @@ window.MenusDataTable = (function () {
             .then(waitForTomSelect)
             .then(function () {
                 destroyTomSelects();
-                // Inisialisasi TomSelect hanya pada elemen yang ada
-                var ids = [
+
+                // Initialize TomSelect instances for all required elements
+                const tomSelectElements = [
                     "create_roles",
                     "edit_roles",
                     "create_parent_id",
                     "edit_parent_id",
                     "create_route_type",
-                    "edit_route_type"
+                    "edit_route_type",
                 ];
-                for (var i = 0; i < ids.length; i++) {
-                    var el = document.getElementById(ids[i]);
-                    if (el && !el.tomselect) {
-                        tomSelectInstances[ids[i]] = new TomSelect(el, {});
+
+                tomSelectElements.forEach(function (elementId) {
+                    const element = document.getElementById(elementId);
+                    if (element && !element.tomselect) {
+                        recreateTomSelect(elementId, element);
                     }
-                }
+                });
+
                 window.tomSelectInstances = tomSelectInstances;
+
                 return DataTableGlobal.initializeDataTable("#menusTable", {
                     tableConfig: getTableConfig(route),
                     drawCallbackOptions: {
@@ -244,19 +247,25 @@ window.MenusDataTable = (function () {
         tomSelectInstances = {};
     }
 
-    // Table filtering (tanpa perulangan)
+    // Table filtering
     function filterTable(type) {
         if (!menusTable) return;
-        if (type === "active") {
-            menusTable.column(9).search("Active").draw(); // status column sekarang index 9
-        } else if (type === "inactive") {
-            menusTable.column(9).search("Inactive").draw(); // status column sekarang index 9
-        } else if (type === "parent") {
-            menusTable.column(5).search("^-$", true, false).draw(); // parent column sekarang index 5
-        } else if (type === "child") {
-            menusTable.column(5).search("^(?!-).*", true, false).draw(); // parent column sekarang index 5
-        } else {
-            menusTable.columns().search("").draw();
+
+        switch (type) {
+            case "active":
+                menusTable.column(9).search("Active").draw();
+                break;
+            case "inactive":
+                menusTable.column(9).search("Inactive").draw();
+                break;
+            case "parent":
+                menusTable.column(5).search("^-$", true, false).draw();
+                break;
+            case "child":
+                menusTable.column(5).search("^(?!-).*", true, false).draw();
+                break;
+            default:
+                menusTable.columns().search("").draw();
         }
     }
 
@@ -301,9 +310,16 @@ window.MenusDataTable = (function () {
         if (bd) bd.remove();
     }
 
-    // Menu operations (tanpa perulangan)
-    function refreshParentMenuOptions(route) {
-        return fetch(route, {
+    // Menu operations - optimized and clean
+    function refreshParentMenuOptions(route, excludeId = null) {
+        const params = new URLSearchParams();
+        if (excludeId) {
+            params.append("exclude_id", excludeId);
+        }
+
+        const url = route + (params.toString() ? "?" + params.toString() : "");
+
+        return fetch(url, {
             method: "GET",
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
@@ -316,47 +332,98 @@ window.MenusDataTable = (function () {
             })
             .then(function (data) {
                 if (data.parentMenus) {
-                    var createSel = document.getElementById("create_parent_id");
-                    var editSel = document.getElementById("edit_parent_id");
-                    if (createSel) {
-                        updateSelectOptions(createSel, data.parentMenus);
-                        if (tomSelectInstances["create_parent_id"]) {
-                            tomSelectInstances["create_parent_id"].destroy();
-                            tomSelectInstances["create_parent_id"] =
-                                new TomSelect(createSel, {});
-                        }
-                    }
-                    if (editSel) {
-                        updateSelectOptions(editSel, data.parentMenus);
-                        if (tomSelectInstances["edit_parent_id"]) {
-                            tomSelectInstances["edit_parent_id"].destroy();
-                            tomSelectInstances["edit_parent_id"] =
-                                new TomSelect(editSel, {});
-                        }
-                    }
+                    // Update options for both create and edit modals efficiently
+                    updateParentMenuSelects(data.parentMenus);
                 }
                 return data;
             });
     }
 
-    function refreshDataTable() {
-        if (menusTable) menusTable.ajax.reload(null, false);
+    // Efficiently update all parent menu select elements
+    function updateParentMenuSelects(parentMenus) {
+        const selectors = [
+            { id: "create_parent_id", key: "create_parent_id" },
+            { id: "edit_parent_id", key: "edit_parent_id" },
+        ];
+
+        selectors.forEach((selector) => {
+            const element = document.getElementById(selector.id);
+            if (element) {
+                updateSelectOptions(element, parentMenus);
+                recreateTomSelect(selector.key, element);
+            }
+        });
     }
 
-    // Helper function to update select options
-    function updateSelectOptions(selectElement, options) {
-        // Clear existing options except the first (default) option
-        while (selectElement.children.length > 1) {
-            selectElement.removeChild(selectElement.lastChild);
+    // Helper function to recreate TomSelect instances efficiently
+    function recreateTomSelect(instanceKey, element) {
+        // Destroy existing instance if it exists
+        if (tomSelectInstances[instanceKey]) {
+            tomSelectInstances[instanceKey].destroy();
+            delete tomSelectInstances[instanceKey];
         }
+
+        // Create new instance with appropriate config based on element type
+        let config = {};
         
-        // Add new options
-        Object.keys(options).forEach(function(value) {
-            var option = document.createElement('option');
-            option.value = value;
-            option.textContent = options[value];
-            selectElement.appendChild(option);
-        });
+        if (instanceKey.includes("parent_id")) {
+            config = {
+                allowEmptyOption: true,
+                placeholder: "-- Root Menu --",
+            };
+        } else if (instanceKey.includes("roles")) {
+            config = {
+                placeholder: "Select roles...",
+                searchField: ['text'],
+                dropdownParent: 'body',
+                create: false,
+                maxItems: null, // Allow multiple selections
+                render: {
+                    item: function(data, escape) {
+                        return '<div class="item">' + escape(data.text) + '</div>';
+                    }
+                }
+            };
+        } else if (instanceKey.includes("route_type")) {
+            config = {
+                placeholder: "Select route type...",
+                searchField: ['text'],
+                dropdownParent: 'body',
+                create: false
+            };
+        }
+
+        tomSelectInstances[instanceKey] = new TomSelect(element, config);
+    }
+
+    // Optimized select options update
+    function updateSelectOptions(selectElement, options) {
+        if (!selectElement) return;
+
+        // Clear existing options
+        selectElement.innerHTML = "";
+
+        // Add default empty option for parent selection
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Root Menu --";
+        selectElement.appendChild(defaultOption);
+
+        // Add menu options (expects object format with database IDs as keys)
+        if (options && typeof options === "object" && !Array.isArray(options)) {
+            Object.entries(options).forEach(([id, name]) => {
+                const option = document.createElement("option");
+                option.value = String(id);
+                option.textContent = name
+                    .replace(/[└─ ]/g, "")
+                    .replace(/Parent - /g, "");
+                selectElement.appendChild(option);
+            });
+        }
+    }
+
+    function refreshDataTable() {
+        if (menusTable) menusTable.ajax.reload(null, false);
     }
 
     // Form utilities
@@ -385,13 +452,11 @@ window.MenusDataTable = (function () {
         const tomSelectInstance = tomSelectInstances[tomSelectKey];
 
         if (tomSelectInstance) {
-            // Handle TomSelect dropdown
             tomSelectInstance.clear();
-            if (value) {
+            if (value && tomSelectInstance.options[value.toString()]) {
                 tomSelectInstance.setValue(value.toString());
             }
         } else {
-            // Handle regular select element
             const element = document.getElementById(id);
             if (element) {
                 element.value = value || "";
@@ -406,22 +471,13 @@ window.MenusDataTable = (function () {
             // Handle TomSelect multi-select
             tomSelectInstance.clear();
             if (rolesArray && rolesArray.length > 0) {
-                rolesArray.forEach((role) => {
-                    // Handle both old format (strings) and new format (objects with id)
-                    const roleId = typeof role === 'object' ? role.id : null;
-                    const roleName = typeof role === 'object' ? role.name : role;
-                    
-                    if (roleId) {
-                        // Use role ID if available
-                        tomSelectInstance.addItem(roleId.toString());
-                    } else {
-                        // Fallback: find option with matching text content
-                        const selectElement = document.getElementById(id);
-                        if (selectElement) {
-                            const option = Array.from(selectElement.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                tomSelectInstance.addItem(option.value);
-                            }
+                rolesArray.forEach((roleName) => {
+                    // Find option by text content (role name) and get its value (role id)
+                    const element = document.getElementById(id);
+                    if (element) {
+                        const option = Array.from(element.options).find(opt => opt.textContent.trim() === roleName);
+                        if (option) {
+                            tomSelectInstance.addItem(option.value);
                         }
                     }
                 });
@@ -435,24 +491,12 @@ window.MenusDataTable = (function () {
                     option.selected = false;
                 });
 
-                // Set selected options
+                // Set selected options by matching role names to option text
                 if (rolesArray && rolesArray.length > 0) {
-                    rolesArray.forEach((role) => {
-                        const roleId = typeof role === 'object' ? role.id : null;
-                        const roleName = typeof role === 'object' ? role.name : role;
-                        
-                        if (roleId) {
-                            // Use role ID if available
-                            const option = Array.from(element.options).find(opt => opt.value === roleId.toString());
-                            if (option) {
-                                option.selected = true;
-                            }
-                        } else {
-                            // Fallback: find option with matching text content
-                            const option = Array.from(element.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                option.selected = true;
-                            }
+                    rolesArray.forEach((roleName) => {
+                        const option = Array.from(element.options).find(opt => opt.textContent.trim() === roleName);
+                        if (option) {
+                            option.selected = true;
                         }
                     });
                 }
@@ -460,61 +504,53 @@ window.MenusDataTable = (function () {
         }
     }
 
-    // Modal operations (tanpa perulangan)
-    function fillEditModal(menu) {
-        if (!document.getElementById("edit_menu_id")) return;
-
-        // Update form action with actual menu ID
+    // Modal operations - clean and efficient
+    function openEditModal(menu, route) {
+        // Replace :id placeholder in form action with actual menu ID
         const editForm = document.getElementById("editMenuForm");
         if (editForm && menu.id) {
-            const routeTemplate = editForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                editForm.action = routeTemplate.replace(':id', menu.id);
-            }
+            editForm.action = editForm.action.replace(":id", menu.id);
         }
+
+        // First refresh parent options (excluding current menu), then fill the modal
+        refreshParentMenuOptions(route, menu.id)
+            .then(function () {
+                // Fill modal with all data including the correct parent selection
+                fillEditModal(menu);
+            })
+            .catch(function (error) {
+                console.error("Error refreshing parent options:", error);
+                // Fallback: fill modal without refreshing parent options
+                fillEditModal(menu);
+            });
+    }
+
+    function fillEditModal(menu) {
+        if (!document.getElementById("edit_menu_id")) return;
 
         // Fill all form fields
         setValue("edit_menu_id", menu.id);
         setValue("edit_nama_menu", menu.nama_menu);
         setValue("edit_slug", menu.slug);
         setValue("edit_route_name", menu.route_name || "");
-        setSelect("edit_route_type", menu.route_type || "public", "edit_route_type");
+        setSelect("edit_route_type", menu.route_type || "controller", "edit_route_type");
         setValue("edit_controller_class", menu.controller_class || "");
         setValue("edit_view_path", menu.view_path || "");
-        setValue("edit_icon", menu.icon || "");
         setValue("edit_middleware_list", menu.middleware_list || "");
         setValue("edit_meta_title", menu.meta_title || "");
         setValue("edit_meta_description", menu.meta_description || "");
+        setValue("edit_icon", menu.icon || "");
         setValue("edit_urutan", menu.urutan);
         setChecked("edit_is_active", menu.is_active == 1);
 
         // Set parent_id selection
         setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
 
-        // Set roles selection - menu.roles contains role names as strings
+        // Set roles selection
         setRoles("edit_roles", menu.roles || []);
-
-        // Sync all TomSelect instances
-        for (var key in tomSelectInstances) {
-            if (
-                tomSelectInstances[key] &&
-                typeof tomSelectInstances[key].sync === "function"
-            ) {
-                tomSelectInstances[key].sync();
-            }
-        }
 
         // Show the modal
         showModal(document.getElementById("editMenuModal"));
-    }
-
-    function openEditModal(menu, route) {
-        fillEditModal(menu);
-        refreshParentMenuOptions(route)
-            .then(function () {
-                setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
-            })
-            .catch(function () {});
     }
 
     function openDeleteModal(menu) {
@@ -524,10 +560,7 @@ window.MenusDataTable = (function () {
         // Replace :id placeholder in form action with actual menu ID
         const deleteForm = document.getElementById("deleteMenuForm");
         if (deleteForm && menu.id) {
-            const routeTemplate = deleteForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                deleteForm.action = routeTemplate.replace(':id', menu.id);
-            }
+            deleteForm.action = deleteForm.action.replace(":id", menu.id);
         }
 
         setValue("delete_menu_id", menu.id);
@@ -547,6 +580,53 @@ window.MenusDataTable = (function () {
                 for (var i = 0; i < modals.length; i++) hideModal(modals[i]);
             }
         });
+
+        // Clear form when create modal is opened
+        const createModal = document.getElementById("createMenuModal");
+        if (createModal) {
+            createModal.addEventListener("show.bs.modal", function () {
+                const createForm = document.getElementById("createMenuForm");
+                if (createForm) {
+                    createForm.reset();
+                    // Reset TomSelect instances for create modal
+                    if (tomSelectInstances["create_parent_id"]) {
+                        tomSelectInstances["create_parent_id"].clear();
+                    }
+                    if (tomSelectInstances["create_roles"]) {
+                        tomSelectInstances["create_roles"].clear();
+                    }
+                }
+            });
+        }
+
+        // Clear form when edit modal is closed
+        const editModal = document.getElementById("editMenuModal");
+        if (editModal) {
+            editModal.addEventListener("hidden.bs.modal", function () {
+                const editForm = document.getElementById("editMenuForm");
+                if (editForm) {
+                    editForm.reset();
+                    // Reset form action URL back to placeholder
+                    editForm.action = editForm.action.replace(/\/\d+$/, "/:id");
+                }
+            });
+        }
+
+        // Clear form when delete modal is closed
+        const deleteModal = document.getElementById("deleteMenuModal");
+        if (deleteModal) {
+            deleteModal.addEventListener("hidden.bs.modal", function () {
+                const deleteForm = document.getElementById("deleteMenuForm");
+                if (deleteForm) {
+                    deleteForm.reset();
+                    // Reset form action URL back to placeholder if it has one
+                    deleteForm.action = deleteForm.action.replace(
+                        /\/\d+$/,
+                        "/:id"
+                    );
+                }
+            });
+        }
     }
 
     // State management for bulk operations
@@ -727,6 +807,10 @@ window.MenusDataTable = (function () {
 
     // Menu order functionality
     function moveMenuOrder(menuId, direction, moveOrderRoute) {
+        // Debug: Log the route being called
+        console.log("Move order route:", moveOrderRoute);
+        console.log("Menu ID:", menuId, "Direction:", direction);
+
         // Show loading state
         const buttons = document.querySelectorAll(`[data-menu-id="${menuId}"]`);
         buttons.forEach((btn) => {
@@ -751,8 +835,12 @@ window.MenusDataTable = (function () {
                 direction: direction,
             }),
         })
-            .then((response) => response.json())
+            .then((response) => {
+                console.log("Response status:", response.status);
+                return response.json();
+            })
             .then((data) => {
+                console.log("Response data:", data);
                 if (data.success) {
                     // Show success message
                     if (typeof window.showToast === "function") {
@@ -831,7 +919,7 @@ window.MenusDataTable = (function () {
         setupPageLengthHandler();
     }
 
-    // Public API
+    // Public API - clean and organized
     return {
         initialize: initialize,
         filterTable: filterTable,
@@ -853,13 +941,7 @@ window.MenusDataTable = (function () {
     };
 })();
 
-// Global compatibility functions (optional, for legacy usage)
-window.filterTable = function (type) {
-    MenusDataTable.filterTable(type);
-};
-window.openEditModal = function (menu, route) {
-    MenusDataTable.openEditModal(menu, route);
-};
-window.openDeleteModal = function (menu) {
-    MenusDataTable.openDeleteModal(menu);
-};
+// Global compatibility functions for backward compatibility
+window.filterTable = MenusDataTable.filterTable;
+window.openEditModal = MenusDataTable.openEditModal;
+window.openDeleteModal = MenusDataTable.openDeleteModal;

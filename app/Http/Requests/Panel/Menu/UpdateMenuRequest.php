@@ -25,6 +25,12 @@ class UpdateMenuRequest extends FormRequest
             'nama_menu' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:master_menus,slug,' . $menuId,
             'route_name' => 'nullable|string|max:255',
+            'route_type' => 'nullable|string|in:public,admin,api',
+            'controller_class' => 'nullable|string|max:255',
+            'view_path' => 'nullable|string|max:255',
+            'middleware_list' => 'nullable|string|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
             'icon' => 'nullable|string|max:255',
             'parent_id' => [
                 'nullable',

@@ -131,11 +131,10 @@ window.MenusDataTable = (function () {
                     render: function (data) {
                         if (data && data.length > 0) {
                             return data
-                                .map((role) => {
-                                    // Handle both old format (strings) and new format (objects)
-                                    const roleName = typeof role === 'object' ? role.name : role;
-                                    return `<span class="badge bg-secondary-lt me-1">${roleName}</span>`;
-                                })
+                                .map(
+                                    (role) =>
+                                        `<span class="badge bg-secondary-lt me-1">${role}</span>`
+                                )
                                 .join("");
                         }
                         return '<span class="badge bg-danger-lt me-1">Tidak Ada</span>';
@@ -343,22 +342,6 @@ window.MenusDataTable = (function () {
         if (menusTable) menusTable.ajax.reload(null, false);
     }
 
-    // Helper function to update select options
-    function updateSelectOptions(selectElement, options) {
-        // Clear existing options except the first (default) option
-        while (selectElement.children.length > 1) {
-            selectElement.removeChild(selectElement.lastChild);
-        }
-        
-        // Add new options
-        Object.keys(options).forEach(function(value) {
-            var option = document.createElement('option');
-            option.value = value;
-            option.textContent = options[value];
-            selectElement.appendChild(option);
-        });
-    }
-
     // Form utilities
     function setValue(id, value) {
         const element = document.getElementById(id);
@@ -406,25 +389,17 @@ window.MenusDataTable = (function () {
             // Handle TomSelect multi-select
             tomSelectInstance.clear();
             if (rolesArray && rolesArray.length > 0) {
-                rolesArray.forEach((role) => {
-                    // Handle both old format (strings) and new format (objects with id)
-                    const roleId = typeof role === 'object' ? role.id : null;
-                    const roleName = typeof role === 'object' ? role.name : role;
-                    
-                    if (roleId) {
-                        // Use role ID if available
-                        tomSelectInstance.addItem(roleId.toString());
-                    } else {
-                        // Fallback: find option with matching text content
-                        const selectElement = document.getElementById(id);
-                        if (selectElement) {
-                            const option = Array.from(selectElement.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                tomSelectInstance.addItem(option.value);
-                            }
+                // Since the controller returns role names, we need to find the matching option values
+                const selectElement = document.getElementById(id);
+                if (selectElement) {
+                    rolesArray.forEach((roleName) => {
+                        // Find option with matching text content
+                        const option = Array.from(selectElement.options).find(opt => opt.text === roleName);
+                        if (option) {
+                            tomSelectInstance.addItem(option.value);
                         }
-                    }
-                });
+                    });
+                }
             }
         } else {
             // Handle regular multi-select element
@@ -435,24 +410,12 @@ window.MenusDataTable = (function () {
                     option.selected = false;
                 });
 
-                // Set selected options
+                // Set selected options based on role names
                 if (rolesArray && rolesArray.length > 0) {
-                    rolesArray.forEach((role) => {
-                        const roleId = typeof role === 'object' ? role.id : null;
-                        const roleName = typeof role === 'object' ? role.name : role;
-                        
-                        if (roleId) {
-                            // Use role ID if available
-                            const option = Array.from(element.options).find(opt => opt.value === roleId.toString());
-                            if (option) {
-                                option.selected = true;
-                            }
-                        } else {
-                            // Fallback: find option with matching text content
-                            const option = Array.from(element.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                option.selected = true;
-                            }
+                    rolesArray.forEach((roleName) => {
+                        const option = Array.from(element.options).find(opt => opt.text === roleName);
+                        if (option) {
+                            option.selected = true;
                         }
                     });
                 }
@@ -464,21 +427,12 @@ window.MenusDataTable = (function () {
     function fillEditModal(menu) {
         if (!document.getElementById("edit_menu_id")) return;
 
-        // Update form action with actual menu ID
-        const editForm = document.getElementById("editMenuForm");
-        if (editForm && menu.id) {
-            const routeTemplate = editForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                editForm.action = routeTemplate.replace(':id', menu.id);
-            }
-        }
-
         // Fill all form fields
         setValue("edit_menu_id", menu.id);
         setValue("edit_nama_menu", menu.nama_menu);
         setValue("edit_slug", menu.slug);
         setValue("edit_route_name", menu.route_name || "");
-        setSelect("edit_route_type", menu.route_type || "public", "edit_route_type");
+        setSelect("edit_route_type", menu.route_type || "controller", "edit_route_type");
         setValue("edit_controller_class", menu.controller_class || "");
         setValue("edit_view_path", menu.view_path || "");
         setValue("edit_icon", menu.icon || "");
@@ -520,16 +474,6 @@ window.MenusDataTable = (function () {
     function openDeleteModal(menu) {
         var modal = document.getElementById("deleteMenuModal");
         if (!modal) return;
-
-        // Replace :id placeholder in form action with actual menu ID
-        const deleteForm = document.getElementById("deleteMenuForm");
-        if (deleteForm && menu.id) {
-            const routeTemplate = deleteForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                deleteForm.action = routeTemplate.replace(':id', menu.id);
-            }
-        }
-
         setValue("delete_menu_id", menu.id);
         setText("delete_menu_name", menu.nama_menu);
         setText("delete_menu_slug", menu.slug);

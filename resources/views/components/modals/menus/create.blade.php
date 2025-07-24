@@ -48,10 +48,58 @@
                             <small class="form-text text-muted">Optional. Example: users.index</small>
                         </div>
                         <div class="col-md-6">
+                            <label for="create_route_type" class="form-label">Route Type</label>
+                            <select class="form-select" id="create_route_type" name="route_type">
+                                <option value="public" {{ old('route_type', 'public') == 'public' ? 'selected' : '' }}>Public</option>
+                                <option value="admin" {{ old('route_type') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="api" {{ old('route_type') == 'api' ? 'selected' : '' }}>API</option>
+                            </select>
+                            <small class="form-text text-muted">Access level for this menu</small>
+                        </div>
+                    </div>
+
+                    {{-- Controller & View Configuration --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="create_controller_class" class="form-label">Controller Class</label>
+                            <input type="text" class="form-control" id="create_controller_class" name="controller_class"
+                                value="{{ old('controller_class') }}">
+                            <small class="form-text text-muted">Example: Panel\UserController</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="create_view_path" class="form-label">View Path</label>
+                            <input type="text" class="form-control" id="create_view_path" name="view_path"
+                                value="{{ old('view_path') }}">
+                            <small class="form-text text-muted">Example: panel.users.index</small>
+                        </div>
+                    </div>
+
+                    {{-- Icon & Middleware --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="create_icon" class="form-label">Icon</label>
                             <input type="text" class="form-control" id="create_icon" name="icon"
                                 value="{{ old('icon') }}">
                             <small class="form-text text-muted">Font Awesome class. Example: fas fa-users</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="create_middleware_list" class="form-label">Middleware</label>
+                            <input type="text" class="form-control" id="create_middleware_list" name="middleware_list"
+                                value="{{ old('middleware_list') }}">
+                            <small class="form-text text-muted">Comma separated. Example: auth,verified</small>
+                        </div>
+                    </div>
+
+                    {{-- SEO Fields --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="create_meta_title" class="form-label">Meta Title</label>
+                            <input type="text" class="form-control" id="create_meta_title" name="meta_title"
+                                value="{{ old('meta_title') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="create_meta_description" class="form-label">Meta Description</label>
+                            <textarea class="form-control" id="create_meta_description" name="meta_description" rows="2">{{ old('meta_description') }}</textarea>
                         </div>
                     </div>
 
