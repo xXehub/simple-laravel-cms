@@ -29,6 +29,9 @@
         integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    {{-- tabler icons cdn --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
     <!-- Page Level Styles -->
     <link href="{{ asset('libs/jsvectormap/dist/jsvectormap.css?1744816593') }}" rel="stylesheet" />
     <link href="{{ asset('libs/tom-select/dist/css/tom-select.bootstrap5.min.css?1744816592') }}" rel="stylesheet" />

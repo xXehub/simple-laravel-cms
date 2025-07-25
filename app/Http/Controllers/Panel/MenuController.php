@@ -39,10 +39,10 @@ class MenuController extends Controller
         $data['judul'] = 'Manajemen menu';
         $data['sub_judul'] = 'Sistem manajemen menu';
         $data['create_title'] = 'Tambahkan Menu Baru';
-        $data['edit_title'] = 'Edit Menu';
-        $data['tab_basic'] = 'Basic Info';
-        $data['tab_technical'] = 'Technical';
-        $data['tab_permissions'] = 'Permissions';
+        $data['edit_title'] = 'Ubah Menu';
+        $data['tab_basic'] = 'Umum';
+        $data['tab_technical'] = 'Routing';
+        $data['tab_permissions'] = 'Hak Akses';
         $data['tab_seo'] = 'SEO & Meta';
         $data['tombol_batal'] = 'Batalkan';
         $data['tombol_lanjut'] = 'Lanjut';
