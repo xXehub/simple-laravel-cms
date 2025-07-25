@@ -43,7 +43,7 @@
                             <li class="nav-item" role="presentation">
                                 <a href="#create-permissions-tab" class="nav-link" data-bs-toggle="tab"
                                     aria-selected="false" role="tab">
-                                    <i class="fas fa-shield-alt me-2"></i>
+                                 <i class="fa-solid fa-address-card me-2"></i>
                                     {{ $data['tab_permissions'] ?? 'Permissions' }}
                                 </a>
                             </li>
