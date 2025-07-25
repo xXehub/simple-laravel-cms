@@ -20,7 +20,7 @@ class MasterMenuSeeder extends Seeder
             'slug' => '/',
             'parent_id' => null,
             'route_name' => 'welcome',
-            'icon' => 'fa-solid fa-home',
+            'icon' => 'fa-solid fa-plane-departure',
             'urutan' => 1,
             'is_active' => 1,
             'route_type' => 'public',

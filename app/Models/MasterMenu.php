@@ -30,6 +30,7 @@ class MasterMenu extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'middleware_list' => 'array',
     ];
 
     /**
@@ -409,49 +410,19 @@ class MasterMenu extends Model
     }
 
     /**
-     * Get the middleware list for this menu
-     */
-    public function getMiddlewareList(): array
-    {
-        // Handle null or empty middleware_list
-        if (empty($this->middleware_list)) {
-            return [];
-        }
-        
-        // If it's already an array, return it
-        if (is_array($this->middleware_list)) {
-            return $this->middleware_list;
-        }
-        
-        // If it's a string, try to parse it
-        if (is_string($this->middleware_list)) {
-            // Try JSON decode first (for JSON format)
-            $decoded = json_decode($this->middleware_list, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return $decoded;
-            }
-            
-            // Clean up the string by removing quotes that might be embedded
-            $cleanString = trim($this->middleware_list, '"\'');
-            
-            // Fallback to comma-separated string parsing
-            $parts = explode(',', $cleanString);
-            return array_values(array_filter(array_map(function($part) {
-                // Remove any surrounding quotes and trim whitespace
-                return trim(trim($part), '"\'');
-            }, $parts)));
-        }
-        
-        // Fallback for other types
-        return [];
-    }
-
-    /**
      * Get the middleware list for this menu (alias for compatibility)
      */
     public function getMiddleware(): array
     {
-        return $this->getMiddlewareList();
+        return $this->middleware_list;
+    }
+
+    /**
+     * Get the middleware list for this menu (main method)
+     */
+    public function getMiddlewareList(): array
+    {
+        return $this->middleware_list;
     }
 
     /**
@@ -575,4 +546,114 @@ class MasterMenu extends Model
         return $this->view_path . '.' . $method;
     }
 
+    /**
+     * Mutator for middleware_list attribute
+     * Converts comma-separated string to array when saving
+     */
+    public function setMiddlewareListAttribute($value)
+    {
+        if (is_string($value)) {
+            // Parse comma-separated string
+            $middlewares = array_map('trim', explode(',', $value));
+            $middlewares = array_filter($middlewares); // Remove empty values
+            $this->attributes['middleware_list'] = json_encode(array_values($middlewares));
+        } elseif (is_array($value)) {
+            $this->attributes['middleware_list'] = json_encode($value);
+        } else {
+            $this->attributes['middleware_list'] = null;
+        }
+    }
+
+    /**
+     * Accessor for middleware_list attribute
+     * Ensures we always get an array
+     */
+    public function getMiddlewareListAttribute($value)
+    {
+        if (is_null($value)) {
+            return [];
+        }
+        
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        
+        return is_array($value) ? $value : [];
+    }
+
+    /**
+     * Get formatted middleware string for display
+     */
+    public function getMiddlewareString(): string
+    {
+        $middlewares = $this->middleware_list;
+        return is_array($middlewares) ? implode(', ', $middlewares) : '';
+    }
+
+    /**
+     * Check if menu has specific middleware
+     */
+    public function hasMiddleware(string $middleware): bool
+    {
+        $middlewares = $this->middleware_list;
+        return in_array($middleware, $middlewares);
+    }
+
+    /**
+     * Add middleware to menu
+     */
+    public function addMiddleware(string $middleware): self
+    {
+        $middlewares = $this->middleware_list;
+        if (!in_array($middleware, $middlewares)) {
+            $middlewares[] = $middleware;
+            $this->middleware_list = $middlewares;
+        }
+        return $this;
+    }
+
+    /**
+     * Remove middleware from menu
+     */
+    public function removeMiddleware(string $middleware): self
+    {
+        $middlewares = $this->middleware_list;
+        $this->middleware_list = array_values(array_filter($middlewares, function($m) use ($middleware) {
+            return $m !== $middleware;
+        }));
+        return $this;
+    }
+
+    /**
+     * Get common middleware templates
+     */
+    public static function getMiddlewareTemplates(): array
+    {
+        return [
+            'web_auth' => ['web', 'auth'],
+            'web_auth_permission' => ['web', 'auth', 'permission:'],
+            'api_auth' => ['api', 'auth:sanctum'],
+            'web_guest' => ['web', 'guest'],
+            'api_throttle' => ['api', 'throttle:60,1'],
+        ];
+    }
+
+    /**
+     * Get common individual middlewares
+     */
+    public static function getCommonMiddlewares(): array
+    {
+        return [
+            'web' => 'Web middleware group',
+            'api' => 'API middleware group',
+            'auth' => 'Authentication required',
+            'auth:sanctum' => 'Sanctum authentication',
+            'guest' => 'Guest users only',
+            'verified' => 'Email verification required',
+            'throttle:60,1' => 'Rate limiting (60 requests per minute)',
+            'permission:' => 'Permission-based access (add permission name)',
+            'role:' => 'Role-based access (add role name)',
+        ];
+    }
 }
