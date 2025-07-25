@@ -34,6 +34,20 @@ class MenuController extends Controller
         $parentMenus = $this->menuService->getMenuOptions();
         $roles = Role::all();
 
+        $data = [];
+        $data['main'] = 'Manajemen menu';
+        $data['judul'] = 'Manajemen menu';
+        $data['sub_judul'] = 'Sistem manajemen menu';
+        $data['create_title'] = 'Tambahkan Menu Baru';
+        $data['edit_title'] = 'Edit Menu';
+        $data['tab_basic'] = 'Basic Info';
+        $data['tab_technical'] = 'Technical';
+        $data['tab_permissions'] = 'Permissions';
+        $data['tab_seo'] = 'SEO & Meta';
+        $data['tombol_batal'] = 'Batalkan';
+        $data['tombol_lanjut'] = 'Lanjut';
+        $data['tombol_kembali'] = 'Kembali';
+
         if ($request->ajax() && $request->has('draw')) {
             return $this->getDataTablesData($request);
         }
@@ -47,11 +61,12 @@ class MenuController extends Controller
 
             return response()->json([
                 'parentMenus' => $parentMenus,
-                'roles' => $roles->pluck('name', 'id')
+                'roles' => $roles->pluck('name', 'id'),
+                'data' => $data
             ]);
         }
 
-        return view('panel.menus.index', compact('parentMenus', 'roles'));
+        return view('panel.menus.index', compact('parentMenus', 'roles', 'data'));
     }
 
     /**
@@ -132,8 +147,8 @@ class MenuController extends Controller
                 'icon' => $menu->icon,
                 'urutan' => $menu->urutan,
                 'is_active' => (bool) $menu->is_active,
-            
-                'roles' => $menu->roles->map(function($role) {
+
+                'roles' => $menu->roles->map(function ($role) {
                     return [
                         'id' => $role->id,
                         'name' => $role->name
@@ -164,7 +179,18 @@ class MenuController extends Controller
     {
         $parentMenus = $this->menuService->getMenuOptions();
         $roles = Role::all();
-        return view('panel.menus.create', compact('parentMenus', 'roles'));
+
+        $data = [];
+        $data['main'] = 'Menu Management';
+        $data['judul'] = 'Menu Management';
+        $data['sub_judul'] = 'Create New Menu';
+        $data['create_title'] = 'Create New Menu';
+        $data['tab_basic'] = 'Basic Info';
+        $data['tab_technical'] = 'Technical';
+        $data['tab_permissions'] = 'Permissions';
+        $data['tab_seo'] = 'SEO & Meta';
+
+        return view('panel.menus.create', compact('parentMenus', 'roles', 'data'));
     }
 
     /**
@@ -201,7 +227,17 @@ class MenuController extends Controller
         $parentMenus = $this->menuService->getMenuOptions(null, 0, $menu->id);
         $roles = Role::all();
 
-        return view('panel.menus.edit', compact('menu', 'parentMenus', 'roles'));
+        $data = [];
+        $data['main'] = 'Menu Management';
+        $data['judul'] = 'Menu Management';
+        $data['sub_judul'] = 'Edit Menu';
+        $data['edit_title'] = 'Edit Menu';
+        $data['tab_basic'] = 'Basic Info';
+        $data['tab_technical'] = 'Technical';
+        $data['tab_permissions'] = 'Permissions';
+        $data['tab_seo'] = 'SEO & Meta';
+
+        return view('panel.menus.edit', compact('menu', 'parentMenus', 'roles', 'data'));
     }
 
     /**
