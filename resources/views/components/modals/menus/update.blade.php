@@ -265,7 +265,7 @@
                                             SEO description for search engines (recommended: 150-160 characters)
                                         </small>
                                     </div>
-                                    <div class="col-md-12">
+                                    {{-- <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-body">
                                                 <h4 class="card-title">SEO Preview</h4>
@@ -278,7 +278,7 @@
                                                     description will appear here</div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
