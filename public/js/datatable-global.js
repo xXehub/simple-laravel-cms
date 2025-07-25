@@ -287,7 +287,7 @@ window.DataTableGlobal = (function () {
             let infoText = '';
             if (total > 0) {
                 if (filtered !== total) {
-                    infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${filtered}</strong> ${entityName} (filtered from <strong>${total}</strong> total)`;
+                    infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${filtered}</strong> ${entityName} (difilter dari <strong>${total}</strong> total)`;
                 } else {
                     infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${total}</strong> ${entityName}`;
                 }

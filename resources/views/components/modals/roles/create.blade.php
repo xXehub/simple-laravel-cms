@@ -2,8 +2,8 @@
 
 <!-- Create Role Modal -->
 @can('create-roles')
-    <div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal modal-blur fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createRoleModalLabel">Create New Role</h5>

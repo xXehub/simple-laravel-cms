@@ -1,6 +1,6 @@
 <!-- Delete Role Modal -->
 @can('delete-roles')
-    <div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel"
+    <div class="modal modal-blur fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

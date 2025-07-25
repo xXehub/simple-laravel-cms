@@ -1,6 +1,6 @@
 <!-- Delete Permission Modal -->
 @can('delete-permissions')
-    <div class="modal fade" id="deletePermissionModal" tabindex="-1"
+    <div class="modal modal-blur fade" id="deletePermissionModal" tabindex="-1"
         aria-labelledby="deletePermissionModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

@@ -1,6 +1,7 @@
 {{-- Create Menu Modal --}}
-<div class="modal fade" id="createMenuModal" tabindex="-1" aria-labelledby="createMenuModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<div class="modal modal-blur fade" id="createMenuModal" tabindex="-1" aria-labelledby="createMenuModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="createMenuModalLabel">
@@ -43,7 +44,7 @@
                             <li class="nav-item" role="presentation">
                                 <a href="#create-permissions-tab" class="nav-link" data-bs-toggle="tab"
                                     aria-selected="false" role="tab">
-                                 <i class="fa-solid fa-address-card me-2"></i>
+                                    <i class="fa-solid fa-address-card me-2"></i>
                                     {{ $data['tab_permissions'] ?? 'Permissions' }}
                                 </a>
                             </li>
@@ -152,114 +153,130 @@
                                         <input type="text" class="form-control" id="create_controller_class"
                                             name="controller_class" value="{{ old('controller_class') }}"
                                             placeholder="App\Http\Controllers\">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                        <button class="btn
+                                            btn-outline-secondary dropdown-toggle" type="button"
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-magic"></i>
+                                        <i class="fas fa-magic"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><h6 class="dropdown-header">Quick Templates</h6></li>
-                                            <li><a class="dropdown-item controller-template" href="#" 
-                                                data-template="App\Http\Controllers\Panel\">Panel Controller</a></li>
-                                            <li><a class="dropdown-item controller-template" href="#" 
-                                                data-template="App\Http\Controllers\Admin\">Admin Controller</a></li>
-                                            <li><a class="dropdown-item controller-template" href="#" 
-                                                data-template="App\Http\Controllers\API\">API Controller</a></li>
-                                            <li><a class="dropdown-item controller-template" href="#" 
-                                                data-template="App\Http\Controllers\">Base Controller</a></li>
+                                            <li>
+                                                <h6 class="dropdown-header">Quick Templates</h6>
+                                            </li>
+                                            <li><a class="dropdown-item controller-template" href="#"
+                                                    data-template="App\Http\Controllers\Panel\">Panel Controller</a></li>
+                                            <li><a class="dropdown-item
+                                                    controller-template" href="#"
+                                                    data-template="App\Http\Controllers\Admin\">Admin Controller</a></li>
+                                            <li><a class="dropdown-item
+                                                    controller-template" href="#"
+                                                    data-template="App\Http\Controllers\API\">API Controller</a></li>
+                                            <li><a class="dropdown-item
+                                                    controller-template" href="#"
+                                                    data-template="App\Http\Controllers\">Base Controller</a></li>
                                         </ul>
                                     </div>
-                                    <small class="form-text text-muted">
-                                        <i class="fas fa-lightbulb text-warning"></i> Use dropdown for quick templates, or type manually
-                                    </small>
-                                </div>
-                                <div class="col-md-12">
-                                    <label for="create_view_path" class="form-label">View Path</label>
-                                    <input type="text" class="form-control" id="create_view_path"
-                                        name="view_path" value="{{ old('view_path') }}">
-                                    <small class="form-text text-muted">
-                                        Blade view path (e.g., panel.users.index)
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Permissions & Security Tab --}}
-                        <div class="tab-pane fade" id="create-permissions-tab" role="tabpanel">
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <label for="create_middleware_list" class="form-label">Middleware</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="create_middleware_list"
-                                            name="middleware_list" value="{{ old('middleware_list') }}"
-                                            placeholder="web,auth">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-shield-alt"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><h6 class="dropdown-header">Common Middleware</h6></li>
-                                            <li><a class="dropdown-item middleware-template" href="#" 
-                                                data-template="web,auth">Web + Auth</a></li>
-                                            <li><a class="dropdown-item middleware-template" href="#" 
-                                                data-template="web,auth,permission:">Permission Based</a></li>
-                                            <li><a class="dropdown-item middleware-template" href="#" 
-                                                data-template="api,auth:sanctum">API + Sanctum</a></li>
-                                            <li><a class="dropdown-item middleware-template" href="#" 
-                                                data-template="web,guest">Guest Only</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><h6 class="dropdown-header">Quick Add</h6></li>
-                                            <li><a class="dropdown-item middleware-add" href="#" 
-                                                data-middleware="web">+ web</a></li>
-                                            <li><a class="dropdown-item middleware-add" href="#" 
-                                                data-middleware="auth">+ auth</a></li>
-                                            <li><a class="dropdown-item middleware-add" href="#" 
-                                                data-middleware="permission:">+ permission:</a></li>
-                                            <li><a class="dropdown-item middleware-add" href="#" 
-                                                data-middleware="throttle:60,1">+ throttle</a></li>
-                                        </ul>
+                                    <small class="form-text
+                                                    text-muted">
+                                                    <i class="fas fa-lightbulb text-warning"></i> Use dropdown for
+                                                    quick templates, or type manually
+                                                    </small>
                                     </div>
-                                    <small class="form-text text-muted">
-                                        <i class="fas fa-info-circle text-info"></i> Auto-formats with commas. Use dropdown for quick templates.
-                                    </small>
-                                </div>
-                                <div class="col-md-12">
-                                    <label class="form-label">Role Access</label>
-                                    <select class="form-select" id="create_roles" name="roles[]" multiple
-                                        size="6">
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role->id }}"
-                                                {{ in_array($role->id, old('roles', [])) ? 'selected' : '' }}>
-                                                {{ $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Hold Ctrl/Cmd to select multiple roles. Users with these roles will see this
-                                        menu.
-                                    </small>
+                                    <div class="col-md-12">
+                                        <label for="create_view_path" class="form-label">View Path</label>
+                                        <input type="text" class="form-control" id="create_view_path"
+                                            name="view_path" value="{{ old('view_path') }}">
+                                        <small class="form-text text-muted">
+                                            Blade view path (e.g., panel.users.index)
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- SEO & Meta Information Tab --}}
-                        <div class="tab-pane fade" id="create-seo-tab" role="tabpanel">
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <label for="create_meta_title" class="form-label">Meta Title</label>
-                                    <input type="text" class="form-control" id="create_meta_title"
-                                        name="meta_title" value="{{ old('meta_title') }}">
-                                    <small class="form-text text-muted">
-                                        SEO title for browser tab and search engines
-                                    </small>
+                            {{-- Permissions & Security Tab --}}
+                            <div class="tab-pane fade" id="create-permissions-tab" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="create_middleware_list" class="form-label">Middleware</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="create_middleware_list"
+                                                name="middleware_list" value="{{ old('middleware_list') }}"
+                                                placeholder="web,auth">
+                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <h6 class="dropdown-header">Common Middleware</h6>
+                                                </li>
+                                                <li><a class="dropdown-item middleware-template" href="#"
+                                                        data-template="web,auth">Web + Auth</a></li>
+                                                <li><a class="dropdown-item middleware-template" href="#"
+                                                        data-template="web,auth,permission:">Permission Based</a></li>
+                                                <li><a class="dropdown-item middleware-template" href="#"
+                                                        data-template="api,auth:sanctum">API + Sanctum</a></li>
+                                                <li><a class="dropdown-item middleware-template" href="#"
+                                                        data-template="web,guest">Guest Only</a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <h6 class="dropdown-header">Quick Add</h6>
+                                                </li>
+                                                <li><a class="dropdown-item middleware-add" href="#"
+                                                        data-middleware="web">+ web</a></li>
+                                                <li><a class="dropdown-item middleware-add" href="#"
+                                                        data-middleware="auth">+ auth</a></li>
+                                                <li><a class="dropdown-item middleware-add" href="#"
+                                                        data-middleware="permission:">+ permission:</a></li>
+                                                <li><a class="dropdown-item middleware-add" href="#"
+                                                        data-middleware="throttle:60,1">+ throttle</a></li>
+                                            </ul>
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            <i class="fas fa-info-circle text-info"></i> Auto-formats with commas. Use
+                                            dropdown for quick templates.
+                                        </small>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Role Access</label>
+                                        <select class="form-select" id="create_roles" name="roles[]" multiple
+                                            size="6">
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->id }}"
+                                                    {{ in_array($role->id, old('roles', [])) ? 'selected' : '' }}>
+                                                    {{ $role->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Hold Ctrl/Cmd to select multiple roles. Users with these roles will see this
+                                            menu.
+                                        </small>
+                                    </div>
                                 </div>
-                                <div class="col-md-12">
-                                    <label for="create_meta_description" class="form-label">Meta Description</label>
-                                    <textarea class="form-control" id="create_meta_description" name="meta_description" rows="4">{{ old('meta_description') }}</textarea>
-                                    <small class="form-text text-muted">
-                                        SEO description for search engines (recommended: 150-160 characters)
-                                    </small>
-                                </div>
-                                {{-- <div class="col-md-12">
+                            </div>
+
+                            {{-- SEO & Meta Information Tab --}}
+                            <div class="tab-pane fade" id="create-seo-tab" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="create_meta_title" class="form-label">Meta Title</label>
+                                        <input type="text" class="form-control" id="create_meta_title"
+                                            name="meta_title" value="{{ old('meta_title') }}">
+                                        <small class="form-text text-muted">
+                                            SEO title for browser tab and search engines
+                                        </small>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="create_meta_description" class="form-label">Meta
+                                            Description</label>
+                                        <textarea class="form-control" id="create_meta_description" name="meta_description" rows="4">{{ old('meta_description') }}</textarea>
+                                        <small class="form-text text-muted">
+                                            SEO description for search engines (recommended: 150-160 characters)
+                                        </small>
+                                    </div>
+                                    {{-- <div class="col-md-12">
                                     <div class="card">
                                         <div class="card-body">
                                             <h4 class="card-title">SEO Preview</h4>
@@ -272,27 +289,27 @@
                                         </div>
                                     </div>
                                 </div> --}}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>{{ $data['tombol_batal'] }}
-                    </button>
-                    <div class="btn-group ms-auto">
-                        <button type="button" class="btn btn-outline-primary" id="create-prev-tab" disabled>
-                            <i class="fas fa-chevron-left me-2"></i>{{ $data['tombol_kembali'] }}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>{{ $data['tombol_batal'] }}
                         </button>
-                        <button type="button" class="btn btn-outline-primary" id="create-next-tab">
-                            {{ $data['tombol_lanjut'] }}<i class="fas fa-chevron-right ms-2"></i>
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="create-submit-btn"
-                            style="display: none;">
-                            <i class="fas fa-save me-2"></i>Tambah Data
-                        </button>
+                        <div class="btn-group ms-auto">
+                            <button type="button" class="btn btn-outline-primary" id="create-prev-tab" disabled>
+                                <i class="fas fa-chevron-left me-2"></i>{{ $data['tombol_kembali'] }}
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="create-next-tab">
+                                {{ $data['tombol_lanjut'] }}<i class="fas fa-chevron-right ms-2"></i>
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="create-submit-btn"
+                                style="display: none;">
+                                <i class="fas fa-save me-2"></i>Tambah Data
+                            </button>
+                        </div>
                     </div>
-                </div>
             </form>
         </div>
     </div>
@@ -431,7 +448,7 @@
                     e.preventDefault();
                     const template = this.getAttribute('data-template');
                     const input = document.getElementById('create_controller_class');
-                    
+
                     // Auto-complete controller name based on menu name
                     const menuName = document.getElementById('create_nama_menu').value;
                     if (menuName) {
@@ -463,7 +480,7 @@
                     const template = this.getAttribute('data-template');
                     const input = document.getElementById('create_middleware_list');
                     input.value = template;
-                    
+
                     // Focus for further editing if template ends with ':'
                     if (template.endsWith(':')) {
                         input.focus();
@@ -478,7 +495,7 @@
                     e.preventDefault();
                     const middleware = this.getAttribute('data-middleware');
                     const input = document.getElementById('create_middleware_list');
-                    
+
                     // Add to existing middleware
                     if (input.value) {
                         if (!input.value.endsWith(',')) {
@@ -488,7 +505,7 @@
                     } else {
                         input.value = middleware;
                     }
-                    
+
                     // Focus for further editing if middleware ends with ':'
                     if (middleware.endsWith(':')) {
                         input.focus();
@@ -500,24 +517,24 @@
             // Auto-format middleware on input
             document.getElementById('create_middleware_list').addEventListener('input', function() {
                 let value = this.value;
-                
+
                 // Remove extra spaces and format commas
                 value = value.replace(/\s*,\s*/g, ',');
                 value = value.replace(/,+/g, ','); // Remove multiple commas
                 value = value.replace(/^,+|,+$/g, ''); // Remove leading/trailing commas
-                
+
                 this.value = value;
             });
 
             // Format on blur to clean up any remaining issues
             document.getElementById('create_middleware_list').addEventListener('blur', function() {
                 let value = this.value.trim();
-                
+
                 // Final cleanup
                 value = value.replace(/\s*,\s*/g, ',');
                 value = value.replace(/,+/g, ',');
                 value = value.replace(/^,+|,+$/g, '');
-                
+
                 this.value = value;
             });
         }
@@ -536,14 +553,14 @@
             if (!viewPathField.value && this.value) {
                 // Extract controller info and generate view path
                 const controllerValue = this.value;
-                
+
                 // Extract namespace parts
                 const parts = controllerValue.split('\\');
                 const controllerName = parts[parts.length - 1];
-                
+
                 if (controllerName && controllerName.endsWith('Controller')) {
                     const resourceName = controllerName.replace('Controller', '').toLowerCase();
-                    
+
                     // Determine view path based on namespace
                     if (controllerValue.includes('Panel\\')) {
                         viewPathField.value = `panel.${resourceName}.index`;
@@ -565,10 +582,10 @@
                 const controllerValue = this.value;
                 const parts = controllerValue.split('\\');
                 const controllerName = parts[parts.length - 1];
-                
+
                 if (controllerName && controllerName.endsWith('Controller')) {
                     const resourceName = controllerName.replace('Controller', '').toLowerCase();
-                    
+
                     // Generate route name
                     if (controllerValue.includes('Panel\\')) {
                         routeNameField.value = `panel.${resourceName}.index`;

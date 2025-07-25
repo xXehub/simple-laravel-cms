@@ -5,72 +5,45 @@ use App\Http\Controllers\DynamicController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - Now Powered by Dynamic Route System
+| Route Web - [Dinamis]
 |--------------------------------------------------------------------------
 |
-| This file now contains only essential authentication routes and fallback
-| handlers. All panel/admin routes and most application routes are now
-| dynamically generated from the master_menus database table via the
-| DynamicRouteServiceProvider.
+| Cuma berisi route penting dan fallback aja.
+| Route panel admin dan route lainnya diatur di database 
+| Dibuat otomatis dari tabel master_menus lewat DynamicRouteServiceProvider.
 |
 */
 
-// Authentication routes (Laravel UI) - These remain static as they're core functionality
+/* Route autentikasi (Laravel UI) - Ini tetap statis karena fitur inti */
 Auth::routes([
     'register' => true,
     'reset' => true,
     'verify' => false,
 ]);
 
-// Home redirect after login/register - Keep this for Laravel UI compatibility
+/* Redirect ke home setelah login/register - Biar Laravel UI tetap jalan */
 Route::get('/home', function () {
     return redirect('/');
 })->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Dynamic Route Fallbacks
-|--------------------------------------------------------------------------
-|
-| These routes serve as fallbacks when dynamic routes don't match.
-| The dynamic system will handle most routes, but these provide backup.
-|
-*/
-
-// Welcome page - This can be handled dynamically but kept as fallback
+/* Halaman welcome - Sebenarnya bisa dinamis, tapi ini buat backup */
 Route::get('/', [DynamicController::class, 'handleWelcome'])->name('welcome');
 
 // Profile route - Keep this as it's user-specific functionality
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [DynamicController::class, 'handleProfile'])->name('profile');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [DynamicController::class, 'handleProfile'])->name('profile');
+// });
 
 /*
 |--------------------------------------------------------------------------
-| Dynamic CMS Page Handler (Catch-All)
+| Handler CMS Dinamis (Catch-All)
 |--------------------------------------------------------------------------
 |
-| This route handles dynamic CMS pages and any routes not caught by the
-| dynamic route system. It should remain at the end as a catch-all.
+| Route ini buat handle halaman CMS dinamis & route yang nggak ketangkep
+| sistem dinamis (wajib ditaroh paling bawah)*
 |
 */
 
 Route::get('/{slug}', [DynamicController::class, 'handleDynamicPage'])
     ->where('slug', '[a-zA-Z0-9\-\/]+')
     ->name('dynamic.page');
-
-/*
-|--------------------------------------------------------------------------
-| DEPRECATED STATIC ROUTES
-|--------------------------------------------------------------------------
-|
-| The following routes are now handled by the DynamicRouteServiceProvider
-| and can be removed once testing is complete:
-| 
-| - All /panel/* routes (handled dynamically)
-| - Most authenticated routes (handled dynamically)
-| - Menu-based navigation routes (handled dynamically)
-|
-| This transformation makes the application fully dynamic and scalable.
-|
-*/

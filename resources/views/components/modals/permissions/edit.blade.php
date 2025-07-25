@@ -1,6 +1,6 @@
 <!-- Edit Permission Modal -->
 @can('update-permissions')
-    <div class="modal fade" id="editPermissionModal" tabindex="-1" aria-labelledby="editPermissionModalLabel"
+    <div class="modal modal-blur fade" id="editPermissionModal" tabindex="-1" aria-labelledby="editPermissionModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

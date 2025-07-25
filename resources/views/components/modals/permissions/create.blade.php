@@ -1,6 +1,6 @@
 <!-- Create Permission Modal -->
 @can('create-permissions')
-    <div class="modal fade" id="createPermissionModal" tabindex="-1" aria-labelledby="createPermissionModalLabel"
+    <div class="modal modal-blur fade" id="createPermissionModal" tabindex="-1" aria-labelledby="createPermissionModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
