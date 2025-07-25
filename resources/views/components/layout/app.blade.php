@@ -74,7 +74,7 @@
     $showTopBar = $pakaiTopBar !== null ? $pakaiTopBar : !in_array(Route::currentRouteName(), $authRoutes);
 @endphp
 
-<body>
+<body class="layout-fluid">
     <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
 
     <div class="page">

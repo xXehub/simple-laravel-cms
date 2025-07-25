@@ -287,18 +287,9 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="fas fa-times me-2"></i>{{ $data['tombol_batal'] }}
                         </button>
-                        <div class="btn-group ms-auto">
-                            <button type="button" class="btn btn-outline-primary" id="edit-prev-tab" disabled>
-                                <i class="fas fa-chevron-left me-2"></i>{{ $data['tombol_kembali'] }}
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" id="edit-next-tab">
-                                {{ $data['tombol_lanjut'] }}<i class="fas fa-chevron-right ms-2"></i>
-                            </button>
-                            <button type="submit" class="btn btn-primary" id="edit-submit-btn"
-                                style="display: none;">
-                                <i class="fas fa-save me-2"></i>Update Menu
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-primary ms-auto">
+                            <i class="fas fa-save me-2"></i>Update Menu
+                        </button>
                     </div>
             </form>
         </div>
@@ -307,72 +298,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Tab navigation functionality for edit modal
-        const editTabs = ['edit-basic-tab', 'edit-technical-tab', 'edit-permissions-tab', 'edit-seo-tab'];
-        let editCurrentTab = 0;
-
-        const editPrevBtn = document.getElementById('edit-prev-tab');
-        const editNextBtn = document.getElementById('edit-next-tab');
-        const editSubmitBtn = document.getElementById('edit-submit-btn');
-
-        function updateEditTabNavigation() {
-            editPrevBtn.disabled = editCurrentTab === 0;
-
-            if (editCurrentTab === editTabs.length - 1) {
-                editNextBtn.style.display = 'none';
-                editSubmitBtn.style.display = 'inline-flex';
-            } else {
-                editNextBtn.style.display = 'inline-flex';
-                editSubmitBtn.style.display = 'none';
-            }
-        }
-
-        function showEditTab(index) {
-            // Hide all tabs
-            editTabs.forEach(tabId => {
-                const tab = document.getElementById(tabId);
-                const navLink = document.querySelector(`a[href="#${tabId}"]`);
-                if (tab && navLink) {
-                    tab.classList.remove('show', 'active');
-                    navLink.classList.remove('active');
-                    navLink.setAttribute('aria-selected', 'false');
-                }
-            });
-
-            // Show current tab
-            const currentTabEl = document.getElementById(editTabs[index]);
-            const currentNavLink = document.querySelector(`a[href="#${editTabs[index]}"]`);
-            if (currentTabEl && currentNavLink) {
-                currentTabEl.classList.add('show', 'active');
-                currentNavLink.classList.add('active');
-                currentNavLink.setAttribute('aria-selected', 'true');
-            }
-
-            updateEditTabNavigation();
-        }
-
-        editPrevBtn.addEventListener('click', function() {
-            if (editCurrentTab > 0) {
-                editCurrentTab--;
-                showEditTab(editCurrentTab);
-            }
-        });
-
-        editNextBtn.addEventListener('click', function() {
-            if (editCurrentTab < editTabs.length - 1) {
-                editCurrentTab++;
-                showEditTab(editCurrentTab);
-            }
-        });
-
-        // Allow direct tab clicking for edit modal
-        document.querySelectorAll('#editMenuModal .nav-tabs .nav-link').forEach((link, index) => {
-            link.addEventListener('click', function() {
-                editCurrentTab = index;
-                updateEditTabNavigation();
-            });
-        });
-
         // SEO Preview functionality for edit modal
         function updateEditSEOPreview() {
             const title = document.getElementById('edit_meta_title').value ||
@@ -382,9 +307,13 @@
             const description = document.getElementById('edit_meta_description').value ||
                 'Your meta description will appear here';
 
-            document.getElementById('edit-seo-title-preview').textContent = title;
-            document.getElementById('edit-seo-url-preview').textContent = `{{ url('/') }}/${slug}`;
-            document.getElementById('edit-seo-desc-preview').textContent = description;
+            const titlePreview = document.getElementById('edit-seo-title-preview');
+            const urlPreview = document.getElementById('edit-seo-url-preview');
+            const descPreview = document.getElementById('edit-seo-desc-preview');
+
+            if (titlePreview) titlePreview.textContent = title;
+            if (urlPreview) urlPreview.textContent = `{{ url('/') }}/${slug}`;
+            if (descPreview) descPreview.textContent = description;
         }
 
         // Update SEO preview on input changes for edit modal
@@ -395,16 +324,8 @@
             }
         });
 
-        // Reset edit form when modal closes
-        document.getElementById('editMenuModal').addEventListener('hidden.bs.modal', function() {
-            editCurrentTab = 0;
-            showEditTab(0);
-            updateEditSEOPreview();
-        });
-
         // Initialize when edit modal opens
         document.getElementById('editMenuModal').addEventListener('shown.bs.modal', function() {
-            updateEditTabNavigation();
             updateEditSEOPreview();
         });
     });
