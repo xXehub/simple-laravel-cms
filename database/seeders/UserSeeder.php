@@ -7,11 +7,9 @@ use App\Models\User;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        // Buat admin users dulu
         $superadmin = User::create([
             'name' => 'Super Administrator',
             'username' => 'superadmin',
@@ -30,15 +28,11 @@ class UserSeeder extends Seeder
         ]);
         $admin->assignRole('admin');
 
-        $user = User::create([
-            'name' => 'Regular User',
-            'username' => 'user',
-            'email' => 'user@example.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
-        $user->assignRole('user');
+        // Generate 500 user dummy pake factory
+        User::factory()->count(2000)->create()->each(function ($user) {
+            $user->assignRole('user');
+        });
 
-        $this->command->info("✅ 3 users created with roles assigned");
+        $this->command->info("✅ 502 users created (2 admin + 500 dummy users)");
     }
 }

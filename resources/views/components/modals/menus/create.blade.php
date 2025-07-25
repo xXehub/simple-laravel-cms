@@ -375,9 +375,14 @@
             const description = document.getElementById('create_meta_description').value ||
                 'Your meta description will appear here';
 
-            document.getElementById('seo-title-preview').textContent = title;
-            document.getElementById('seo-url-preview').textContent = `{{ url('/') }}/${slug}`;
-            document.getElementById('seo-desc-preview').textContent = description;
+            // Safe update with null checks
+            const titleElement = document.getElementById('seo-title-preview');
+            const urlElement = document.getElementById('seo-url-preview');
+            const descElement = document.getElementById('seo-desc-preview');
+
+            if (titleElement) titleElement.textContent = title;
+            if (urlElement) urlElement.textContent = `{{ url('/') }}/${slug}`;
+            if (descElement) descElement.textContent = description;
         }
 
         // Update SEO preview on input changes

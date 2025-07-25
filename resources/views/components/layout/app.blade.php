@@ -113,7 +113,7 @@
     <script src="{{ asset('libs/jsvectormap/dist/maps/world-merc.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/nouislider/dist/nouislider.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('libs/litepicker/dist/litepicker.js?1667333929') }}" defer></script>
-    <script src="{{ asset('libs/tom-select/dist/js/tom-select.base.min.js?1667333929') }}" defer></script>
+    <script src="{{ asset('libs/tom-select/dist/js/tom-select.complete.min.js?1667333929') }}" defer></script>
     <script src="{{ asset('preview/js/demo.min.js?1667333929') }}"></script>
 
     <!-- DataTables CSS -->

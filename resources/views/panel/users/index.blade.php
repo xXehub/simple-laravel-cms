@@ -78,7 +78,7 @@
                                                 <input id="advanced-table-search" type="text" class="form-control"
                                                     placeholder="Search users..." autocomplete="off" />
                                                 <span class="input-group-text">
-                                                    <kbd>ctrl + K</kbd>
+                                                    <kbd>ctrl + F</kbd>
                                                 </span>
                                             </div>
                                             @can('delete-users')
@@ -94,7 +94,7 @@
                             </div>
                             <div id="advanced-table">
                                 <div class="table-responsive">
-                                    <table id="datatable-users" class="table table-vcenter table-selectable">
+                                    <table id="datatable-users" class="table table-vcenter card-table table-selectable ">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">

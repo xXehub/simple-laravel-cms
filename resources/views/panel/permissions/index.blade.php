@@ -78,7 +78,7 @@
                                                 <input id="advanced-table-search" type="text" class="form-control"
                                                     placeholder="Search permissions..." autocomplete="off" />
                                                 <span class="input-group-text">
-                                                    <kbd>ctrl + K</kbd>
+                                                    <kbd>ctrl + F</kbd>
                                                 </span>
                                             </div>
                                             @can('delete-permissions')

@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const newAvatarPreview = document.getElementById('new-avatar-preview');
     const newAvatarPreviewContainer = document.getElementById('new-avatar-preview-container');
     const uploadAvatarForm = document.getElementById('uploadAvatarForm');
-    const deleteAvatarBtn = document.getElementById('delete-avatar-btn');
+    // const deleteAvatarBtn = document.getElementById('delete-avatar-btn');
 
     // Preview selected image
     avatarFileInput.addEventListener('change', function(e) {
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 window.openAvatarModal = function(userId, userName, currentAvatarUrl, hasCustomAvatar) {
     document.getElementById('upload_user_id').value = userId;
     document.getElementById('current-avatar-preview').style.backgroundImage = `url('${currentAvatarUrl}')`;
-    document.getElementById('delete-avatar-btn').style.display = hasCustomAvatar ? 'inline-block' : 'none';
+    // document.getElementById('delete-avatar-btn').style.display = hasCustomAvatar ? 'inline-block' : 'none';
     
     // Reset form
     document.getElementById('uploadAvatarForm').reset();

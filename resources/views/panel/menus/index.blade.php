@@ -80,7 +80,7 @@
                                                 <input id="advanced-table-search" type="text" class="form-control"
                                                     placeholder="Search menus..." autocomplete="off" />
                                                 <span class="input-group-text">
-                                                    <kbd>ctrl + K</kbd>
+                                                    <kbd>ctrl + F</kbd>
                                                 </span>
                                             </div>
                                             <div class="dropdown">
@@ -169,8 +169,43 @@
         <script>
             let menusTable;
 
+            // Check if required dependencies are loaded
+            console.log('DataTableGlobal available:', typeof DataTableGlobal !== 'undefined');
+            console.log('MenusDataTable available:', typeof MenusDataTable !== 'undefined');
+            console.log('jQuery available:', typeof $ !== 'undefined');
+            console.log('DataTables available:', typeof $.fn.DataTable !== 'undefined');
+
+            // Wait for dependencies to load
+            function waitForDependencies() {
+                return new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const maxAttempts = 50; // 5 seconds max wait
+                    
+                    function check() {
+                        attempts++;
+                        
+                        if (typeof DataTableGlobal !== 'undefined' && 
+                            typeof MenusDataTable !== 'undefined' && 
+                            typeof $ !== 'undefined' && 
+                            typeof $.fn.DataTable !== 'undefined') {
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            reject(new Error('Dependencies failed to load within timeout'));
+                        } else {
+                            setTimeout(check, 100);
+                        }
+                    }
+                    
+                    check();
+                });
+            }
+
             // Initialize Menus DataTable
-            MenusDataTable.initialize('{{ route('panel.menus') }}')
+            waitForDependencies()
+                .then(() => {
+                    console.log('All dependencies loaded, initializing...');
+                    return MenusDataTable.initialize('{{ route('panel.menus') }}');
+                })
                 .then(table => {
                     menusTable = table;
 
@@ -184,22 +219,43 @@
                 })
                 .catch(error => {
                     console.error('Failed to initialize Menus DataTable:', error);
+                    alert('Failed to load menu table. Please refresh the page.');
                 });
 
             // Auto-refresh on success
             @if (session('success'))
                 document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
-                        MenusDataTable.refreshDataTable();
-                        MenusDataTable.refreshParentMenuOptions('{{ route('panel.menus') }}');
+                        if (typeof MenusDataTable !== 'undefined') {
+                            MenusDataTable.refreshDataTable();
+                            MenusDataTable.refreshParentMenuOptions('{{ route('panel.menus') }}');
+                        }
                     }, 1000);
                 });
             @endif
 
             // Backward compatibility (optional, can be removed if not used elsewhere)
-            window.openEditModal = (menu) => MenusDataTable.openEditModal(menu, '{{ route('panel.menus') }}');
-            window.openDeleteModal = (menu) => MenusDataTable.openDeleteModal(menu);
-            window.filterTable = (type) => MenusDataTable.filterTable(type);
+            window.openEditModal = (menu) => {
+                if (typeof MenusDataTable !== 'undefined') {
+                    MenusDataTable.openEditModal(menu, '{{ route('panel.menus') }}');
+                } else {
+                    console.error('MenusDataTable not available');
+                }
+            };
+            window.openDeleteModal = (menu) => {
+                if (typeof MenusDataTable !== 'undefined') {
+                    MenusDataTable.openDeleteModal(menu);
+                } else {
+                    console.error('MenusDataTable not available');
+                }
+            };
+            window.filterTable = (type) => {
+                if (typeof MenusDataTable !== 'undefined') {
+                    MenusDataTable.filterTable(type);
+                } else {
+                    console.error('MenusDataTable not available');
+                }
+            };
         </script>
     @endpush
 </x-layout.app>

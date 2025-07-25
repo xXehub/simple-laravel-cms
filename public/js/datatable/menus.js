@@ -1,865 +1,491 @@
 /**
  * Menus DataTable Configuration
- * Server-side processing enabled for better performance
+ * Clean version following users.js pattern
  * @author KantorKu SuperApp Team
- * @version 2.2.0
+ * @version 3.0.0
  */
 
 window.MenusDataTable = (function () {
     "use strict";
 
     let menusTable;
+    let selectedMenus = [];
     let tomSelectInstances = {};
+    let parentMenuOptions = {};
 
-    /**
-     * Build DataTable configuration for Menus
-     * @param {string} route - The AJAX endpoint for server-side processing
-     */
+    // --- Table Configuration ---
     function getTableConfig(route) {
-        return {
-            processing: true,
-            serverSide: true,
-            deferRender: true,
-            ajax: {
-                url: route,
-                type: "GET",
-                data: function (d) {
-                    // Pass DataTables parameters to server
-                    return d;
+        const baseConfig = DataTableGlobal.generateStandardConfig({
+            tableConfig: {
+                ajax: {
+                    url: route,
+                    type: "GET"
                 },
-                error: function (xhr, error, thrown) {
-                    console.error("DataTable Ajax Error:", error, thrown);
-                },
-            },
+                order: [
+                    [7, "asc"], // urutan column
+                    [3, "asc"]  // nama_menu column
+                ],
+                deferRender: true
+            }
+        });
+
+        const menusConfig = {
             columns: [
-                // Checkbox for bulk selection
-                {
+                { // Checkbox
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: function (data, type, row) {
-                        return `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select menu" value="${row.id}"/>`;
-                    },
+                    render: (data, type, row) =>
+                        `<input class="form-check-input m-0 align-middle table-selectable-check" 
+                               type="checkbox" value="${row.id}"/>`
                 },
-                // GESER - Menu Order Controls
-                {
+                { // Order controls
                     data: "order_controls",
                     name: "order_controls",
                     orderable: false,
                     searchable: false,
-                    className: "text-center",
-                    render: function (data, type, row) {
-                        // Return the pre-built order controls HTML from server
-                        return data;
-                    },
+                    className: "text-center"
                 },
-                // Icon column
-                {
+                { // Icon
                     data: "icon",
                     name: "icon",
-                    orderable: false, // Icons should not be orderable
+                    orderable: false,
                     className: "text-center",
-                    render: function (data, type, row) {
-                        return data
-                            ? `<span class="avatar avatar-xs me-2" style="background-image: url(./static/avatars/000m.jpg);"><i class="${data}"></i></span>`
-                            : '<span class="text-muted">-</span>';
-                    },
+                    render: (data) => data ? 
+                        `<span class="avatar avatar-xs me-2"><i class="${data}"></i></span>` : 
+                        '<span class="text-muted">-</span>'
                 },
-                // Menu name
-                {
+                { // Nama Menu
                     data: "nama_menu",
-                    name: "nama_menu",
-                    render: function (data) {
-                        return `${data}`;
-                    },
+                    name: "nama_menu"
                 },
-                // Slug (code style)
-                {
+                { // Slug
                     data: "slug",
                     name: "slug",
                     className: "text-secondary",
-                    render: function (data) {
-                        return `<code>${data}</code>`;
-                    },
+                    render: (data) => `<code>${data}</code>`
                 },
-                // Parent menu badge
-                {
+                { // Parent
                     data: "parent",
                     name: "parent_id",
                     orderable: false,
                     className: "text-secondary",
-                    render: function (data) {
-                        return data
-                            ? `<span class="badge bg-secondary-lt">${data}</span>`
-                            : '<span class="text-muted">-</span>';
-                    },
+                    render: (data) => data ? 
+                        `<span class="badge bg-secondary-lt">${data}</span>` : 
+                        '<span class="text-muted">-</span>'
                 },
-                // Route name (code style)
-                {
+                { // Route name
                     data: "route_name",
                     name: "route_name",
-                    render: function (data) {
-                        return data
-                            ? `<code>${data}</code>`
-                            : '<span class="text-muted">-</span>';
-                    },
+                    render: (data) => data ? `<code>${data}</code>` : '<span class="text-muted">-</span>'
                 },
-                // Order (urutan)
-                {
+                { // Urutan
                     data: "urutan",
                     name: "urutan",
-                    className: "text-center",
+                    className: "text-center"
                 },
-                // Active status badge
-                {
+                { // Status
                     data: "is_active",
                     name: "is_active",
                     orderable: false,
                     className: "text-center",
-                    render: function (data) {
-                        // Show badge for active/inactive
-                        return data === true || data === 1 || data === "1"
-                            ? '<span class="badge bg-success-lt">Active</span>'
-                            : '<span class="badge bg-danger-lt">Inactive</span>';
-                    },
+                    render: (data) => data ? 
+                        '<span class="badge bg-success-lt">Active</span>' : 
+                        '<span class="badge bg-danger-lt">Inactive</span>'
                 },
-                // Roles badges
-                {
+                { // Roles
                     data: "roles",
                     name: "roles",
                     orderable: false,
-                    render: function (data) {
+                    render: (data) => {
                         if (data && data.length > 0) {
-                            return data
-                                .map((role) => {
-                                    // Handle both old format (strings) and new format (objects)
-                                    const roleName = typeof role === 'object' ? role.name : role;
-                                    return `<span class="badge bg-secondary-lt me-1">${roleName}</span>`;
-                                })
-                                .join("");
+                            return data.map(role => {
+                                const roleName = typeof role === 'object' ? role.name : role;
+                                return `<span class="badge bg-secondary-lt me-1">${roleName}</span>`;
+                            }).join("");
                         }
                         return '<span class="badge bg-danger-lt me-1">Tidak Ada</span>';
-                    },
+                    }
                 },
-                // Action buttons (edit/delete)
-                {
+                { // Actions
                     data: "actions",
                     name: "actions",
                     orderable: false,
                     searchable: false,
-                    className: "text-end",
-                    render: function (data) {
-                        // Render pre-built action HTML
-                        return data;
-                    },
-                },
+                    className: "text-end"
+                }
             ],
-            order: [
-                [8, "asc"], // urutan column (sekarang index 8)
-                [3, "asc"], // nama_menu column (sekarang index 3)
-            ],
-            pageLength: 15,
-            lengthMenu: [10, 15, 25, 50, 100],
-            language: {
-                processing: "Memuat...",
-                zeroRecords: "No menus found",
-                info: "Showing _START_ to _END_ of _TOTAL_ menus",
-                infoEmpty: "Showing 0 to 0 of 0 menus",
-                infoFiltered: "(filtered from _MAX_ total menus)",
-                lengthMenu: "Show _MENU_ menus per page",
-                search: "Search menus:",
-                paginate: {
-                    first: "First",
-                    last: "Last",
-                    next: "Next",
-                    previous: "Previous",
-                },
-            },
+            drawCallback: function () {
+                DataTableGlobal.buildCustomPagination(menusTable, "#datatable-pagination");
+                DataTableGlobal.updateRecordInfo(menusTable, "#record-info", "menus");
+                DataTableGlobal.updateSelectAllState();
+                updateBulkDeleteButton();
+            }
         };
+
+        return $.extend(true, {}, baseConfig, menusConfig);
     }
 
-    // Initialize DataTable and TomSelect
+    // --- Initialize Table ---
     function initialize(route) {
-        return DataTableGlobal.waitForLibraries()
-            .then(waitForTomSelect)
-            .then(function () {
-                destroyTomSelects();
-                // Inisialisasi TomSelect hanya pada elemen yang ada
-                var ids = [
-                    "create_roles",
-                    "edit_roles",
-                    "create_parent_id",
-                    "edit_parent_id",
-                    "create_route_type",
-                    "edit_route_type"
-                ];
-                for (var i = 0; i < ids.length; i++) {
-                    var el = document.getElementById(ids[i]);
-                    if (el && !el.tomselect) {
-                        tomSelectInstances[ids[i]] = new TomSelect(el, {});
-                    }
-                }
-                window.tomSelectInstances = tomSelectInstances;
-                return DataTableGlobal.initializeDataTable("#menusTable", {
-                    tableConfig: getTableConfig(route),
-                    drawCallbackOptions: {
-                        paginationSelector: "#datatable-pagination",
-                        tableInstance: "menusTable",
-                    },
-                    searchInputSelector: "#advanced-table-search",
-                    pageCountSelector: "#page-count",
-                    enableSelectAll: true,
-                    enableSearch: true,
-                    enableKeyboardShortcuts: true,
-                });
-            })
-            .then(function (table) {
-                menusTable = table;
-                window.menusTable = table;
-                return table;
-            });
-    }
-
-    function waitForTomSelect() {
-        return new Promise(function (resolve) {
-            (function check() {
-                if (typeof window.TomSelect === "undefined") {
-                    setTimeout(check, 100);
-                    return;
-                }
-                resolve();
-            })();
+        return DataTableGlobal.waitForLibraries().then(() => {
+            menusTable = $("#menusTable").DataTable(getTableConfig(route));
+            
+            // Setup global handlers
+            DataTableGlobal.createSearchHandler(menusTable, "#advanced-table-search");
+            DataTableGlobal.setupPageLengthHandler(menusTable, ".dropdown-item[data-value]", "#page-count");
+            DataTableGlobal.setupKeyboardShortcuts("#advanced-table-search");
+            
+            // Setup specific handlers
+            setupEventHandlers();
+            
+            return menusTable;
         });
     }
 
-    function destroyTomSelects() {
-        for (var key in tomSelectInstances) {
-            if (
-                tomSelectInstances[key] &&
-                typeof tomSelectInstances[key].destroy === "function"
-            ) {
-                tomSelectInstances[key].destroy();
+    // --- TomSelect Management ---
+    function initializeTomSelectInstances() {
+        const selectors = [
+            'create_route_type', 'create_parent_id', 'create_roles',
+            'edit_route_type', 'edit_parent_id', 'edit_roles'
+        ];
+        
+        return DataTableGlobal.initializeTomSelectInstances(selectors, tomSelectInstances);
+    }
+
+    function clearTomSelectInstances() {
+        DataTableGlobal.destroyTomSelects(tomSelectInstances);
+    }
+
+    function resetCreateForm() {
+        $('#createMenuForm')[0]?.reset();
+        
+        setTimeout(() => {
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_route_type', 'public');
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_parent_id', '');
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_roles', []);
+        }, 100);
+    }
+
+    // --- Event Handlers ---
+    function setupEventHandlers() {
+        DataTableGlobal.setupCheckboxHandlers(selectedMenus, {
+            onUpdate: updateBulkDeleteButton,
+            onStateChange: updateBulkDeleteButton,
+            onButtonUpdate: updateBulkDeleteButton
+        });
+
+        setupBulkDeleteHandlers();
+        setupModalHandlers();
+        setupTomSelectModalHandlers();
+    }
+
+    function setupTomSelectModalHandlers() {
+        DataTableGlobal.setupTomSelectModalHandlers({
+            createModal: '#createMenuModal',
+            editModal: '#editMenuModal',
+            initCallback: (type) => {
+                initializeTomSelectInstances().then(() => {
+                    if (type === 'create') resetCreateForm();
+                });
             }
-        }
-        tomSelectInstances = {};
+        }, tomSelectInstances);
     }
 
-    // Table filtering (tanpa perulangan)
-    function filterTable(type) {
-        if (!menusTable) return;
-        if (type === "active") {
-            menusTable.column(9).search("Active").draw(); // status column sekarang index 9
-        } else if (type === "inactive") {
-            menusTable.column(9).search("Inactive").draw(); // status column sekarang index 9
-        } else if (type === "parent") {
-            menusTable.column(5).search("^-$", true, false).draw(); // parent column sekarang index 5
-        } else if (type === "child") {
-            menusTable.column(5).search("^(?!-).*", true, false).draw(); // parent column sekarang index 5
-        } else {
-            menusTable.columns().search("").draw();
-        }
+    function updateBulkDeleteButton() {
+        $("#delete-selected-btn").prop("disabled", selectedMenus.length === 0);
+        $("#selected-count").text(selectedMenus.length);
     }
 
-    // Modal utilities (tanpa OOP/perulangan)
-    function showModal(el) {
-        // Prefer jQuery modal if available
-        if (window.$ && $.fn && $.fn.modal) {
-            return $(el).modal("show");
-        }
-        // Fallback to Bootstrap 5 Modal if available
-        if (window.bootstrap && bootstrap.Modal) {
-            return new bootstrap.Modal(el).show();
-        }
-        // Manual fallback
-        el.classList.add("show");
-        el.style.display = "block";
-        el.setAttribute("aria-hidden", "false");
-        document.body.classList.add("modal-open");
-        if (!document.querySelector(".modal-backdrop")) {
-            var backdrop = document.createElement("div");
-            backdrop.className = "modal-backdrop fade show";
-            document.body.appendChild(backdrop);
-        }
+    // --- Bulk Delete ---
+    function setupBulkDeleteHandlers() {
+        DataTableGlobal.setupBulkDeleteHandler({
+            modalSelector: "#deleteSelectedModal",
+            selectedArray: selectedMenus,
+            deleteRoute: bulkDeleteRoute,
+            confirmBtnSelector: "#confirm-delete-selected",
+            entityName: "menu",
+            tableInstance: menusTable,
+            updateCallback: updateBulkDeleteButton
+        });
     }
 
-    function hideModal(el) {
-        // Prefer jQuery modal if available
-        if (window.$ && $.fn && $.fn.modal) {
-            return $(el).modal("hide");
-        }
-        // Fallback to Bootstrap 5 Modal if available
-        if (window.bootstrap && bootstrap.Modal) {
-            var instance = bootstrap.Modal.getInstance(el);
-            if (instance) return instance.hide();
-        }
-        // Manual fallback
-        el.classList.remove("show");
-        el.style.display = "none";
-        el.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("modal-open");
-        var bd = document.querySelector(".modal-backdrop");
-        if (bd) bd.remove();
+    // --- Menu Management ---
+    function openCreateModal(route) {
+        refreshParentMenuOptions(route)
+            .then(() => {
+                updateCreateParentMenuSelect();
+                return initializeTomSelectInstances();
+            })
+            .then(() => {
+                resetCreateForm();
+                $('#createMenuModal').modal('show');
+            })
+            .catch(error => {
+                console.error('Error in openCreateModal:', error);
+                $('#createMenuModal').modal('show');
+            });
     }
 
-    // Menu operations (tanpa perulangan)
+    function openEditModal(menu, route) {
+        refreshParentMenuOptions(route)
+            .then(() => {
+                updateParentMenuSelect();
+                return initializeTomSelectInstances();
+            })
+            .then(() => {
+                setTimeout(() => {
+                    fillEditModal(menu);
+                    $('#editMenuModal').modal('show');
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Error in openEditModal:', error);
+                setTimeout(() => {
+                    fillEditModal(menu);
+                    $('#editMenuModal').modal('show');
+                }, 300);
+            });
+    }
+
+    function openDeleteModal(menu) {
+        $('#delete_menu_id').val(menu.id);
+        $('#delete_menu_name').text(menu.nama_menu);
+        $('#delete_menu_slug').text(menu.slug);
+        $('#delete_menu_route').text(menu.route_name || "-");
+
+        const form = $('#deleteMenuForm')[0];
+        if (form && menu.id) {
+            form.action = form.action.includes(':id') ?
+                form.action.replace(':id', menu.id) :
+                form.action.replace(/\/\d+$/, '') + '/' + menu.id;
+        }
+        
+        $('#deleteMenuModal').modal('show');
+    }
+
+    function fillEditModal(menu) {
+        if (!$('#edit_menu_id').length) return;
+
+        const form = $('#editMenuForm')[0];
+        if (form && menu.id) {
+            form.action = form.action.includes(':id') ?
+                form.action.replace(':id', menu.id) :
+                form.action.replace(/\/\d+$/, '') + '/' + menu.id;
+        }
+
+        // Fill basic fields
+        $('#edit_menu_id').val(menu.id);
+        $('#edit_nama_menu').val(menu.nama_menu);
+        $('#edit_slug').val(menu.slug);
+        $('#edit_route_name').val(menu.route_name || "");
+        $('#edit_controller_class').val(menu.controller_class || "");
+        $('#edit_view_path').val(menu.view_path || "");
+        $('#edit_icon').val(menu.icon || "");
+        $('#edit_middleware_list').val(menu.middleware_list || "");
+        $('#edit_meta_title').val(menu.meta_title || "");
+        $('#edit_meta_description').val(menu.meta_description || "");
+        $('#edit_urutan').val(menu.urutan);
+        $('#edit_is_active').prop('checked', menu.is_active == 1);
+
+        // Set TomSelect values
+        setTimeout(() => {
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_route_type', menu.route_type || 'public');
+            
+            const parentValue = menu.parent_id ? String(menu.parent_id) : '';
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_parent_id', parentValue);
+            
+            // Handle roles with ID priority
+            let roleValues = [];
+            if (Array.isArray(menu.roles)) {
+                roleValues = menu.roles.map(role => {
+                    if (typeof role === 'object') {
+                        return role.id ? String(role.id) : String(role.name || role);
+                    }
+                    return String(role);
+                });
+            } else if (menu.roles && typeof menu.roles === 'string') {
+                roleValues = menu.roles.split(',').map(r => String(r.trim()));
+            }
+            
+            // Map role names to IDs if needed
+            if (tomSelectInstances['edit_roles'] && roleValues.length > 0) {
+                const availableOptions = Object.keys(tomSelectInstances['edit_roles'].options);
+                const validRoleValues = roleValues.filter(value => availableOptions.includes(value));
+                
+                if (validRoleValues.length === 0 && Array.isArray(menu.roles)) {
+                    const rolesSelect = document.getElementById('edit_roles');
+                    if (rolesSelect) {
+                        Array.from(rolesSelect.options).forEach(option => {
+                            const shouldSelect = menu.roles.some(role => {
+                                const roleName = typeof role === 'object' ? role.name : role;
+                                return roleName === option.textContent.trim();
+                            });
+                            if (shouldSelect) validRoleValues.push(option.value);
+                        });
+                    }
+                }
+                
+                DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_roles', validRoleValues);
+            }
+
+            DataTableGlobal.syncTomSelects(tomSelectInstances);
+        }, 150);
+    }
+
+    // --- Utility Functions ---
     function refreshParentMenuOptions(route) {
         return fetch(route, {
             method: "GET",
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
-                Accept: "application/json",
-            },
+                "Accept": "application/json"
+            }
         })
-            .then(function (response) {
-                if (!response.ok) throw new Error("Network error");
-                return response.json();
-            })
-            .then(function (data) {
-                if (data.parentMenus) {
-                    var createSel = document.getElementById("create_parent_id");
-                    var editSel = document.getElementById("edit_parent_id");
-                    if (createSel) {
-                        updateSelectOptions(createSel, data.parentMenus);
-                        if (tomSelectInstances["create_parent_id"]) {
-                            tomSelectInstances["create_parent_id"].destroy();
-                            tomSelectInstances["create_parent_id"] =
-                                new TomSelect(createSel, {});
-                        }
-                    }
-                    if (editSel) {
-                        updateSelectOptions(editSel, data.parentMenus);
-                        if (tomSelectInstances["edit_parent_id"]) {
-                            tomSelectInstances["edit_parent_id"].destroy();
-                            tomSelectInstances["edit_parent_id"] =
-                                new TomSelect(editSel, {});
-                        }
-                    }
-                }
-                return data;
-            });
+        .then(response => response.json())
+        .then(data => {
+            parentMenuOptions = data.parentMenus || data.parent_menus || {};
+            return parentMenuOptions;
+        })
+        .catch(error => {
+            console.error('Error fetching parent menu options:', error);
+            parentMenuOptions = {};
+            return parentMenuOptions;
+        });
     }
 
-    function refreshDataTable() {
-        if (menusTable) menusTable.ajax.reload(null, false);
+    function updateParentMenuSelect() {
+        DataTableGlobal.updateSelectOptions('edit_parent_id', parentMenuOptions, true);
     }
 
-    // Helper function to update select options
-    function updateSelectOptions(selectElement, options) {
-        // Clear existing options except the first (default) option
-        while (selectElement.children.length > 1) {
-            selectElement.removeChild(selectElement.lastChild);
-        }
+    function updateCreateParentMenuSelect() {
+        DataTableGlobal.updateSelectOptions('create_parent_id', parentMenuOptions, true);
+    }
+
+    function filterTable(type) {
+        if (!menusTable) return;
         
-        // Add new options
-        Object.keys(options).forEach(function(value) {
-            var option = document.createElement('option');
-            option.value = value;
-            option.textContent = options[value];
-            selectElement.appendChild(option);
-        });
-    }
-
-    // Form utilities
-    function setValue(id, value) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = value;
-        }
-    }
-
-    function setText(id, text) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = text;
-        }
-    }
-
-    function setChecked(id, isChecked) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.checked = Boolean(isChecked);
-        }
-    }
-
-    function setSelect(id, value, tomSelectKey) {
-        const tomSelectInstance = tomSelectInstances[tomSelectKey];
-
-        if (tomSelectInstance) {
-            // Handle TomSelect dropdown
-            tomSelectInstance.clear();
-            if (value) {
-                tomSelectInstance.setValue(value.toString());
-            }
+        if (type === "active") {
+            menusTable.columns(8).search("1").draw();
+        } else if (type === "inactive") {
+            menusTable.columns(8).search("0").draw();
         } else {
-            // Handle regular select element
-            const element = document.getElementById(id);
-            if (element) {
-                element.value = value || "";
-            }
+            menusTable.columns(8).search("").draw();
         }
     }
 
-    function setRoles(id, rolesArray) {
-        const tomSelectInstance = tomSelectInstances[id];
-
-        if (tomSelectInstance) {
-            // Handle TomSelect multi-select
-            tomSelectInstance.clear();
-            if (rolesArray && rolesArray.length > 0) {
-                rolesArray.forEach((role) => {
-                    // Handle both old format (strings) and new format (objects with id)
-                    const roleId = typeof role === 'object' ? role.id : null;
-                    const roleName = typeof role === 'object' ? role.name : role;
-                    
-                    if (roleId) {
-                        // Use role ID if available
-                        tomSelectInstance.addItem(roleId.toString());
-                    } else {
-                        // Fallback: find option with matching text content
-                        const selectElement = document.getElementById(id);
-                        if (selectElement) {
-                            const option = Array.from(selectElement.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                tomSelectInstance.addItem(option.value);
-                            }
-                        }
-                    }
-                });
-            }
-        } else {
-            // Handle regular multi-select element
-            const element = document.getElementById(id);
-            if (element) {
-                // Clear all selections first
-                Array.from(element.options).forEach((option) => {
-                    option.selected = false;
-                });
-
-                // Set selected options
-                if (rolesArray && rolesArray.length > 0) {
-                    rolesArray.forEach((role) => {
-                        const roleId = typeof role === 'object' ? role.id : null;
-                        const roleName = typeof role === 'object' ? role.name : role;
-                        
-                        if (roleId) {
-                            // Use role ID if available
-                            const option = Array.from(element.options).find(opt => opt.value === roleId.toString());
-                            if (option) {
-                                option.selected = true;
-                            }
-                        } else {
-                            // Fallback: find option with matching text content
-                            const option = Array.from(element.options).find(opt => opt.text === roleName);
-                            if (option) {
-                                option.selected = true;
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    // Modal operations (tanpa perulangan)
-    function fillEditModal(menu) {
-        if (!document.getElementById("edit_menu_id")) return;
-
-        // Update form action with actual menu ID
-        const editForm = document.getElementById("editMenuForm");
-        if (editForm && menu.id) {
-            const routeTemplate = editForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                editForm.action = routeTemplate.replace(':id', menu.id);
-            }
-        }
-
-        // Fill all form fields
-        setValue("edit_menu_id", menu.id);
-        setValue("edit_nama_menu", menu.nama_menu);
-        setValue("edit_slug", menu.slug);
-        setValue("edit_route_name", menu.route_name || "");
-        setSelect("edit_route_type", menu.route_type || "public", "edit_route_type");
-        setValue("edit_controller_class", menu.controller_class || "");
-        setValue("edit_view_path", menu.view_path || "");
-        setValue("edit_icon", menu.icon || "");
-        setValue("edit_middleware_list", menu.middleware_list || "");
-        setValue("edit_meta_title", menu.meta_title || "");
-        setValue("edit_meta_description", menu.meta_description || "");
-        setValue("edit_urutan", menu.urutan);
-        setChecked("edit_is_active", menu.is_active == 1);
-
-        // Set parent_id selection
-        setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
-
-        // Set roles selection - menu.roles contains role names as strings
-        setRoles("edit_roles", menu.roles || []);
-
-        // Sync all TomSelect instances
-        for (var key in tomSelectInstances) {
-            if (
-                tomSelectInstances[key] &&
-                typeof tomSelectInstances[key].sync === "function"
-            ) {
-                tomSelectInstances[key].sync();
-            }
-        }
-
-        // Show the modal
-        showModal(document.getElementById("editMenuModal"));
-    }
-
-    function openEditModal(menu, route) {
-        fillEditModal(menu);
-        refreshParentMenuOptions(route)
-            .then(function () {
-                setSelect("edit_parent_id", menu.parent_id, "edit_parent_id");
-            })
-            .catch(function () {});
-    }
-
-    function openDeleteModal(menu) {
-        var modal = document.getElementById("deleteMenuModal");
-        if (!modal) return;
-
-        // Replace :id placeholder in form action with actual menu ID
-        const deleteForm = document.getElementById("deleteMenuForm");
-        if (deleteForm && menu.id) {
-            const routeTemplate = deleteForm.getAttribute('data-route-template');
-            if (routeTemplate) {
-                deleteForm.action = routeTemplate.replace(':id', menu.id);
-            }
-        }
-
-        setValue("delete_menu_id", menu.id);
-        setText("delete_menu_name", menu.nama_menu);
-        setText("delete_menu_slug", menu.slug);
-        setText("delete_menu_route", menu.route_name || "-");
-        showModal(modal);
-    }
-
-    function setupModalHandlers() {
-        document.addEventListener("click", function (e) {
-            if (e.target.closest('[data-bs-dismiss="modal"]')) {
-                hideModal(e.target.closest(".modal"));
-            }
-            if (e.target.classList.contains("modal-backdrop")) {
-                var modals = document.querySelectorAll(".modal.show");
-                for (var i = 0; i < modals.length; i++) hideModal(modals[i]);
-            }
-        });
-    }
-
-    // State management for bulk operations
-    let selectedMenus = [];
-
-    // Setup checkbox handlers for bulk operations
-    function setupCheckboxHandlers() {
-        // Handle select all checkbox
-        $("#select-all").on("change", function () {
-            const isChecked = this.checked;
-            $(".table-selectable-check").prop("checked", isChecked);
-            updateSelectedMenus();
-            updateBulkDeleteButton();
-        });
-
-        // Handle individual checkboxes
-        $(document).on("change", ".table-selectable-check", function () {
-            updateSelectedMenus();
-            updateSelectAllState();
-            updateBulkDeleteButton();
-        });
-    }
-
-    // Update selected menus array
-    function updateSelectedMenus() {
-        selectedMenus = [];
-        $(".table-selectable-check:checked").each(function () {
-            const row = menusTable.row($(this).closest("tr")).data();
-            if (row) {
-                selectedMenus.push({
-                    id: row.id,
-                    nama_menu: row.nama_menu,
-                    slug: row.slug,
-                });
-            }
-        });
-
-        $("#selected-count").text(selectedMenus.length);
-    }
-
-    // Update select all checkbox state
-    function updateSelectAllState() {
-        const totalCheckboxes = $(".table-selectable-check").length;
-        const checkedCheckboxes = $(".table-selectable-check:checked").length;
-
-        $("#select-all").prop(
-            "indeterminate",
-            checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
-        );
-        $("#select-all").prop(
-            "checked",
-            checkedCheckboxes === totalCheckboxes && totalCheckboxes > 0
-        );
-    }
-
-    // Update bulk delete button state
-    function updateBulkDeleteButton() {
-        const hasSelected = selectedMenus.length > 0;
-        $("#delete-selected-btn").prop("disabled", !hasSelected);
-        $("#selected-count").text(selectedMenus.length);
-    }
-
-    // Setup bulk delete handlers
-    function setupBulkDeleteHandlers(bulkDeleteRoute, csrfToken) {
-        // Show selected menus in delete modal
-        $("#deleteSelectedModal").on("show.bs.modal", function () {
-            $("#delete-selected-count").text(selectedMenus.length);
-
-            let menusList = "";
-            selectedMenus.forEach((menu) => {
-                menusList += `<div class="border rounded p-2 mb-1">
-                    <strong>${menu.nama_menu}</strong><br>
-                    <small class="text-muted">Slug: ${menu.slug}</small>
-                </div>`;
-            });
-
-            $("#selected-menus-list").html(menusList);
-        });
-
-        // Handle bulk delete confirmation
-        $("#confirm-delete-selected").on("click", function () {
-            const menuIds = selectedMenus.map((menu) => menu.id);
-            const button = $(this);
-
-            // Disable button and show loading
-            button.prop("disabled", true).html(`
-                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                Deleting...
-            `);
-
-            // Send request
-            fetch(bulkDeleteRoute, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken,
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({
-                    menu_ids: menuIds,
-                }),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        // Close modal and refresh table
-                        $("#deleteSelectedModal").modal("hide");
-                        location.reload(); // Simple reload to show flash messages
-                    } else {
-                        throw new Error("Network response was not ok");
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    alert("Error deleting menus. Please try again.");
-                })
-                .finally(() => {
-                    // Reset button
-                    button.prop("disabled", false).html(`
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
-                        <polyline points="3,6 5,6 21,6"></polyline>
-                        <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2,2h4a2,2,0,0,1,2,2V6"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                    Delete Selected
-                `);
-                });
-        });
-    }
-
-    // Update record information
-    function updateRecordInfo() {
-        if (menusTable && menusTable.page) {
-            const info = menusTable.page.info();
-            if (info) {
-                const start = info.start + 1;
-                const end = info.end;
-                const total = info.recordsTotal;
-                const filtered = info.recordsFiltered;
-
-                let infoText = "";
-                if (total === 0) {
-                    infoText =
-                        "Showing <strong>0 to 0</strong> of <strong>0 entries</strong>";
-                } else if (filtered !== total) {
-                    infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${filtered} entries</strong> (filtered from ${total} total entries)`;
-                } else {
-                    infoText = `Showing <strong>${start} to ${end}</strong> of <strong>${total} entries</strong>`;
-                }
-
-                $("#record-info").html(infoText);
-            }
-        }
-    }
-
-    // Setup draw callback to update UI states
-    function setupDrawCallback() {
-        // Override draw callback to update record info
-        $(document).on("draw.dt", "#menusTable", function () {
-            updateRecordInfo();
-            updateSelectedMenus();
-            updateSelectAllState();
-            updateBulkDeleteButton();
-        });
-    }
-
-    // Setup page length handler
-    function setupPageLengthHandler() {
-        window.setPageListItems = function (event) {
-            event.preventDefault();
-            const value = parseInt(event.target.getAttribute("data-value"));
-            if (menusTable && value) {
-                menusTable.page.len(value).draw();
-                $("#page-count").text(value);
-            }
-        };
-    }
-
-    // Menu order functionality
-    function moveMenuOrder(menuId, direction, moveOrderRoute) {
-        // Show loading state
-        const buttons = document.querySelectorAll(`[data-menu-id="${menuId}"]`);
-        buttons.forEach((btn) => {
-            btn.disabled = true;
-            btn.innerHTML =
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        });
-
-        // Send AJAX request to move menu
-        fetch(moveOrderRoute, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute("content"),
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-            body: JSON.stringify({
-                menu_id: menuId,
-                direction: direction,
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    // Show success message
-                    if (typeof window.showToast === "function") {
-                        window.showToast(
-                            "success",
-                            data.message || "Menu order updated successfully"
-                        );
-                    }
-
-                    // Refresh the DataTable
-                    refreshDataTable();
-                } else {
-                    throw new Error(
-                        data.message || "Failed to update menu order"
-                    );
-                }
-            })
-            .catch((error) => {
-                console.error("Error moving menu:", error);
-
-                // Show error message
-                if (typeof window.showToast === "function") {
-                    window.showToast(
-                        "error",
-                        error.message || "Failed to update menu order"
-                    );
-                } else {
-                    alert(
-                        "Error: " +
-                            (error.message || "Failed to update menu order")
-                    );
-                }
-            })
-            .finally(() => {
-                // Restore button states after a delay (in case table refresh is slow)
-                setTimeout(() => {
-                    buttons.forEach((btn) => {
-                        btn.disabled = false;
-                        const direction = btn.getAttribute("data-direction");
-                        btn.innerHTML =
-                            direction === "up"
-                                ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>'
-                                : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
-                    });
-                }, 1000);
-            });
-    }
-
-    // Setup menu order handlers
+    // --- Menu Order Handlers ---
     function setupMenuOrderHandlers(moveOrderRoute) {
-        // Remove existing handlers to prevent duplicates
-        document.removeEventListener("click", handleMenuOrderClick);
+        $(document).off('click.menu-order', '.move-menu-btn');
+        
+        $(document).on('click.menu-order', '.move-menu-btn', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        // Add event delegation for move buttons
-        document.addEventListener("click", handleMenuOrderClick);
+            const menuId = $(this).data('menu-id');
+            const direction = $(this).data('direction');
 
-        function handleMenuOrderClick(e) {
-            if (e.target.closest(".move-menu-btn")) {
-                e.preventDefault();
-                const button = e.target.closest(".move-menu-btn");
-                const menuId = button.getAttribute("data-menu-id");
-                const direction = button.getAttribute("data-direction");
-
-                if (menuId && direction && moveOrderRoute) {
-                    moveMenuOrder(menuId, direction, moveOrderRoute);
-                }
+            if (menuId && direction) {
+                moveMenuOrder(menuId, direction, moveOrderRoute);
             }
+        });
+    }
+
+    function moveMenuOrder(menuId, direction, moveOrderRoute) {
+        const url = moveOrderRoute.replace(':id', menuId).replace(':direction', direction);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                'menu_id': menuId,
+                'direction': direction
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                menusTable.ajax.reload(null, false);
+                if (window.showToast) {
+                    window.showToast('success', 'Success!', data.message);
+                }
+            } else {
+                throw new Error(data.message || 'Failed to move menu');
+            }
+        })
+        .catch(error => {
+            console.error('Move menu error:', error);
+            if (window.showToast) {
+                window.showToast('error', 'Error!', 'Failed to move menu order');
+            }
+        });
+    }
+
+    // --- Helper Functions ---
+    function setupModalHandlers() {
+        DataTableGlobal.setupStandardModalHandlers([
+            {
+                modalSelector: "#createMenuModal",
+                formSelector: "#createMenuForm"
+            },
+            {
+                modalSelector: "#editMenuModal",
+                formSelector: "#editMenuForm"
+            }
+        ]);
+    }
+
+    function setPageListItems(event) {
+        DataTableGlobal.createPageLengthHandler(menusTable, "#page-count")(event);
+    }
+
+    let bulkDeleteRoute = "";
+
+    function setBulkDeleteRoute(route) {
+        bulkDeleteRoute = route;
+    }
+
+    // --- Initialize All Handlers ---
+    function initializeAllHandlers(bulkDeleteRoute, csrfToken) {
+        setBulkDeleteRoute(bulkDeleteRoute);
+        setupEventHandlers();
+        
+        if (bulkDeleteRoute) {
+            setupBulkDeleteHandlers();
         }
     }
 
-    // Initialize all handlers
-    function initializeAllHandlers(bulkDeleteRoute, csrfToken) {
-        setupCheckboxHandlers();
-        setupBulkDeleteHandlers(bulkDeleteRoute, csrfToken);
-        setupDrawCallback();
-        setupPageLengthHandler();
-    }
-
-    // Public API
+    // --- Public API ---
     return {
-        initialize: initialize,
-        filterTable: filterTable,
-        refreshParentMenuOptions: refreshParentMenuOptions,
-        refreshDataTable: refreshDataTable,
-        openEditModal: openEditModal,
-        openDeleteModal: openDeleteModal,
-        setupModalHandlers: setupModalHandlers,
-        initializeAllHandlers: initializeAllHandlers,
-        updateRecordInfo: updateRecordInfo,
-        moveMenuOrder: moveMenuOrder,
-        setupMenuOrderHandlers: setupMenuOrderHandlers,
-        getTable: function () {
-            return menusTable;
-        },
-        getSelectedMenus: function () {
-            return selectedMenus;
-        },
+        initialize,
+        filterTable,
+        openCreateModal,
+        openEditModal,
+        openDeleteModal,
+        moveMenuOrder,
+        setupMenuOrderHandlers,
+        initializeAllHandlers,
+        refreshParentMenuOptions,
+        setupModalHandlers,
+        setPageListItems,
+        setBulkDeleteRoute,
+        setupEventHandlers,
+        initializeTomSelectInstances,
+        getTable: () => menusTable,
+        getSelectedMenus: () => selectedMenus,
+        refreshDataTable: () => DataTableGlobal.refreshDataTable(menusTable),
+        getTomSelectInstances: () => tomSelectInstances,
+        updateRecordInfo: () => DataTableGlobal.updateRecordInfo(menusTable, "#record-info", "menus")
     };
 })();
 
-// Global compatibility functions (optional, for legacy usage)
-window.filterTable = function (type) {
-    MenusDataTable.filterTable(type);
-};
-window.openEditModal = function (menu, route) {
-    MenusDataTable.openEditModal(menu, route);
-};
-window.openDeleteModal = function (menu) {
-    MenusDataTable.openDeleteModal(menu);
-};
+// --- Legacy Support ---
+window.filterTable = (type) => MenusDataTable.filterTable(type);
+window.openCreateModal = (route) => MenusDataTable.openCreateModal(route);
+window.openEditModal = (menu, route) => MenusDataTable.openEditModal(menu, route);
+window.openDeleteModal = (menu) => MenusDataTable.openDeleteModal(menu);
+window.setPageListItems = (event) => MenusDataTable.setPageListItems(event);

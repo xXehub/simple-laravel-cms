@@ -11,232 +11,147 @@ window.UsersDataTable = (function () {
     let usersTable; // DataTable instance
     let selectedUsers = []; // Array of selected user IDs for bulk actions
 
-    // --- DataTable Configuration ---
+    // --- Table Configuration ---
     function getTableConfig(route) {
-        return {
-            processing: true,
-            serverSide: true,
-            deferRender: true,
-            ajax: {
-                url: route,
-                type: "GET",
-                data: function (d) {
-                    return d;
+        // Base config from global with AJAX route
+        const baseConfig = DataTableGlobal.generateStandardConfig({
+            tableConfig: {
+                ajax: {
+                    url: route,
+                    type: "GET"
                 },
-                error: function (xhr, error, thrown) {
-                    console.error("DataTable Ajax Error:", error, thrown);
-                },
-            },
-            columns: [
-                // Checkbox column for selection
-                {
+                order: [
+                    [1, "asc"]
+                ],
+                deferRender: true
+            }
+        });
+
+        // Users-specific columns and settings
+        const usersConfig = {
+            columns: [{ // Checkbox
                     data: null,
                     orderable: false,
                     searchable: false,
                     render: (data, type, row) =>
-                        `<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="${row.id}"/>`,
+                        `<input class="form-check-input m-0 align-middle table-selectable-check" 
+                               type="checkbox" value="${row.id}"/>`
                 },
-                // Name with avatar
-                {
+                { // Name with avatar
                     data: "name",
                     name: "name",
                     render: (data, type, row) => {
-                        const avatarUrl =
-                            row.avatar_url ||
-                            "https://ui-avatars.com/api/?name=" +
-                                encodeURIComponent(data.charAt(0)) +
-                                "&color=ffffff&background=0ea5e9&size=32&rounded=false&bold=true";
-                        return `<span class="avatar avatar-xs me-2" style="background-image: url('${avatarUrl}');"></span>${data}`;
-                    },
+                        const avatar = row.avatar_url ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(data.charAt(0))}&color=ffffff&background=0ea5e9&size=32&rounded=false&bold=true`;
+                        return `<span class="avatar avatar-xs me-2" style="background-image: url('${avatar}');"></span>${data}`;
+                    }
                 },
-                // Username
                 {
                     data: "username",
-                    name: "username",
+                    name: "username"
                 },
-                // Email
                 {
                     data: "email",
-                    name: "email",
+                    name: "email"
                 },
-                // Roles badges
-                {
+                { // Roles
                     data: "roles",
                     name: "roles",
                     orderable: false,
                     searchable: false,
-                    render: (data) => {
-                        if (data && data.length > 0) {
-                            return data
-                                .map(
-                                    (role) =>
-                                        `<span class="badge bg-primary-lt me-1">${role}</span>`
-                                )
-                                .join("");
-                        }
-                        return '<span class="badge bg-secondary-lt">No Role</span>';
-                    },
+                    render: (data) => data?.length > 0 ?
+                        data.map(role => `<span class="badge bg-primary-lt me-1">${role}</span>`).join("") :
+                        '<span class="badge bg-secondary-lt">No Role</span>'
                 },
-                // Created at (formatted)
-                {
+                { // Created date
                     data: "created_at",
                     name: "created_at",
-                    render: (data) =>
-                        new Date(data).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        }),
+                    render: (data) => new Date(data).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                    })
                 },
-                // Action buttons
-                {
+                { // Actions
                     data: "action",
                     name: "action",
                     orderable: false,
                     searchable: false,
-                    className: "text-end",
-                },
+                    className: "text-end"
+                }
             ],
-            order: [[1, "asc"]],
-            pageLength: 10,
-            lengthMenu: [10, 25, 50, 100],
-            language: {
-                processing: "Memuat...",
-                zeroRecords: "No users found",
-                info: "Showing _START_ to _END_ of _TOTAL_ users",
-                infoEmpty: "Showing 0 to 0 of 0 users",
-                infoFiltered: "(filtered from _MAX_ total users)",
-                lengthMenu: "Show _MENU_ users per page",
-                search: "Search users:",
-                paginate: {
-                    first: "First",
-                    last: "Last",
-                    next: "Next",
-                    previous: "Previous",
-                },
-            },
+            drawCallback: function () {
+                DataTableGlobal.buildCustomPagination(usersTable, "#datatable-pagination");
+                DataTableGlobal.updateRecordInfo(usersTable, "#record-info", "users");
+                DataTableGlobal.updateSelectAllState();
+                updateBulkDeleteButton();
+            }
         };
+
+        return $.extend(true, {}, baseConfig, usersConfig);
     }
 
-    // --- Initialize DataTable and Setup Event Handlers ---
+    // --- Initialize Table ---
     function initialize(route) {
         return DataTableGlobal.waitForLibraries().then(() => {
-            const usersTableConfig = getTableConfig(route);
-            return DataTableGlobal.initializeDataTable("#datatable-users", {
-                tableConfig: usersTableConfig,
-                drawCallbackOptions: {
-                    paginationSelector: "#datatable-pagination",
-                    tableInstance: "usersTable",
-                },
-                enableSelectAll: true,
-                enableSearch: true,
-                enableKeyboardShortcuts: true,
-            }).then((table) => {
-                usersTable = table;
-                window.usersTable = table; // For debugging
-                setupEventHandlers();
-                return table;
-            });
+            // Create table
+            usersTable = $("#datatable-users").DataTable(getTableConfig(route));
+
+            // Setup global handlers
+            DataTableGlobal.createSearchHandler(usersTable, "#advanced-table-search");
+            DataTableGlobal.setupPageLengthHandler(usersTable, ".dropdown-item[data-value]", "#page-count");
+            DataTableGlobal.setupKeyboardShortcuts("#advanced-table-search");
+
+            // Setup specific handlers
+            setupEventHandlers();
+
+            return usersTable;
         });
     }
 
-    // --- Setup All Event Handlers ---
+    // --- Event Handlers ---
     function setupEventHandlers() {
-        setupCheckboxHandlers();
-        setupBulkDeleteHandlers();
-        setupDataTableEvents();
-    }
-
-    // --- Checkbox Handlers for Bulk Selection ---
-    function setupCheckboxHandlers() {
-        // Select all checkbox
-        $("#select-all")
-            .off("change.users")
-            .on("change.users", function () {
-                const isChecked = this.checked;
-                $(".table-selectable-check").prop("checked", isChecked);
-                updateSelectedUsers();
-                updateBulkDeleteButton();
-            });
-
-        // Individual row checkboxes
-        $(document)
-            .off("change.users", ".table-selectable-check")
-            .on("change.users", ".table-selectable-check", function () {
-                updateSelectedUsers();
-                updateSelectAllState();
-                updateBulkDeleteButton();
-            });
-    }
-
-    // --- Update Array of Selected Users ---
-    function updateSelectedUsers() {
-        selectedUsers = [];
-        $(".table-selectable-check:checked").each(function () {
-            selectedUsers.push($(this).val());
+        // Checkbox selection with bulk delete button updates
+        DataTableGlobal.setupCheckboxHandlers(selectedUsers, {
+            onUpdate: updateBulkDeleteButton,
+            onStateChange: updateBulkDeleteButton,
+            onButtonUpdate: updateBulkDeleteButton
         });
-        $("#selected-count").text(selectedUsers.length);
+
+        setupBulkDeleteHandlers();
     }
 
-    // --- Update Select All Checkbox State (indeterminate/checked) ---
-    function updateSelectAllState() {
-        const totalCheckboxes = $(".table-selectable-check").length;
-        const checkedCheckboxes = $(".table-selectable-check:checked").length;
-        $("#select-all").prop(
-            "indeterminate",
-            checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
-        );
-        $("#select-all").prop(
-            "checked",
-            checkedCheckboxes === totalCheckboxes && totalCheckboxes > 0
-        );
-    }
-
-    // --- Enable/Disable Bulk Delete Button ---
     function updateBulkDeleteButton() {
-        const hasSelected = selectedUsers.length > 0;
-        $("#delete-selected-btn").prop("disabled", !hasSelected);
+        $("#delete-selected-btn").prop("disabled", selectedUsers.length === 0);
         $("#selected-count").text(selectedUsers.length);
     }
 
-    // --- Bulk Delete Handlers ---
+    // --- Bulk Delete ---
     function setupBulkDeleteHandlers() {
-        // Show selected users in delete modal
-        $("#deleteSelectedModal")
-            .off("show.bs.modal.users")
-            .on("show.bs.modal.users", function () {
-                const selectedList = selectedUsers
-                    .map((id) => `<li>User ID: <strong>${id}</strong></li>`)
-                    .join("");
-                $("#selected-users-list").html(`<ul>${selectedList}</ul>`);
-                $("#delete-selected-count").text(selectedUsers.length);
-            });
+        // Show selected users in modal
+        $("#deleteSelectedModal").on("show.bs.modal", function () {
+            const userList = selectedUsers.map(id => `<li>User ID: <strong>${id}</strong></li>`).join("");
+            $("#selected-users-list").html(`<ul>${userList}</ul>`);
+            $("#delete-selected-count").text(selectedUsers.length);
+        });
 
         // Confirm bulk delete
-        $("#confirm-delete-selected")
-            .off("click.users")
-            .on("click.users", function () {
-                if (selectedUsers.length === 0) {
-                    alert('No users selected');
-                    return;
-                }
+        $("#confirm-delete-selected").on("click", function () {
+            if (selectedUsers.length === 0) return alert('No users selected');
 
-                const btn = this;
-                const originalText = btn.innerHTML;
-                
-                // Show loading state
-                btn.disabled = true;
-                btn.innerHTML = `
-                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                    Deleting...
-                `;
+            const btn = this;
+            const originalText = btn.innerHTML;
 
-                // Make AJAX request to bulk delete
-                fetch(bulkDeleteRoute, {
-                    method: 'POST',
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Deleting...';
+
+            // Delete request
+            fetch(bulkDeleteRoute, {
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({
@@ -245,173 +160,97 @@ window.UsersDataTable = (function () {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Close modal using Tabler.io way
-                    const modalElement = document.getElementById('deleteSelectedModal');
-                    if (modalElement) {
-                        // Try to close modal properly
-                        const modalInstance = modalElement.querySelector('[data-bs-dismiss="modal"]');
-                        if (modalInstance) {
-                            modalInstance.click();
-                        } else {
-                            // Fallback - hide modal directly
-                            modalElement.style.display = 'none';
-                            modalElement.classList.remove('show');
-                            document.body.classList.remove('modal-open');
-                            
-                            // Remove backdrop if exists
-                            const backdrop = document.querySelector('.modal-backdrop');
-                            if (backdrop) {
-                                backdrop.remove();
-                            }
-                        }
-                    }
-                    
-                    // Show result message
-                    if (data.status === 'success') {
-                        alert(`Success: ${data.message}`);
-                    } else {
-                        alert(`Error: ${data.message}`);
-                    }
-                    
-                    // Refresh table and reset selections
-                    refreshDataTable();
-                    selectedUsers = [];
+                    // Close modal
+                    $('#deleteSelectedModal').modal('hide');
+
+                    // Show message
+                    alert(data.status === 'success' ? `Success: ${data.message}` : `Error: ${data.message}`);
+
+                    // Refresh and reset
+                    DataTableGlobal.refreshDataTable(usersTable, true);
+                    selectedUsers.length = 0;
                     updateBulkDeleteButton();
-                    $("#select-all").prop("checked", false);
                 })
                 .catch(error => {
                     console.error('Bulk delete error:', error);
                     alert('Failed to delete selected users. Please try again.');
                 })
                 .finally(() => {
-                    // Reset button
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                 });
-            });
+        });
     }
 
-    // --- DataTable Draw Event Handlers ---
-    function setupDataTableEvents() {
-        // Update record info on draw
-        $(document)
-            .off("draw.dt.users", "#datatable-users")
-            .on("draw.dt.users", "#datatable-users", function () {
-                updateRecordInfo();
-            });
-    }
-
-    // --- Update Record Info (footer) ---
-    function updateRecordInfo() {
-        if (usersTable && usersTable.page) {
-            const info = usersTable.page.info();
-            $("#record-info").html(
-                `Showing <strong>${info.start + 1} to ${
-                    info.end
-                }</strong> of <strong>${info.recordsDisplay}</strong> entries`
-            );
-        }
-    }
-
-    // --- Refresh DataTable ---
-    function refreshDataTable() {
-        if (usersTable) {
-            usersTable.ajax.reload(null, false);
-        }
-    }
-
-    // --- Edit User (AJAX load for modal) ---
+    // --- User Management ---
     function editUser(userId, editRoute) {
-        // Replace :id placeholder with actual userId
-        const actualEditRoute = editRoute.replace(':id', userId);
-        
-        fetch(actualEditRoute, {
-            headers: {
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                const user = data.user;
-                document.getElementById("edit_user_id").value = user.id;
-                document.getElementById("edit_name").value = user.name;
-                document.getElementById("edit_username").value = user.username;
-                document.getElementById("edit_email").value = user.email;
-                document.getElementById("edit_password").value = "";
-                document.getElementById("edit_password_confirmation").value =
-                    "";
+        const url = editRoute.replace(':id', userId);
 
-                // Update form action URL with user ID
-                const editForm = document.getElementById("editUserForm");
-                // Reset to original template first, then replace
-                let baseAction = editForm.action;
-                if (!baseAction.includes(':id')) {
-                    // If already replaced, restore the template
-                    baseAction = baseAction.replace(/\/\d+$/, '/:id');
+        fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                editForm.action = baseAction.replace(':id', user.id);
+            })
+            .then(response => response.json())
+            .then(data => {
+                const user = data.user;
 
-                const editRoleCheckboxes = document.querySelectorAll(
-                    '#edit_roles_container input[name="roles[]"]'
-                );
-                editRoleCheckboxes.forEach(
-                    (checkbox) => (checkbox.checked = false)
-                );
+                // Fill form fields
+                $('#edit_user_id').val(user.id);
+                $('#edit_name').val(user.name);
+                $('#edit_username').val(user.username);
+                $('#edit_email').val(user.email);
+                $('#edit_password, #edit_password_confirmation').val('');
 
-                user.roles.forEach((role) => {
-                    const editCheckbox = document.querySelector(
-                        `#edit_roles_container input[value="${role.name}"]`
-                    );
-                    if (editCheckbox) {
-                        editCheckbox.checked = true;
-                    }
+                // Update form action
+                const form = $('#editUserForm')[0];
+                form.action = form.action.includes(':id') ?
+                    form.action.replace(':id', user.id) :
+                    form.action.replace(/\/\d+$/, '') + '/' + user.id;
+
+                // Handle roles
+                $('#edit_roles_container input[name="roles[]"]').prop('checked', false);
+                user.roles.forEach(role => {
+                    $(`#edit_roles_container input[value="${role.name}"]`).prop('checked', true);
                 });
             })
-            .catch((error) => {
-                console.error("Error loading user data:", error);
-                alert("Error loading user data");
+            .catch(error => {
+                console.error('Error loading user:', error);
+                alert('Error loading user data');
             });
     }
 
-    // --- Delete User (set modal fields) ---
     function deleteUser(userId, userName) {
-        document.getElementById("delete_user_id").value = userId;
-        document.getElementById("delete_user_name").textContent = userName;
-        
-        // Update delete form action URL with user ID
-        const deleteForm = document.getElementById("deleteUserForm");
-        // Reset to original template first, then replace
-        let baseAction = deleteForm.action;
-        if (!baseAction.includes(':id')) {
-            // If already replaced, restore the template
-            baseAction = baseAction.replace(/\/\d+$/, '/:id');
-        }
-        deleteForm.action = baseAction.replace(':id', userId);
+        $('#delete_user_id').val(userId);
+        $('#delete_user_name').text(userName);
+
+        // Update form action
+        const form = $('#deleteUserForm')[0];
+        form.action = form.action.includes(':id') ?
+            form.action.replace(':id', userId) :
+            form.action.replace(/\/\d+$/, '') + '/' + userId;
     }
 
-    // --- Modal Handlers (reset forms on close) ---
+    // --- Helper Functions ---
     function setupModalHandlers() {
-        $("#createUserModal").on("hidden.bs.modal", function () {
-            document.getElementById("createUserForm").reset();
-        });
-        $("#editUserModal").on("hidden.bs.modal", function () {
-            document.getElementById("editUserForm").reset();
-        });
+        DataTableGlobal.setupStandardModalHandlers([{
+                modalSelector: "#createUserModal",
+                formSelector: "#createUserForm"
+            },
+            {
+                modalSelector: "#editUserModal",
+                formSelector: "#editUserForm"
+            }
+        ]);
     }
 
-    // --- Page Length Dropdown Handler ---
     function setPageListItems(event) {
-        event.preventDefault();
-        const value = parseInt(event.target.getAttribute("data-value"));
-        if (usersTable && value) {
-            usersTable.page.len(value).draw();
-            $("#page-count").text(value);
-        }
+        DataTableGlobal.createPageLengthHandler(usersTable, "#page-count")(event);
     }
 
-    // --- Set Bulk Delete Route (from Blade) ---
     let bulkDeleteRoute = "";
+
     function setBulkDeleteRoute(route) {
         bulkDeleteRoute = route;
     }
@@ -419,8 +258,6 @@ window.UsersDataTable = (function () {
     // --- Public API ---
     return {
         initialize,
-        updateRecordInfo,
-        refreshDataTable,
         editUser,
         deleteUser,
         setupModalHandlers,
@@ -429,12 +266,12 @@ window.UsersDataTable = (function () {
         setupEventHandlers,
         getTable: () => usersTable,
         getSelectedUsers: () => selectedUsers,
+        refreshDataTable: () => DataTableGlobal.refreshDataTable(usersTable),
+        updateRecordInfo: () => DataTableGlobal.updateRecordInfo(usersTable, "#record-info", "users")
     };
 })();
 
-// --- Global compatibility functions (for legacy usage) ---
-window.editUser = (userId, editRoute) =>
-    UsersDataTable.editUser(userId, editRoute);
-window.deleteUser = (userId, userName) =>
-    UsersDataTable.deleteUser(userId, userName);
+// --- Legacy Support ---
+window.editUser = (userId, editRoute) => UsersDataTable.editUser(userId, editRoute);
+window.deleteUser = (userId, userName) => UsersDataTable.deleteUser(userId, userName);
 window.setPageListItems = (event) => UsersDataTable.setPageListItems(event);

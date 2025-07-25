@@ -160,18 +160,171 @@ window.DataTableGlobal = (function () {
     function createPageLengthHandler(tableInstance, pageCountSelector = "#page-count") {
         return function (event) {
             event.preventDefault();
-            const value = parseInt($(event.target).text(), 10);
-            if (!isNaN(value)) {
+
+            // Get value dari data-value attribute atau text content
+            let value = parseInt(event.target.getAttribute("data-value"));
+            if (!value) {
+                // Fallback ke parsing text jika data-value tidak ada
+                value = parseInt($(event.target).text(), 10);
+            }
+
+            if (!isNaN(value) && tableInstance && typeof tableInstance.page === 'object') {
+                // Update page length
                 tableInstance.page.len(value).draw();
+
+                // Update display counter
                 $(pageCountSelector).text(value);
+
+                console.log('Page length updated to:', value);
             }
         };
     }
 
     // --- Search Input Handler ---
     function createSearchHandler(tableInstance, searchInputSelector = "#advanced-table-search") {
-        $(searchInputSelector).on("keyup", function () {
-            tableInstance.search(this.value).draw();
+        // Clear previous handlers
+        $(searchInputSelector).off("keyup.search input.search");
+
+        // Setup search dengan delay untuk performa
+        let searchTimeout;
+        $(searchInputSelector).on("keyup.search input.search", function () {
+            clearTimeout(searchTimeout);
+            const searchValue = this.value;
+
+            searchTimeout = setTimeout(() => {
+                if (tableInstance && typeof tableInstance.search === 'function') {
+                    tableInstance.search(searchValue).draw();
+                }
+            }, 300); // Delay 300ms untuk mengurangi request
+        });
+    }
+
+    // --- Setup Page Length Handler Global ---
+    function setupPageLengthHandler(tableInstance, dropdownSelector = ".dropdown-item[data-value]", pageCountSelector = "#page-count") {
+        // Clear previous handlers untuk avoid duplicates
+        $(dropdownSelector).off("click.pagelength");
+
+        // Setup new handler
+        $(dropdownSelector).on("click.pagelength", function (e) {
+            e.preventDefault();
+
+            const value = parseInt(this.getAttribute("data-value"));
+            if (!isNaN(value) && tableInstance) {
+                // Update page length
+                tableInstance.page.len(value).draw();
+
+                // Update display
+                $(pageCountSelector).text(value);
+
+                console.log('Page length set to:', value);
+            }
+        });
+    }
+
+    // --- Checkbox Selection Handlers (Global) ---
+    function setupCheckboxHandlers(selectedArray, updateCallbacks = {}) {
+        const {
+            onUpdate = () => {},
+                onStateChange = () => {},
+                onButtonUpdate = () => {}
+        } = updateCallbacks;
+
+        // Select all checkbox
+        $("#select-all")
+            .off("change.global-checkbox")
+            .on("change.global-checkbox", function () {
+                const isChecked = this.checked;
+                $(".table-selectable-check").prop("checked", isChecked);
+                updateSelectedArray(selectedArray);
+                onUpdate();
+                onButtonUpdate();
+            });
+
+        // Individual row checkboxes
+        $(document)
+            .off("change.global-checkbox", ".table-selectable-check")
+            .on("change.global-checkbox", ".table-selectable-check", function () {
+                updateSelectedArray(selectedArray);
+                updateSelectAllState();
+                onStateChange();
+                onButtonUpdate();
+            });
+    }
+
+    // --- Update Selected Array (Global) ---
+    function updateSelectedArray(selectedArray, countSelector = "#selected-count") {
+        selectedArray.length = 0; // Clear array
+        $(".table-selectable-check:checked").each(function () {
+            selectedArray.push($(this).val());
+        });
+        $(countSelector).text(selectedArray.length);
+        return selectedArray;
+    }
+
+    // --- Update Select All Checkbox State (Global) ---
+    function updateSelectAllState(selectAllSelector = "#select-all", checkboxClass = ".table-selectable-check") {
+        const totalCheckboxes = $(checkboxClass).length;
+        const checkedCheckboxes = $(checkboxClass + ":checked").length;
+        $(selectAllSelector).prop(
+            "indeterminate",
+            checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
+        );
+        $(selectAllSelector).prop(
+            "checked",
+            checkedCheckboxes === totalCheckboxes && totalCheckboxes > 0
+        );
+    }
+
+    // --- Update Record Info (Global) ---
+    function updateRecordInfo(tableInstance, infoSelector = "#record-info", entityName = "entries") {
+        if (tableInstance && tableInstance.page) {
+            const info = tableInstance.page.info();
+            const start = info.start + 1;
+            const end = info.end;
+            const total = info.recordsTotal;
+            const filtered = info.recordsDisplay;
+
+            let infoText = '';
+            if (total > 0) {
+                if (filtered !== total) {
+                    infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${filtered}</strong> ${entityName} (filtered from <strong>${total}</strong> total)`;
+                } else {
+                    infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${total}</strong> ${entityName}`;
+                }
+            } else {
+                infoText = `Menampilkan <strong>0 to 0</strong> of <strong>0 ${entityName}</strong>`;
+            }
+
+            $(infoSelector).html(infoText);
+        }
+    }
+
+    // --- Refresh DataTable (Global) ---
+    function refreshDataTable(tableInstance, resetSelection = false) {
+        if (tableInstance) {
+            tableInstance.ajax.reload(null, false);
+
+            if (resetSelection) {
+                $("#select-all").prop("checked", false);
+                $(".table-selectable-check").prop("checked", false);
+            }
+        }
+    }
+
+    // --- Standard Modal Handlers (Global) ---
+    function setupStandardModalHandlers(modalConfigs = []) {
+        modalConfigs.forEach(config => {
+            $(config.modalSelector).on("hidden.bs.modal", function () {
+                if (config.formSelector) {
+                    const form = document.querySelector(config.formSelector);
+                    if (form) {
+                        form.reset();
+                    }
+                }
+                if (config.callback) {
+                    config.callback();
+                }
+            });
         });
     }
 
@@ -211,6 +364,215 @@ window.DataTableGlobal = (function () {
         return $.extend(true, {}, defaultConfig, options.tableConfig || {});
     }
 
+    // --- TomSelect Modal Management (Global) ---
+    function setupTomSelectModalHandlers(modalConfig, tomSelectInstances) {
+        const {
+            createModal,
+            editModal,
+            initCallback
+        } = modalConfig;
+
+        if (createModal) {
+            $(createModal).on('show.bs.modal', function () {
+                setTimeout(() => {
+                    if (initCallback) initCallback('create');
+                }, 200);
+            });
+        }
+
+        if (editModal) {
+            $(editModal).on('show.bs.modal', function () {
+                setTimeout(() => {
+                    if (initCallback) initCallback('edit');
+                }, 200);
+            });
+        }
+
+        if (createModal || editModal) {
+            $(`${createModal || ''}, ${editModal || ''}`).on('hidden.bs.modal', function () {
+                destroyTomSelects(tomSelectInstances);
+            });
+        }
+    }
+
+    // --- Initialize TomSelect Instances (Global) ---
+    function initializeTomSelectInstances(selectors, tomSelectInstances) {
+        return waitForTomSelect().then(() => {
+            selectors.forEach(selectId => {
+                const element = document.getElementById(selectId);
+                if (element && !tomSelectInstances[selectId]) {
+                    if (element.tomselect) {
+                        try {
+                            element.tomselect.destroy();
+                        } catch (error) {
+                            console.error(`Failed to destroy existing TomSelect for ${selectId}:`, error);
+                        }
+                    }
+
+                    try {
+                        const config = {
+                            plugins: ['remove_button', 'clear_button'],
+                            allowEmptyOption: selectId.includes('parent'),
+                            create: false,
+                            placeholder: selectId.includes('parent') ? 'Select parent menu...' : selectId.includes('roles') ? 'Select roles...' : 'Select option...'
+                        };
+
+                        if (selectId.includes('roles')) {
+                            config.plugins = ['remove_button'];
+                            config.maxItems = null;
+                        }
+
+                        tomSelectInstances[selectId] = new TomSelect(element, config);
+                    } catch (error) {
+                        console.error(`Failed to initialize TomSelect for ${selectId}:`, error);
+                    }
+                }
+            });
+        });
+    }
+
+    // --- Bulk Delete Handler (Global) ---
+    function setupBulkDeleteHandler(config) {
+        const {
+            modalSelector,
+            selectedArray,
+            deleteRoute,
+            confirmBtnSelector = "#confirm-delete-selected",
+            entityName = "items"
+        } = config;
+
+        $(modalSelector).on("show.bs.modal", function () {
+            const itemsList = selectedArray.map(id =>
+                `<li>${entityName} ID: <strong>${id}</strong></li>`
+            ).join("");
+            $("#selected-items-list, #selected-menus-list").html(`<ul>${itemsList}</ul>`);
+            $("#delete-selected-count").text(selectedArray.length);
+        });
+
+        $(confirmBtnSelector).on("click", function () {
+            if (selectedArray.length === 0) return;
+
+            const btn = this;
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Deleting...';
+
+            fetch(deleteRoute, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        [`${entityName}_ids`]: selectedArray
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $(modalSelector).modal('hide');
+
+                    if (window.showToast) {
+                        window.showToast(
+                            data.success ? 'success' : 'error',
+                            data.success ? 'Success!' : 'Error!',
+                            data.message
+                        );
+                    }
+
+                    if (config.tableInstance) {
+                        refreshDataTable(config.tableInstance, true);
+                    }
+
+                    selectedArray.length = 0;
+                    if (config.updateCallback) config.updateCallback();
+                })
+                .catch(error => {
+                    console.error('Bulk delete error:', error);
+                    alert(`Failed to delete selected ${entityName}. Please try again.`);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+    }
+
+    // --- Update Select Options (Global) ---
+    function updateSelectOptions(selectId, options, cleanText = false) {
+        const selectElement = document.getElementById(selectId);
+        if (!selectElement) return;
+
+        while (selectElement.children.length > 1) {
+            selectElement.removeChild(selectElement.lastChild);
+        }
+
+        Object.entries(options).forEach(([value, text]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = cleanText ? text.replace(/[└├│─\s]+/g, '').trim() : text;
+            selectElement.appendChild(option);
+        });
+    }
+
+    // --- TomSelect Utilities ---
+    function waitForTomSelect() {
+        return new Promise((resolve) => {
+            const checkTomSelect = () => {
+                if (typeof TomSelect !== "undefined") {
+                    resolve();
+                } else {
+                    setTimeout(checkTomSelect, 100);
+                }
+            };
+            checkTomSelect();
+        });
+    }
+
+    function destroyTomSelects(tomSelectInstances) {
+        Object.values(tomSelectInstances).forEach(instance => {
+            if (instance && typeof instance.destroy === 'function') {
+                try {
+                    instance.destroy();
+                } catch (error) {
+                    console.warn('Error destroying TomSelect:', error);
+                }
+            }
+        });
+        // Clear the instances object
+        Object.keys(tomSelectInstances).forEach(key => {
+            delete tomSelectInstances[key];
+        });
+    }
+
+    function setTomSelectValue(tomSelectInstances, selectId, value) {
+        const instance = tomSelectInstances[selectId];
+        if (instance) {
+            try {
+                if (Array.isArray(value)) {
+                    instance.setValue(value.map(v => typeof v === 'object' ? v.id || v.name || v : v));
+                } else {
+                    instance.setValue(value || '');
+                }
+            } catch (error) {
+                console.warn(`Failed to set TomSelect value for ${selectId}:`, error);
+            }
+        }
+    }
+
+    function syncTomSelects(tomSelectInstances) {
+        Object.values(tomSelectInstances).forEach(instance => {
+            if (instance && typeof instance.sync === 'function') {
+                try {
+                    instance.sync();
+                } catch (error) {
+                    console.warn('TomSelect sync error:', error);
+                }
+            }
+        });
+    }
+
     // --- Initialize DataTable with All Features ---
     function initializeDataTable(tableSelector, options = {}) {
         return waitForLibraries().then(() => {
@@ -221,10 +583,10 @@ window.DataTableGlobal = (function () {
                 createSearchHandler(table, options.searchInputSelector);
             }
             if (options.pageCountSelector) {
-                $(options.pageCountSelector).text(config.pageLength);
+                updatePageCount(config.pageLength, options.pageCountSelector);
             }
             if (options.pageLengthHandlerSelector) {
-                $(options.pageLengthHandlerSelector).on("click", createPageLengthHandler(table, options.pageCountSelector));
+                setupPageLengthHandler(table, options.pageLengthHandlerSelector, options.pageCountSelector);
             }
             if (options.selectAllSelector) {
                 setupSelectAllHandler(options.selectAllSelector, options.checkboxClass);
@@ -234,9 +596,7 @@ window.DataTableGlobal = (function () {
             }
             return table;
         });
-    }
-
-    // --- Public API ---
+    } // --- Public API ---
     return {
         // Core utilities
         waitForLibraries,
@@ -251,6 +611,27 @@ window.DataTableGlobal = (function () {
         createSearchHandler,
         setupKeyboardShortcuts,
         setupSelectAllHandler,
+        setupPageLengthHandler,
+
+        // Global Helpers
+        setupCheckboxHandlers,
+        updateSelectedArray,
+        updateSelectAllState,
+        updateRecordInfo,
+        refreshDataTable,
+        setupStandardModalHandlers,
+
+        // TomSelect utilities
+        waitForTomSelect,
+        destroyTomSelects,
+        setTomSelectValue,
+        syncTomSelects,
+        setupTomSelectModalHandlers,
+        initializeTomSelectInstances,
+
+        // Additional utilities
+        setupBulkDeleteHandler,
+        updateSelectOptions,
 
         // Config
         config,

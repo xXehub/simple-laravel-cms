@@ -100,8 +100,11 @@ class SimpleControllerScanner
             'update' => 'PUT,PATCH',
             'destroy' => 'DELETE',
             'delete' => 'DELETE',
-            'bulkDestroy' => 'POST',
-            'bulkDelete' => 'POST',
+            'bulkDestroy' => 'DELETE',
+            'bulkDelete' => 'DELETE',
+            'datatable' => 'GET',
+            'uploadAvatar' => 'POST',
+            'deleteAvatar' => 'DELETE',
             'moveOrder' => 'POST',
         ];
 
@@ -121,7 +124,12 @@ class SimpleControllerScanner
             'edit' => '/{id}/edit',
             'update' => '/{id}',
             'destroy' => '/{id}',
-            'delete' => '/{id}'
+            'delete' => '/{id}',
+            'bulkDestroy' => '/bulk-delete',
+            'bulkDelete' => '/bulk-delete',
+            'datatable' => '/datatable',
+            'uploadAvatar' => '/{id}/upload-avatar',
+            // 'deleteAvatar' => '/{id}/delete-avatar',
         ];
 
         // Jika method RESTful standard, gunakan pattern yang sudah didefinisikan
