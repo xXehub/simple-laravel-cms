@@ -169,8 +169,25 @@ window.PermissionsDataTable = (function () {
     }
 
     // --- Permission Management ---
-    function editPermission(permissionId, editRoute) {
-        const url = editRoute.replace(':id', permissionId);
+    function editPermission(permissionId, editRoute = null) {
+        // Use provided editRoute or fall back to global route
+        const route = editRoute || window.permissionEditRoute;
+        
+        console.log('editPermission called with:', {
+            permissionId,
+            editRoute,
+            globalRoute: window.permissionEditRoute,
+            finalRoute: route
+        });
+        
+        if (!route) {
+            console.error('Edit route not defined');
+            alert('Edit route not configured');
+            return;
+        }
+        
+        const url = route.replace(':id', permissionId);
+        console.log('Final URL:', url);
         
         fetch(url, {
             headers: { 
@@ -178,8 +195,15 @@ window.PermissionsDataTable = (function () {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
             const permission = data.permission;
             
             // Fill form fields
@@ -187,15 +211,29 @@ window.PermissionsDataTable = (function () {
             $('#edit_name').val(permission.name);
             $('#edit_group').val(permission.group || '');
             
+            console.log('Form fields populated:', {
+                id: permission.id,
+                name: permission.name,
+                group: permission.group
+            });
+            
             // Update form action
             const form = $('#editPermissionForm')[0];
-            form.action = form.action.includes(':id') 
-                ? form.action.replace(':id', permission.id)
-                : form.action.replace(/\/\d+$/, '') + '/' + permission.id;
+            if (form) {
+                const originalAction = form.action;
+                form.action = form.action.includes(':id') 
+                    ? form.action.replace(':id', permission.id)
+                    : form.action.replace(/\/\d+$/, '') + '/' + permission.id;
+                
+                console.log('Form action updated:', {
+                    originalAction,
+                    newAction: form.action
+                });
+            }
         })
         .catch(error => {
             console.error('Error loading permission:', error);
-            alert('Error loading permission data');
+            alert('Error loading permission data: ' + error.message);
         });
     }
 
@@ -242,6 +280,6 @@ window.PermissionsDataTable = (function () {
 })();
 
 // --- Legacy Support ---
-window.editPermission = (permissionId, editRoute) => PermissionsDataTable.editPermission(permissionId, editRoute);
+window.editPermission = (permissionId, editRoute = null) => PermissionsDataTable.editPermission(permissionId, editRoute);
 window.deletePermission = (permissionId, permissionName) => PermissionsDataTable.deletePermission(permissionId, permissionName);  
 window.setPageListItems = (event) => PermissionsDataTable.setPageListItems(event);

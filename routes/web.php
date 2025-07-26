@@ -30,9 +30,9 @@ Route::get('/home', function () {
 Route::get('/', [DynamicController::class, 'handleWelcome'])->name('welcome');
 
 // Profile route - Keep this as it's user-specific functionality
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [DynamicController::class, 'handleProfile'])->name('profile');
-// });
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [DynamicController::class, 'handleProfile'])->name('profile');
+});
 
 /*
 |--------------------------------------------------------------------------
