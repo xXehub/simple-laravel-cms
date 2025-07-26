@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <x-alert.flash-messages />
+    <x-alert.modal-alert />
 
     <div class="table-responsive">
         <table class="table table-striped table-sm">

@@ -209,7 +209,7 @@ class MenuController extends Controller
         // Clear route cache to ensure new menu routes are available
         $this->clearRouteCache();
 
-        return ResponseHelper::redirect('panel.menus', 'Menu created successfully');
+        return ResponseHelper::redirect('panel.menus', 'Menu berhasil dibuat');
     }
 
     /**
@@ -256,7 +256,7 @@ class MenuController extends Controller
         // Clear route cache to ensure updated menu routes take effect
         $this->clearRouteCache();
 
-        return ResponseHelper::redirect('panel.menus', 'Menu updated successfully');
+        return ResponseHelper::redirect('panel.menus', 'Perubahan menu berhasil disimpan');
     }
 
     /**
@@ -268,7 +268,7 @@ class MenuController extends Controller
         $menu = MasterMenu::findOrFail($menuId);
 
         if ($menu->children()->count() > 0) {
-            return ResponseHelper::back('Cannot delete menu with child menus', 'error');
+            return ResponseHelper::back('Tidak dapat menghapus menu yang memiliki anak', 'error');
         }
 
         $menu->delete();
@@ -276,7 +276,7 @@ class MenuController extends Controller
         // Clear route cache to ensure deleted menu routes are removed
         $this->clearRouteCache();
 
-        return ResponseHelper::redirect('panel.menus', 'Menu deleted successfully');
+        return ResponseHelper::redirect('panel.menus', 'Menu berhasil dihapus');
     }
 
     /**
@@ -289,7 +289,7 @@ class MenuController extends Controller
             'url' => $request->url(),
             'input' => $request->all()
         ]);
-        
+
         $request->validate([
             'menu_ids' => 'required|array',
             'menu_ids.*' => 'exists:master_menus,id'

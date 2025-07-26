@@ -35,7 +35,7 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
-                <x-alert.flash-messages />
+                <x-alert.modal-alert />
 
                 <!-- Main Table Card -->
                 <div class="col-12">
