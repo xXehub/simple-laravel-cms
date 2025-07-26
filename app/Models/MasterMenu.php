@@ -531,7 +531,16 @@ class MasterMenu extends Model
         }
         
         $scanner = new \App\Services\SimpleControllerScanner();
-        return $scanner->scanController($this->controller_class);
+        $methods = $scanner->scanController($this->controller_class);
+        
+        // Sort methods by priority to ensure specific routes come before parameterized routes
+        usort($methods, function($a, $b) use ($scanner) {
+            $priorityA = $scanner->getRoutePriority($a['method']);
+            $priorityB = $scanner->getRoutePriority($b['method']);
+            return $priorityB <=> $priorityA; // Higher priority first
+        });
+        
+        return $methods;
     }
 
     /**

@@ -175,6 +175,7 @@ window.MenusDataTable = (function () {
             onButtonUpdate: updateBulkDeleteButton
         });
 
+        setupBulkDeleteHandlers();
         setupModalHandlers();
         setupTomSelectModalHandlers();
     }
@@ -198,7 +199,6 @@ window.MenusDataTable = (function () {
 
     // --- Bulk Delete ---
     function setupBulkDeleteHandlers() {
-        console.log('Setting up bulk delete handlers with route:', bulkDeleteRoute);
         DataTableGlobal.setupBulkDeleteHandler({
             modalSelector: "#deleteSelectedModal",
             selectedArray: selectedMenus,
@@ -446,19 +446,17 @@ window.MenusDataTable = (function () {
     let bulkDeleteRoute = "";
 
     function setBulkDeleteRoute(route) {
-        console.log('Setting bulk delete route for menus:', route);
         bulkDeleteRoute = route;
-        // Setup handlers after route is set
-        if (menusTable) {
-            console.log('Setting up bulk delete handlers for menus');
-            setupBulkDeleteHandlers();
-        }
     }
 
     // --- Initialize All Handlers ---
     function initializeAllHandlers(bulkDeleteRoute, csrfToken) {
         setBulkDeleteRoute(bulkDeleteRoute);
         setupEventHandlers();
+        
+        if (bulkDeleteRoute) {
+            setupBulkDeleteHandlers();
+        }
     }
 
     // --- Public API ---

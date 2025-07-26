@@ -146,6 +146,9 @@
         <script src="{{ asset('js/datatable/users.js') }}"></script>
         <script>
             let usersTable;
+            
+            // Set global edit route for fallback
+            window.userEditRoute = '{{ route('panel.users.edit', ':id') }}';
 
             // Initialize Users DataTable
             UsersDataTable.initialize('{{ route('panel.users.datatable') }}')

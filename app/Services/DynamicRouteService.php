@@ -113,7 +113,7 @@ class DynamicRouteService
     /**
      * Register controller route from cache
      */
-    protected function registerControllerRouteFromCache(array $routeData, string $url, array $middleware, string $routeName): void
+    protected function registerControllerRouteFromCache(array $routeData, string $url, array $middleware, ?string $routeName): void
     {
         $controllerClass = $routeData['controller_class'];
         $method = $routeData['controller_method'] ?? 'index';
@@ -136,7 +136,7 @@ class DynamicRouteService
     /**
      * Register view route from cache
      */
-    protected function registerViewRouteFromCache(array $routeData, string $url, array $middleware, string $routeName): void
+    protected function registerViewRouteFromCache(array $routeData, string $url, array $middleware, ?string $routeName): void
     {
         $route = Route::get($url, function () use ($routeData) {
             return view($routeData['view_path'], [
@@ -157,7 +157,7 @@ class DynamicRouteService
     /**
      * Register dynamic route from cache
      */
-    protected function registerDynamicRouteFromCache(array $routeData, string $url, array $middleware, string $routeName): void
+    protected function registerDynamicRouteFromCache(array $routeData, string $url, array $middleware, ?string $routeName): void
     {
         $route = Route::get($url, [\App\Http\Controllers\DynamicController::class, 'handleDynamicPage'])
             ->defaults('menu_id', $routeData['id']);

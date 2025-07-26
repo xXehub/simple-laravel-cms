@@ -431,71 +431,103 @@ window.DataTableGlobal = (function () {
         });
     }
 
-    // --- Bulk Delete Handler (Global) ---
+    // --- Unified Bulk Delete Handler (Global) ---
     function setupBulkDeleteHandler(config) {
         const {
-            modalSelector,
+            modalSelector = "#deleteSelectedModal",
             selectedArray,
             deleteRoute,
             confirmBtnSelector = "#confirm-delete-selected",
-            entityName = "items"
+            entityName = "items",
+            tableInstance,
+            updateCallback,
+            customRequestData = null
         } = config;
 
-        $(modalSelector).on("show.bs.modal", function () {
-            const itemsList = selectedArray.map(id =>
-                `<li>${entityName} ID: <strong>${id}</strong></li>`
+        // Update modal when shown
+        $(modalSelector).off("show.bs.modal.bulkdelete").on("show.bs.modal.bulkdelete", function () {
+            // Update count displays
+            $("#delete-selected-count, #selected-count, #selected-permissions-count").text(selectedArray.length);
+            
+            // Update list displays
+            const itemsList = selectedArray.map(id => 
+                `<li>${entityName.charAt(0).toUpperCase() + entityName.slice(1)} ID: <strong>${id}</strong></li>`
             ).join("");
-            $("#selected-items-list, #selected-menus-list").html(`<ul>${itemsList}</ul>`);
-            $("#delete-selected-count").text(selectedArray.length);
+            $("#selected-items-list, #selected-users-list, #selected-menus-list").html(`<ul>${itemsList}</ul>`);
         });
 
-        $(confirmBtnSelector).on("click", function () {
-            if (selectedArray.length === 0) return;
+        // Handle confirm button click
+        $(confirmBtnSelector).off("click.bulkdelete").on("click.bulkdelete", function () {
+            if (selectedArray.length === 0) {
+                alert(`No ${entityName}s selected`);
+                return;
+            }
 
             const btn = this;
             const originalText = btn.innerHTML;
 
+            // Set loading state
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Deleting...';
 
+            // Prepare request data
+            let requestData;
+            if (customRequestData && typeof customRequestData === 'function') {
+                requestData = customRequestData(selectedArray);
+            } else {
+                // Auto-detect field name based on entity
+                const fieldName = entityName === 'permission' ? 'ids' : `${entityName}_ids`;
+                requestData = { [fieldName]: selectedArray };
+            }
+
+            // Send delete request
             fetch(deleteRoute, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        [`${entityName}_ids`]: selectedArray
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    $(modalSelector).modal('hide');
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide modal
+                $(modalSelector).modal('hide');
 
-                    if (window.showToast) {
-                        window.showToast(
-                            data.success ? 'success' : 'error',
-                            data.success ? 'Success!' : 'Error!',
-                            data.message
-                        );
-                    }
+                // Show success/error message
+                const isSuccess = data.success === true || data.status === 'success';
+                const message = data.message || (isSuccess ? 'Items deleted successfully' : 'Failed to delete items');
+                
+                if (window.showToast) {
+                    window.showToast(
+                        isSuccess ? 'success' : 'error',
+                        isSuccess ? 'Success!' : 'Error!',
+                        message
+                    );
+                } else {
+                    alert((isSuccess ? 'Success: ' : 'Error: ') + message);
+                }
 
-                    if (config.tableInstance) {
-                        refreshDataTable(config.tableInstance, true);
-                    }
-
-                    selectedArray.length = 0;
-                    if (config.updateCallback) config.updateCallback();
-                })
-                .catch(error => {
-                    console.error('Bulk delete error:', error);
-                    alert(`Failed to delete selected ${entityName}. Please try again.`);
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                });
+                // Refresh table and reset selection
+                if (tableInstance) {
+                    refreshDataTable(tableInstance, true);
+                }
+                
+                selectedArray.length = 0;
+                if (updateCallback && typeof updateCallback === 'function') {
+                    updateCallback();
+                }
+            })
+            .catch(error => {
+                console.error('Bulk delete error:', error);
+                alert(`Failed to delete selected ${entityName}s. Please try again.`);
+            })
+            .finally(() => {
+                // Reset button state
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
         });
     }
 

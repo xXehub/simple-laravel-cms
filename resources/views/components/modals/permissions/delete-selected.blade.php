@@ -10,11 +10,12 @@
                 <div class="modal-body">
                     <p>Are you sure you want to delete the selected permissions?</p>
                     <p class="text-danger">This action cannot be undone and will remove these permissions from all roles.</p>
-                    <p>Selected permissions: <span id="selected-permissions-count" class="fw-bold">0</span></p>
+                    <p>Selected permissions: <span id="delete-selected-count" class="fw-bold">0</span></p>
+                    <div id="selected-items-list"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="PermissionsDataTable.handleBulkDelete()" data-bs-dismiss="modal">
+                    <button type="button" id="confirm-delete-selected" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Delete Selected
                     </button>
                 </div>
@@ -23,13 +24,13 @@
     </div>
 
     <script>
-        // Update selected count when modal is shown
+        // Update selected count when modal is shown  
         document.addEventListener('DOMContentLoaded', function() {
             const deleteSelectedModal = document.getElementById('deleteSelectedModal');
             if (deleteSelectedModal) {
                 deleteSelectedModal.addEventListener('show.bs.modal', function() {
                     const selectedCount = document.getElementById('selected-count').textContent;
-                    document.getElementById('selected-permissions-count').textContent = selectedCount;
+                    document.getElementById('delete-selected-count').textContent = selectedCount;
                 });
             }
         });

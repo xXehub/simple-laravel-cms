@@ -101,7 +101,6 @@ class SimpleControllerScanner
             'destroy' => 'DELETE',
             'delete' => 'DELETE',
             'bulkDestroy' => 'DELETE',
-            'bulkDelete' => 'DELETE',
             'datatable' => 'GET',
             'uploadAvatar' => 'POST',
             'deleteAvatar' => 'DELETE',
@@ -126,7 +125,6 @@ class SimpleControllerScanner
             'destroy' => '/{id}',
             'delete' => '/{id}',
             'bulkDestroy' => '/bulk-delete',
-            'bulkDelete' => '/bulk-delete',
             'datatable' => '/datatable',
             'uploadAvatar' => '/{id}/upload-avatar',
             // 'deleteAvatar' => '/{id}/delete-avatar',
@@ -173,6 +171,46 @@ class SimpleControllerScanner
 
         // Custom methods yang HTTP method-nya GET juga biasanya butuh view
         return $this->getHttpMethod($methodName) === 'GET';
+    }
+
+    /**
+     * Get route priority (higher = registered first)
+     * Routes dengan parameter harus didaftarkan setelah routes spesifik
+     */
+    public function getRoutePriority(string $methodName): int
+    {
+        // Specific routes without parameters get highest priority
+        $specificMethods = [
+            'index' => 100,
+            'create' => 90,
+            'store' => 85,
+            'datatable' => 80,
+            'bulkDestroy' => 75,  // Very important: before destroy
+            'bulkDelete' => 75,
+            'getPermissions' => 70,
+            'uploadAvatar' => 60,
+            'moveOrder' => 55,
+        ];
+
+        if (isset($specificMethods[$methodName])) {
+            return $specificMethods[$methodName];
+        }
+
+        // Parameterized routes get lower priority
+        $parameterizedMethods = [
+            'show' => 30,
+            'edit' => 25,
+            'update' => 20,
+            'destroy' => 15,  // Low priority because it uses {id}
+            'delete' => 10,
+        ];
+
+        if (isset($parameterizedMethods[$methodName])) {
+            return $parameterizedMethods[$methodName];
+        }
+
+        // Default priority for custom methods
+        return 5;
     }
 
     /**

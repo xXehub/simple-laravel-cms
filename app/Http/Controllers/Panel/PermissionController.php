@@ -125,6 +125,13 @@ class PermissionController extends Controller
      */
     public function destroy(Request $request)
     {
+        \Log::info('PermissionController@destroy called', [
+            'route_id' => $request->route('id'),
+            'input_id' => $request->input('id'),
+            'method' => $request->method(),
+            'url' => $request->url()
+        ]);
+        
         $permissionId = $request->route('id') ?? $request->input('id');
         $permission = Permission::findOrFail($permissionId);
 
@@ -139,6 +146,12 @@ class PermissionController extends Controller
      */
     public function bulkDestroy(Request $request)
     {
+        \Log::info('PermissionController@bulkDestroy called', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'input' => $request->all()
+        ]);
+        
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'integer|exists:permissions,id'

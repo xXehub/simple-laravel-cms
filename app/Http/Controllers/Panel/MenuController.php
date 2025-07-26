@@ -284,6 +284,12 @@ class MenuController extends Controller
      */
     public function bulkDestroy(Request $request)
     {
+        \Log::info('MenuController@bulkDestroy called', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'input' => $request->all()
+        ]);
+        
         $request->validate([
             'menu_ids' => 'required|array',
             'menu_ids.*' => 'exists:master_menus,id'
