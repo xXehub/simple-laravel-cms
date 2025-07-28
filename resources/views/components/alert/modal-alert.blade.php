@@ -32,32 +32,63 @@
         </div>
     </div>
     <script>
-        // Tunggu sampai semua script dimuat
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                var modal = document.getElementById('flashSuccessModal');
+                const modal = document.getElementById('flashSuccessModal');
                 if (modal) {
-                    // Gunakan vanilla JS untuk show modal
-                    modal.classList.add('show');
+                    // Show modal dengan animasi fade Tabler.io
                     modal.style.display = 'block';
-                    document.body.classList.add('modal-open');
+                    modal.setAttribute('aria-hidden', 'false');
 
-                    // Tambahkan backdrop
-                    var backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
+                    // Trigger fade in animation
+                    requestAnimationFrame(function() {
+                        modal.classList.add('show');
+                        document.body.classList.add('modal-open');
 
-                    // Handle close
-                    modal.addEventListener('click', function(e) {
-                        if (e.target.matches('[data-bs-dismiss="modal"]') || e.target === modal) {
+                        // Tambahkan backdrop dengan fade
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade';
+                        document.body.appendChild(backdrop);
+
+                        requestAnimationFrame(function() {
+                            backdrop.classList.add('show');
+                        });
+
+                        // Auto hide setelah 3 detik dengan fade out
+                        setTimeout(function() {
                             modal.classList.remove('show');
-                            modal.style.display = 'none';
-                            document.body.classList.remove('modal-open');
-                            backdrop.remove();
-                        }
+                            backdrop.classList.remove('show');
+
+                            setTimeout(function() {
+                                modal.style.display = 'none';
+                                modal.setAttribute('aria-hidden', 'true');
+                                document.body.classList.remove('modal-open');
+                                if (backdrop.parentNode) {
+                                    backdrop.remove();
+                                }
+                            }, 150); // Tunggu animasi fade selesai
+                        }, 3000);
+
+                        // Handle manual close dengan animasi
+                        modal.addEventListener('click', function(e) {
+                            if (e.target.matches('[data-bs-dismiss="modal"]') || e
+                                .target === modal) {
+                                modal.classList.remove('show');
+                                backdrop.classList.remove('show');
+
+                                setTimeout(function() {
+                                    modal.style.display = 'none';
+                                    modal.setAttribute('aria-hidden', 'true');
+                                    document.body.classList.remove('modal-open');
+                                    if (backdrop.parentNode) {
+                                        backdrop.remove();
+                                    }
+                                }, 150);
+                            }
+                        });
                     });
                 }
-            }, 100);
+            }, 200);
         });
     </script>
 @endif
@@ -95,32 +126,63 @@
         </div>
     </div>
     <script>
-        // Tunggu sampai semua script dimuat
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                var modal = document.getElementById('flashErrorModal');
+                const modal = document.getElementById('flashErrorModal');
                 if (modal) {
-                    // Gunakan vanilla JS untuk show modal
-                    modal.classList.add('show');
+                    // Show modal dengan animasi fade Tabler.io
                     modal.style.display = 'block';
-                    document.body.classList.add('modal-open');
+                    modal.setAttribute('aria-hidden', 'false');
 
-                    // Tambahkan backdrop
-                    var backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
+                    // Trigger fade in animation
+                    requestAnimationFrame(function() {
+                        modal.classList.add('show');
+                        document.body.classList.add('modal-open');
 
-                    // Handle close
-                    modal.addEventListener('click', function(e) {
-                        if (e.target.matches('[data-bs-dismiss="modal"]') || e.target === modal) {
+                        // Tambahkan backdrop dengan fade
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade';
+                        document.body.appendChild(backdrop);
+
+                        requestAnimationFrame(function() {
+                            backdrop.classList.add('show');
+                        });
+
+                        // Auto hide setelah 4 detik dengan fade out (lebih lama untuk error)
+                        setTimeout(function() {
                             modal.classList.remove('show');
-                            modal.style.display = 'none';
-                            document.body.classList.remove('modal-open');
-                            backdrop.remove();
-                        }
+                            backdrop.classList.remove('show');
+
+                            setTimeout(function() {
+                                modal.style.display = 'none';
+                                modal.setAttribute('aria-hidden', 'true');
+                                document.body.classList.remove('modal-open');
+                                if (backdrop.parentNode) {
+                                    backdrop.remove();
+                                }
+                            }, 150); // Tunggu animasi fade selesai
+                        }, 4000);
+
+                        // Handle manual close dengan animasi
+                        modal.addEventListener('click', function(e) {
+                            if (e.target.matches('[data-bs-dismiss="modal"]') || e
+                                .target === modal) {
+                                modal.classList.remove('show');
+                                backdrop.classList.remove('show');
+
+                                setTimeout(function() {
+                                    modal.style.display = 'none';
+                                    modal.setAttribute('aria-hidden', 'true');
+                                    document.body.classList.remove('modal-open');
+                                    if (backdrop.parentNode) {
+                                        backdrop.remove();
+                                    }
+                                }, 150);
+                            }
+                        });
                     });
                 }
-            }, 100);
+            }, 200);
         });
     </script>
 @endif
@@ -159,32 +221,63 @@
         </div>
     </div>
     <script>
-        // Tunggu sampai semua script dimuat
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                var modal = document.getElementById('flashWarningModal');
+                const modal = document.getElementById('flashWarningModal');
                 if (modal) {
-                    // Gunakan vanilla JS untuk show modal
-                    modal.classList.add('show');
+                    // Show modal dengan animasi fade Tabler.io
                     modal.style.display = 'block';
-                    document.body.classList.add('modal-open');
+                    modal.setAttribute('aria-hidden', 'false');
 
-                    // Tambahkan backdrop
-                    var backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
+                    // Trigger fade in animation
+                    requestAnimationFrame(function() {
+                        modal.classList.add('show');
+                        document.body.classList.add('modal-open');
 
-                    // Handle close
-                    modal.addEventListener('click', function(e) {
-                        if (e.target.matches('[data-bs-dismiss="modal"]') || e.target === modal) {
+                        // Tambahkan backdrop dengan fade
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade';
+                        document.body.appendChild(backdrop);
+
+                        requestAnimationFrame(function() {
+                            backdrop.classList.add('show');
+                        });
+
+                        // Auto hide setelah 3.5 detik dengan fade out
+                        setTimeout(function() {
                             modal.classList.remove('show');
-                            modal.style.display = 'none';
-                            document.body.classList.remove('modal-open');
-                            backdrop.remove();
-                        }
+                            backdrop.classList.remove('show');
+
+                            setTimeout(function() {
+                                modal.style.display = 'none';
+                                modal.setAttribute('aria-hidden', 'true');
+                                document.body.classList.remove('modal-open');
+                                if (backdrop.parentNode) {
+                                    backdrop.remove();
+                                }
+                            }, 150); // Tunggu animasi fade selesai
+                        }, 3500);
+
+                        // Handle manual close dengan animasi
+                        modal.addEventListener('click', function(e) {
+                            if (e.target.matches('[data-bs-dismiss="modal"]') || e
+                                .target === modal) {
+                                modal.classList.remove('show');
+                                backdrop.classList.remove('show');
+
+                                setTimeout(function() {
+                                    modal.style.display = 'none';
+                                    modal.setAttribute('aria-hidden', 'true');
+                                    document.body.classList.remove('modal-open');
+                                    if (backdrop.parentNode) {
+                                        backdrop.remove();
+                                    }
+                                }, 150);
+                            }
+                        });
                     });
                 }
-            }, 100);
+            }, 200);
         });
     </script>
 @endif
@@ -223,32 +316,63 @@
         </div>
     </div>
     <script>
-        // Tunggu sampai semua script dimuat
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                var modal = document.getElementById('flashInfoModal');
+                const modal = document.getElementById('flashInfoModal');
                 if (modal) {
-                    // Gunakan vanilla JS untuk show modal
-                    modal.classList.add('show');
+                    // Show modal dengan animasi fade Tabler.io
                     modal.style.display = 'block';
-                    document.body.classList.add('modal-open');
+                    modal.setAttribute('aria-hidden', 'false');
 
-                    // Tambahkan backdrop
-                    var backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
+                    // Trigger fade in animation
+                    requestAnimationFrame(function() {
+                        modal.classList.add('show');
+                        document.body.classList.add('modal-open');
 
-                    // Handle close
-                    modal.addEventListener('click', function(e) {
-                        if (e.target.matches('[data-bs-dismiss="modal"]') || e.target === modal) {
+                        // Tambahkan backdrop dengan fade
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade';
+                        document.body.appendChild(backdrop);
+
+                        requestAnimationFrame(function() {
+                            backdrop.classList.add('show');
+                        });
+
+                        // Auto hide setelah 3 detik dengan fade out
+                        setTimeout(function() {
                             modal.classList.remove('show');
-                            modal.style.display = 'none';
-                            document.body.classList.remove('modal-open');
-                            backdrop.remove();
-                        }
+                            backdrop.classList.remove('show');
+
+                            setTimeout(function() {
+                                modal.style.display = 'none';
+                                modal.setAttribute('aria-hidden', 'true');
+                                document.body.classList.remove('modal-open');
+                                if (backdrop.parentNode) {
+                                    backdrop.remove();
+                                }
+                            }, 150); // Tunggu animasi fade selesai
+                        }, 3000);
+
+                        // Handle manual close dengan animasi
+                        modal.addEventListener('click', function(e) {
+                            if (e.target.matches('[data-bs-dismiss="modal"]') || e
+                                .target === modal) {
+                                modal.classList.remove('show');
+                                backdrop.classList.remove('show');
+
+                                setTimeout(function() {
+                                    modal.style.display = 'none';
+                                    modal.setAttribute('aria-hidden', 'true');
+                                    document.body.classList.remove('modal-open');
+                                    if (backdrop.parentNode) {
+                                        backdrop.remove();
+                                    }
+                                }, 150);
+                            }
+                        });
                     });
                 }
-            }, 100);
+            }, 200);
         });
     </script>
 @endif
@@ -294,4 +418,71 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Global function untuk show confirmation modal dengan animasi Tabler.io
+    window.showConfirmationModal = function(options) {
+        const modal = document.getElementById('confirmationModal');
+        if (!modal) return;
+
+        // Set content
+        if (options.title) document.getElementById('confirmationTitle').textContent = options.title;
+        if (options.message) document.getElementById('confirmationMessage').textContent = options.message;
+        if (options.itemName) {
+            document.getElementById('confirmationItemName').textContent = options.itemName;
+            document.getElementById('confirmationDetails').style.display = 'block';
+        } else {
+            document.getElementById('confirmationDetails').style.display = 'none';
+        }
+        if (options.buttonText) document.getElementById('confirmationYesBtn').textContent = options.buttonText;
+
+        // Show modal dengan animasi fade Tabler.io
+        modal.style.display = 'block';
+        modal.setAttribute('aria-hidden', 'false');
+
+        // Trigger fade in animation
+        requestAnimationFrame(function() {
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+
+            // Tambahkan backdrop dengan fade
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade';
+            backdrop.id = 'confirmationBackdrop';
+            document.body.appendChild(backdrop);
+
+            requestAnimationFrame(function() {
+                backdrop.classList.add('show');
+            });
+
+            // Handle close dengan animasi
+            const closeModal = function() {
+                modal.classList.remove('show');
+                backdrop.classList.remove('show');
+
+                setTimeout(function() {
+                    modal.style.display = 'none';
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('modal-open');
+                    if (backdrop.parentNode) {
+                        backdrop.remove();
+                    }
+                }, 150);
+            };
+
+            // Event listeners
+            modal.addEventListener('click', function(e) {
+                if (e.target.matches('[data-bs-dismiss="modal"]') || e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Set callback untuk tombol Yes
+            const yesBtn = document.getElementById('confirmationYesBtn');
+            yesBtn.onclick = function() {
+                if (options.onConfirm) options.onConfirm();
+                closeModal();
+            };
+        });
+    };
 </script>

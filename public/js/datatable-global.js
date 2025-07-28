@@ -161,7 +161,7 @@ window.DataTableGlobal = (function () {
             updateRecordInfo: false,
             ...options,
         };
-        
+
         buildCustomPagination(api, opts.paginationSelector);
         // Optionally update record info
         if (
@@ -406,7 +406,7 @@ window.DataTableGlobal = (function () {
             serverSide: true,
             autoWidth: false,
             dom: "rt",
-             classes: {
+            classes: {
                 sTable: "table table-vcenter table-striped card-table", // opsi ke 2 : table table-vcenter card-table table-selectable
                 sWrapper: "table-responsive",
             },
@@ -532,17 +532,17 @@ window.DataTableGlobal = (function () {
                     window.showConfirmationModal({
                         id: "delete-selected",
                         type: "danger",
-                        title: `Delete Selected ${
+                        title: `Hapus yang dipilih ${
                             entityName.charAt(0).toUpperCase() +
                             entityName.slice(1)
                         }s`,
-                        message: `Are you sure you want to delete the selected ${
+                        message: `Apakah anda yakin ingin menghapus ${
                             selectedArray.length
                         } ${entityName}${
                             selectedArray.length > 1 ? "s" : ""
-                        }? This action cannot be undone.`,
-                        confirmText: "Delete Selected",
-                        cancelText: "Cancel",
+                        }? Tindakan ini tidak dapat dibatalkan.`,
+                        confirmText: "Hapus yang dipilih",
+                        cancelText: "Batal",
                         onConfirm: function () {
                             performBulkDelete();
                         },
@@ -551,7 +551,7 @@ window.DataTableGlobal = (function () {
                     // Fallback to basic confirmation
                     if (
                         confirm(
-                            `Are you sure you want to delete the selected ${
+                            `Apakah anda yakin ingin menghapus ${
                                 selectedArray.length
                             } ${entityName}${
                                 selectedArray.length > 1 ? "s" : ""
