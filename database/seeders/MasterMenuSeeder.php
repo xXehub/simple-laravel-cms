@@ -17,15 +17,15 @@ class MasterMenuSeeder extends Seeder
         // --------------------
         $beranda = MasterMenu::create([
             'nama_menu' => 'Beranda',
-            'slug' => '/',
+            'slug' => '/beranda',
             'parent_id' => null,
-            'route_name' => 'welcome',
+            'route_name' => 'beranda',
             'icon' => 'fa-solid fa-plane-departure',
             'urutan' => 1,
             'is_active' => 1,
             'route_type' => 'public',
             'controller_class' => null,
-            'view_path' => 'welcome',
+            'view_path' => 'beranda',
             'middleware_list' => ["web"],
             'meta_title' => 'Home',
             'meta_description' => 'Welcome to our website',

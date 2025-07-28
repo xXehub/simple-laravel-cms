@@ -8,7 +8,7 @@
     $useTopBar = !$useSidebar; // Use top-bar for public pages or users without panel access
 @endphp
 
-<x-layout.app title="{{ $title }}" :pakai-sidebar="$useSidebar" :pakaiTopBar="$useTopBar">
+<x-layout.app title="{{ $title }}" :pakai-sidebar="$useSidebar" :pakaiTopBar="$useTopBar" pakaiFluid="false">
     
     {{-- Page Header - No Breadcrumbs --}}
     <div class="page-header d-print-none">

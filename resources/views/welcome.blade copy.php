@@ -1,4 +1,4 @@
-<x-layout.app title="Laravel Superapp CMS" :pakai-sidebar="false">
+<x-layout.app title="Anjay CMS" :pakaiSidebar="false" :pakaiFluid="false">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">

@@ -14,7 +14,7 @@ class DynamicController extends Controller
      */
     public function handleWelcome()
     {
-        return view('welcome');
+        return view('landing');
     }
 
     /**

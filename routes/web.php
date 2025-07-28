@@ -27,7 +27,7 @@ Route::get('/home', function () {
 })->name('home');
 
 /* Halaman welcome - Sebenarnya bisa dinamis, tapi ini buat backup */
-Route::get('/', [DynamicController::class, 'handleWelcome'])->name('welcome');
+Route::get('/', [DynamicController::class, 'handleWelcome'])->name('landing');
 
 // Profile route - Keep this as it's user-specific functionality
 Route::middleware('auth')->group(function () {

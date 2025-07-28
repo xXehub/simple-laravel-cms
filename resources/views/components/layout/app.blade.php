@@ -1,4 +1,4 @@
-@props(['title' => 'KantorKu SuperApp', 'pakaiSidebar' => false, 'pakaiTopBar' => null])
+@props(['title' => 'KantorKu SuperApp', 'pakaiSidebar' => false, 'pakaiTopBar' => null, 'pakaiFluid' => true])
 
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -74,7 +74,7 @@
     $showTopBar = $pakaiTopBar !== null ? $pakaiTopBar : !in_array(Route::currentRouteName(), $authRoutes);
 @endphp
 
-<body class="layout-fluid">
+<body class="{{ $pakaiFluid ? 'layout-fluid' : '' }}">
     <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
 
     <div class="page">
@@ -84,8 +84,8 @@
         @includeWhen($showTopBar, 'components.layout.top-bar')
 
 
-            <x-alert.modal-alert />
-            {{ $slot }}
+        <x-alert.modal-alert />
+        {{ $slot }}
 
 
         @includeWhen($showTopBar, 'components.layout.footer')
