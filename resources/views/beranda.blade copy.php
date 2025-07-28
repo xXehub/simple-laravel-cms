@@ -15,9 +15,14 @@
                             </div>
                             <div class="col">
                                 <div class="card-body">
-
-                                    <h3 class="h2">{{ setting('welcome_title', '') }}</h3>
-                                    <p class="text-muted">{{ setting('welcome_subtitle', '') }}</p>
+                                    <h3 class="h2">SuperApp</h3>
+                                    <p class="text-muted"> SuperApp adalah platform layanan digital terpadu yang
+                                        dirancang untuk memudahkan masyarakat
+                                        dalam mengakses berbagai layanan publik dari berbagai instansi pemerintahan di
+                                        Kota Surabaya.
+                                        Melalui satu pintu aplikasi ini, pengguna dapat menjelajahi, mengajukan, dan
+                                        memantau layanan
+                                        dari dinas-dinas seperti Pendidikan, Kominfo, Kesehatan, hingga Perizinan.</p>
 
                                     <div class="row g-5 mt-10">
                                         <div class="col-auto">
