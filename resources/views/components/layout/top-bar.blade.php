@@ -85,7 +85,7 @@
                   @if(empty($menu['children']))
                     {{-- Single menu item without children --}}
                     <li class="nav-item">
-                      <a class="nav-link" href="{{ $menu['url'] }}">
+                      <a class="nav-link{{ $menu['is_active'] ? ' active' : '' }}" href="{{ $menu['url'] }}">
                         @if($menu['icon'])
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <i class="{{ $menu['icon'] }} icon"></i>
@@ -96,8 +96,8 @@
                     </li>
                   @else
                     {{-- Menu item with dropdown children --}}
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#navbar-menu-{{ $menu['id'] }}" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                    <li class="nav-item dropdown{{ $menu['is_active'] ? ' active' : '' }}">
+                      <a class="nav-link dropdown-toggle{{ $menu['is_active'] ? ' active' : '' }}" href="#navbar-menu-{{ $menu['id'] }}" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                         @if($menu['icon'])
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <i class="{{ $menu['icon'] }} icon"></i>
@@ -111,7 +111,7 @@
                             @foreach($menu['children'] as $child)
                               @if(empty($child['children']))
                                 {{-- Simple child menu --}}
-                                <a class="dropdown-item" href="{{ $child['url'] }}">
+                                <a class="dropdown-item{{ $child['is_active'] ? ' active' : '' }}" href="{{ $child['url'] }}">
                                   @if($child['icon'])
                                     <i class="{{ $child['icon'] }} me-2"></i>
                                   @endif
@@ -120,7 +120,7 @@
                               @else
                                 {{-- Child menu with sub-children --}}
                                 <div class="dropend">
-                                  <a class="dropdown-item dropdown-toggle" href="#submenu-{{ $child['id'] }}" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                  <a class="dropdown-item dropdown-toggle{{ $child['is_active'] ? ' active' : '' }}" href="#submenu-{{ $child['id'] }}" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                     @if($child['icon'])
                                       <i class="{{ $child['icon'] }} me-2"></i>
                                     @endif
@@ -128,7 +128,7 @@
                                   </a>
                                   <div class="dropdown-menu">
                                     @foreach($child['children'] as $subChild)
-                                      <a href="{{ $subChild['url'] }}" class="dropdown-item">
+                                      <a href="{{ $subChild['url'] }}" class="dropdown-item{{ $subChild['is_active'] ? ' active' : '' }}">
                                         @if($subChild['icon'])
                                           <i class="{{ $subChild['icon'] }} me-2"></i>
                                         @endif
@@ -148,7 +148,7 @@
               @else
                 {{-- Default fallback when no dynamic menus available --}}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ url('/') }}">
+                  <a class="nav-link{{ request()->is('/') ? ' active' : '' }}" href="{{ url('/') }}">
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                         <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>

@@ -198,6 +198,10 @@ class MenuService
      */
     public function getNavbarMenus(): array
     {
+        // Get current URL for active state detection
+        $currentUrl = request()->url();
+        $currentPath = request()->path();
+        
         // Get only root level menus that are public and active
         $rootMenus = MasterMenu::whereNull('parent_id')
             ->where('route_type', 'public')
@@ -213,14 +217,21 @@ class MenuService
                 continue;
             }
 
+            $menuUrl = $this->buildMenuUrl($menu);
+            $children = $this->getAccessibleChildren($menu->id, $currentUrl, $currentPath);
+            
+            // Check if this menu or any of its children is active
+            $isActive = $this->isMenuActive($menu, $currentUrl, $currentPath, $children);
+
             $menuData = [
                 'id' => $menu->id,
                 'nama_menu' => $menu->nama_menu,
                 'slug' => $menu->slug,
                 'route_name' => $menu->route_name,
                 'icon' => $menu->icon,
-                'url' => $this->buildMenuUrl($menu),
-                'children' => $this->getAccessibleChildren($menu->id)
+                'url' => $menuUrl,
+                'is_active' => $isActive,
+                'children' => $children
             ];
 
             // Only add menu if it has accessible children or is accessible itself
@@ -233,9 +244,9 @@ class MenuService
     }
 
     /**
-     * Get accessible children for a menu
+     * Get accessible children for a menu with active state detection
      */
-    private function getAccessibleChildren(int $parentId): array
+    private function getAccessibleChildren(int $parentId, string $currentUrl, string $currentPath): array
     {
         $children = MasterMenu::where('parent_id', $parentId)
             ->where('route_type', 'public')
@@ -250,20 +261,58 @@ class MenuService
                 continue;
             }
 
+            $childUrl = $this->buildMenuUrl($child);
+            $grandChildren = $this->getAccessibleChildren($child->id, $currentUrl, $currentPath);
+            
+            // Check if this child menu is active
+            $isActive = $this->isMenuActive($child, $currentUrl, $currentPath, $grandChildren);
+
             $childData = [
                 'id' => $child->id,
                 'nama_menu' => $child->nama_menu,
                 'slug' => $child->slug,
                 'route_name' => $child->route_name,
                 'icon' => $child->icon,
-                'url' => $this->buildMenuUrl($child),
-                'children' => $this->getAccessibleChildren($child->id)
+                'url' => $childUrl,
+                'is_active' => $isActive,
+                'children' => $grandChildren
             ];
 
             $accessibleChildren[] = $childData;
         }
 
         return $accessibleChildren;
+    }
+
+    /**
+     * Check if a menu is currently active
+     */
+    private function isMenuActive(MasterMenu $menu, string $currentUrl, string $currentPath, array $children = []): bool
+    {
+        // Check exact URL match
+        $menuUrl = $this->buildMenuUrl($menu);
+        if ($menuUrl === $currentUrl) {
+            return true;
+        }
+
+        // Check if current path matches menu slug
+        if ($menu->slug && trim($currentPath, '/') === trim($menu->slug, '/')) {
+            return true;
+        }
+
+        // Check if current path starts with menu slug (for nested pages)
+        if ($menu->slug && str_starts_with(trim($currentPath, '/'), trim($menu->slug, '/'))) {
+            return true;
+        }
+
+        // Check if any children are active
+        foreach ($children as $child) {
+            if ($child['is_active']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
