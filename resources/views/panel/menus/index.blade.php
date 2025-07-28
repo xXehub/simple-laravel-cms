@@ -38,81 +38,26 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <div class="card-header">
-                                <div class="row w-full">
-                                    <div class="col">
-                                        <div class="dropdown">
-                                            <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                                                <span id="page-count" class="me-1">15</span>
-                                                <span>data ditampilkan</span>
-                                            </a>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="10">10
-                                                    data</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="15">15
-                                                    data</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="25">25
-                                                    data</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="50">50
-                                                    data</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="100">100
-                                                    data</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-auto col-sm-12">
-                                        <div class="ms-auto d-flex flex-wrap btn-list">
-                                            <div class="input-group input-group-flat w-auto">
-                                                <span class="input-group-text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round" class="icon icon-1">
-                                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                                        <path d="M21 21l-6 -6" />
-                                                    </svg>
-                                                </span>
-                                                <input id="advanced-table-search" type="text" class="form-control"
-                                                    placeholder="Search menus..." autocomplete="off" />
-                                                <span class="input-group-text">
-                                                    <kbd>ctrl + F</kbd>
-                                                </span>
-                                            </div>
-                                            <div class="dropdown">
-                                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                                    data-bs-toggle="dropdown">
-                                                    Filter
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#"
-                                                        onclick="filterTable('all')">All
-                                                        Menus</a>
-                                                    <a class="dropdown-item" href="#"
-                                                        onclick="filterTable('active')">Active Only</a>
-                                                    <a class="dropdown-item" href="#"
-                                                        onclick="filterTable('inactive')">Inactive Only</a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="#"
-                                                        onclick="filterTable('parent')">Parent Menus</a>
-                                                    <a class="dropdown-item" href="#"
-                                                        onclick="filterTable('child')">Child Menus</a>
-                                                </div>
-                                            </div>
-                                            @can('delete-menus')
-                                                <button type="button" id="delete-selected-btn" class="btn btn-danger"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteSelectedModal" disabled>
-                                                    Hapus Terpilih (<span id="selected-count">0</span>)
-                                                </button>
-                                            @endcan
-                                        </div>
+                            <x-form.datatable-header 
+                                searchPlaceholder="Search menus..." 
+                                :showBulkDelete="true"
+                                bulkDeletePermission="delete-menus"
+                                bulkDeleteTarget="#deleteSelectedModal">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        Filter
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" onclick="filterTable('all')">All Menus</a>
+                                        <a class="dropdown-item" href="#" onclick="filterTable('active')">Active Only</a>
+                                        <a class="dropdown-item" href="#" onclick="filterTable('inactive')">Inactive Only</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" onclick="filterTable('parent')">Parent Menus</a>
+                                        <a class="dropdown-item" href="#" onclick="filterTable('child')">Child Menus</a>
                                     </div>
                                 </div>
-                            </div>
+                            </x-form.datatable-header>
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="menusTable" class="table table-vcenter table-selectable">

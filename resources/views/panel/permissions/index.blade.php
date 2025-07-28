@@ -41,56 +41,14 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <div class="card-header">
-                                <div class="row w-full">
-                                    <div class="col">
-                                        <div class="dropdown">
-                                            <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                                                <span id="page-count" class="me-1">15</span>
-                                                <span>records</span>
-                                            </a>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="10">10 records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="15">15 records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="25">25 records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="50">50 records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="100">100 records</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-auto col-sm-12">
-                                        <div class="ms-auto d-flex flex-wrap btn-list">
-                                            <div class="input-group input-group-flat w-auto">
-                                                <span class="input-group-text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round" class="icon icon-1">
-                                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                                        <path d="M21 21l-6 -6" />
-                                                    </svg>
-                                                </span>
-                                                <input id="advanced-table-search" type="text" class="form-control"
-                                                    placeholder="Search permissions..." autocomplete="off" />
-                                                <span class="input-group-text">
-                                                    <kbd>ctrl + F</kbd>
-                                                </span>
-                                            </div>
-                                            @can('delete-permissions')
-                                                <button type="button" id="delete-selected-btn" class="btn btn-danger"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteSelectedModal" disabled>
-                                                    Delete Selected (<span id="selected-count">0</span>)
-                                                </button>
-                                            @endcan
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-form.datatable-header 
+                                searchPlaceholder="Search permissions..." 
+                                :showBulkDelete="true"
+                                bulkDeletePermission="delete-permissions"
+                                bulkDeleteText="Delete Selected"
+                                bulkDeleteTarget="#deleteSelectedModal"
+                                :recordOptions="[10, 15, 25, 50, 100]"
+                                :defaultRecords="15" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="datatable-permissions" class="table table-vcenter table-selectable">

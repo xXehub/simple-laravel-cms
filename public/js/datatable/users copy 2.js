@@ -187,9 +187,51 @@ window.UsersDataTable = (function () {
     }
 
     function deleteUser(userId, userName) {
-        // Use the new confirmation modal if available
-        if (typeof confirmDeleteUser === 'function') {
-            confirmDeleteUser(userId, userName);
+        // Use the new confirmation modal
+        if (typeof showConfirmationModal === 'function') {
+            showConfirmationModal({
+                title: 'Hapus User',
+                message: 'Apakah Anda yakin ingin menghapus user ?',
+                itemName: userName,
+                confirmText: 'Ya, Hapus',
+                confirmClass: 'btn-danger',
+                onConfirm: function() {
+                    // Create and submit form for deletion
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    
+                    // Get the route from the old form or construct it
+                    const oldForm = $('#deleteUserForm')[0];
+                    let actionUrl = oldForm ? oldForm.action : '';
+                    if (actionUrl.includes(':id')) {
+                        actionUrl = actionUrl.replace(':id', userId);
+                    } else if (actionUrl.match(/\/\d+$/)) {
+                        actionUrl = actionUrl.replace(/\/\d+$/, '') + '/' + userId;
+                    } else {
+                        // Fallback construction
+                        actionUrl = window.location.origin + '/panel/users/' + userId;
+                    }
+                    
+                    form.action = actionUrl;
+                    
+                    // Add CSRF token
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    form.appendChild(csrfInput);
+                    
+                    // Add method override for DELETE
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         } else {
             // Fallback to old method if confirmation modal is not available
             $('#delete_user_id').val(userId);

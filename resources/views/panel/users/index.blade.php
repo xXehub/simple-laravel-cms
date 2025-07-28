@@ -39,59 +39,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <div class="card-header">
-                                <div class="row w-full">
-                                    <div class="col">
-                                        <div class="dropdown">
-                                            <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                                                <span id="page-count" class="me-1">10</span>
-                                                <span>records</span>
-                                            </a>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="10">10
-                                                    records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="25">25
-                                                    records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="50">50
-                                                    records</a>
-                                                <a class="dropdown-item" onclick="setPageListItems(event)"
-                                                    data-value="100">100
-                                                    records</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-auto col-sm-12">
-                                        <div class="ms-auto d-flex flex-wrap btn-list">
-                                            <div class="input-group input-group-flat w-auto">
-                                                <span class="input-group-text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round" class="icon icon-1">
-                                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                                        <path d="M21 21l-6 -6" />
-                                                    </svg>
-                                                </span>
-                                                <input id="advanced-table-search" type="text" class="form-control"
-                                                    placeholder="Search users..." autocomplete="off" />
-                                                <span class="input-group-text">
-                                                    <kbd>ctrl + F</kbd>
-                                                </span>
-                                            </div>
-                                            @can('delete-users')
-                                                <button type="button" id="delete-selected-btn" class="btn btn-danger"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteSelectedModal" disabled>
-
-                                                    Hapus Terpilih (<span id="selected-count">0</span>)
-                                                </button>
-                                            @endcan
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-form.datatable-header 
+                                searchPlaceholder="Search users..." 
+                                :showBulkDelete="true"
+                                bulkDeletePermission="delete-users"
+                                bulkDeleteTarget="#deleteSelectedModal" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="datatable-users" class="table table-vcenter card-table table-selectable ">
@@ -134,7 +86,6 @@
                 <!-- User Modals -->
                 <x-modals.users.create :roles="$roles" />
                 <x-modals.users.update :roles="$roles" />
-                @include('components.modals.users.delete')
                 @include('components.modals.users.delete-selected')
                 @include('components.modals.users.avatar-upload')
             </div>
@@ -149,6 +100,7 @@
             
             // Set global edit route for fallback
             window.userEditRoute = '{{ route('panel.users.edit', ':id') }}';
+            window.userDeleteRoute = '{{ route('panel.users.destroy', ':id') }}';
 
             // Initialize Users DataTable
             UsersDataTable.initialize('{{ route('panel.users.datatable') }}')
@@ -172,7 +124,7 @@
 
             // Backward compatibility (optional, can be removed if not used elsewhere)
             window.editUser = (userId) => UsersDataTable.editUser(userId, '{{ route('panel.users.edit', ':id') }}');
-            window.deleteUser = (userId, userName) => UsersDataTable.deleteUser(userId, userName);
+            window.deleteUser = (userId, userName) => confirmDeleteUser(userId, userName);
         </script>
     @endpush
 </x-layout.app>
