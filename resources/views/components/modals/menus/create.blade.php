@@ -1,3 +1,5 @@
+@props(['parentMenus' => [], 'roles' => [], 'data' => []])
+
 {{-- Create Menu Modal --}}
 <div class="modal modal-blur fade" id="createMenuModal" tabindex="-1" aria-labelledby="createMenuModalLabel"
     aria-hidden="true">

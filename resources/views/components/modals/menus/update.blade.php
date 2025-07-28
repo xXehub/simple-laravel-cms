@@ -1,3 +1,5 @@
+@props(['parentMenus' => [], 'roles' => [], 'data' => []])
+
 {{-- Edit Menu Modal --}}
 <div class="modal modal-blur fade" id="editMenuModal" tabindex="-1" aria-labelledby="editMenuModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">">

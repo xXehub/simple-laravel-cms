@@ -2,7 +2,7 @@
 
 <!-- Create Role Modal -->
 @can('create-roles')
-    <div class="modal modal-blur fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel"
+    <div class="modal modal-blur fade" id="createRoleModal"  tabindex="-1" aria-labelledby="createRoleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -258,4 +258,6 @@
             });
         });
     </script>
+
+
 @endcan

@@ -1,8 +1,8 @@
 @props(['roles'])
 
 @can('create-users')
-    <div class="modal modal-blur fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="false">
-        <div class="modal-dialog modal-lg modal-dialog-centered">">
+    <div class="modal modal-blur fade" id="createUserModal" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createUserModalLabel">
@@ -117,4 +117,5 @@
             </div>
         </div>
     </div>
+
 @endcan

@@ -83,10 +83,10 @@
         @includeWhen($pakaiSidebar, 'components.layout.sidebar')
         @includeWhen($showTopBar, 'components.layout.top-bar')
 
-        <div class="page-wrapper">
+
             <x-alert.modal-alert />
             {{ $slot }}
-        </div>
+
 
         @includeWhen($showTopBar, 'components.layout.footer')
     </div>

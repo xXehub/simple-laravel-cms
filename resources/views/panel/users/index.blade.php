@@ -1,4 +1,5 @@
 <x-layout.app title="Menus Management - Panel Admin" :pakaiSidebar="true" :pakaiTopBar="false">
+           <div class="page-wrapper">
     <div class="page-header d-print-none" aria-label="Page header">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -83,13 +84,14 @@
                 </div>
 
                 <!-- User Modals -->
-                <x-modals.users.create :roles="$roles" />
-                <x-modals.users.update :roles="$roles" />
-                @include('components.modals.users.avatar-upload')
+
             </div>
         </div>
     </div>
-
+           </div>
+                           <x-modals.users.create :roles="$roles" />
+                <x-modals.users.update :roles="$roles" />
+                @include('components.modals.users.avatar-upload')
     @push('scripts')
         <!-- Users DataTable Module -->
         <script src="{{ asset('js/datatable/users.js') }}"></script>
