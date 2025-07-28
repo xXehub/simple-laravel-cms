@@ -100,6 +100,8 @@
                     <div class="col">
                         <!-- BEGIN DYNAMIC NAVBAR MENU -->
                         <ul class="navbar-nav">
+                            {{-- Panel Dashboard & Admin Menu --}}
+
                             @if (isset($navbarMenus) && count($navbarMenus) > 0)
                                 @foreach ($navbarMenus as $menu)
                                     @if (empty($menu['children']))
@@ -109,7 +111,7 @@
                                                 href="{{ $menu['url'] }}">
                                                 @if ($menu['icon'])
                                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                        <i class="{{ $menu['icon'] }} icon"></i>
+                                                        <i class="{{ $menu['icon'] }}"></i>
                                                     </span>
                                                 @endif
                                                 <span class="nav-link-title">{{ $menu['nama_menu'] }}</span>
@@ -123,7 +125,7 @@
                                                 data-bs-auto-close="outside" role="button" aria-expanded="false">
                                                 @if ($menu['icon'])
                                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                        <i class="{{ $menu['icon'] }} icon"></i>
+                                                        <i class="{{ $menu['icon'] }}"></i>
                                                     </span>
                                                 @endif
                                                 <span class="nav-link-title">{{ $menu['nama_menu'] }}</span>
@@ -194,8 +196,55 @@
                                     </a>
                                 </li>
                             @endif
+
                         </ul>
                         <!-- END DYNAMIC NAVBAR MENU -->
+                    </div>
+                    {{-- gawe panel --}}
+                    <div class="col col-md-auto">
+                        <ul class="navbar-nav">
+                            @if (request()->routeIs('panel.*'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('beranda') }}">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            {{-- <x-icon name="home-share" /> --}}
+                                        </span>
+                                        <span class="nav-link-title"><b> Beranda</b></span>
+                                    </a>
+                                </li>
+                            @else
+                                @can('view-dashboard')
+                                    @php
+                                        // Ambil menu dashboard secara dinamis dari database
+                                        $dashboardMenu = \App\Models\MasterMenu::active()
+                                            ->where('route_type', 'admin')
+                                            ->whereJsonContains('middleware_list', 'permission:view-dashboard')
+                                            ->first();
+                                    @endphp
+
+                                    @if ($dashboardMenu)
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ $dashboardMenu->getUrl() }}">
+                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                    <i class="fa-solid fa-table-columns"></i>
+                                                </span>
+                                                <span class="nav-link-title"> <b>Panel</b> </span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endcan
+                            @endif
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="offcanvas"
+                                    data-bs-target="#offcanvasSettings">
+                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                  <i class="fa-solid fa-gear"></i>
+                                    </span>
+                                    <span class="nav-link-title">Pengaturan</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

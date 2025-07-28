@@ -35,11 +35,6 @@ class BerandaController extends Controller
         // Append search parameter ke pagination links agar tetap ada saat pindah halaman
         $pages->appends($request->only('search'));
         
-        // Debug info (temporary)
-        \Log::info('BerandaController - Total pages found: ' . $pages->total());
-        \Log::info('BerandaController - Current page: ' . $pages->currentPage());
-        \Log::info('BerandaController - Search term: ' . ($search ?? 'none'));
-        
         return view('beranda', [
             'pages' => $pages,
             'search' => $search
