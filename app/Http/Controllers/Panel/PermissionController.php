@@ -165,7 +165,7 @@ class PermissionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Successfully deleted {$deletedCount} permission(s)",
+            'message' => "Berhasil menghapus {$deletedCount} permission(s)",
             'deleted_count' => $deletedCount
         ]);
     }

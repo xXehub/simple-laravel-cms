@@ -169,13 +169,13 @@ class UserController extends Controller
         }
 
         if ($deletedCount > 0) {
-            $message = "Successfully deleted {$deletedCount} user(s)";
+            $message = "Berhasil menghapus {$deletedCount} user(s)";
             $type = 'success';
             if (!empty($errors)) {
-                $message .= ". However, some users could not be deleted: " . implode(', ', $errors);
+                $message .= ". Namun, beberapa pengguna tidak dapat dihapus: " . implode(', ', $errors);
             }
         } else {
-            $message = 'No users were deleted. ' . implode(', ', $errors);
+            $message = 'Tidak ada pengguna yang dihapus. ' . implode(', ', $errors);
             $type = 'error';
         }
 
