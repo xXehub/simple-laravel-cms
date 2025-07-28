@@ -39,11 +39,10 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <x-form.datatable-header 
-                                searchPlaceholder="Search users..." 
-                                :showBulkDelete="true"
-                                bulkDeletePermission="delete-users"
-                                bulkDeleteTarget="#deleteSelectedModal" />
+                <x-form.datatable-header 
+                searchPlaceholder="Search users..." 
+                :showBulkDelete="true"
+                bulkDeletePermission="delete-users" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="datatable-users" class="table table-vcenter card-table table-selectable ">
@@ -86,7 +85,6 @@
                 <!-- User Modals -->
                 <x-modals.users.create :roles="$roles" />
                 <x-modals.users.update :roles="$roles" />
-                @include('components.modals.users.delete-selected')
                 @include('components.modals.users.avatar-upload')
             </div>
         </div>

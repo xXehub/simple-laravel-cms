@@ -434,42 +434,47 @@ window.DataTableGlobal = (function () {
     // --- Unified Bulk Delete Handler (Global) ---
     function setupBulkDeleteHandler(config) {
         const {
-            modalSelector = "#deleteSelectedModal",
             selectedArray,
             deleteRoute,
-            confirmBtnSelector = "#confirm-delete-selected",
             entityName = "items",
             tableInstance,
             updateCallback,
             customRequestData = null
         } = config;
 
-        // Update modal when shown
-        $(modalSelector).off("show.bs.modal.bulkdelete").on("show.bs.modal.bulkdelete", function () {
-            // Update count displays
-            $("#delete-selected-count, #selected-count, #selected-permissions-count").text(selectedArray.length);
-            
-            // Update list displays
-            const itemsList = selectedArray.map(id => 
-                `<li>${entityName.charAt(0).toUpperCase() + entityName.slice(1)} ID: <strong>${id}</strong></li>`
-            ).join("");
-            $("#selected-items-list, #selected-users-list, #selected-menus-list").html(`<ul>${itemsList}</ul>`);
-        });
-
-        // Handle confirm button click
-        $(confirmBtnSelector).off("click.bulkdelete").on("click.bulkdelete", function () {
+        // Handle bulk delete button click
+        $(document).off("click.bulkdelete", ".btn-bulk-delete").on("click.bulkdelete", ".btn-bulk-delete", function () {
             if (selectedArray.length === 0) {
-                alert(`No ${entityName}s selected`);
+                if (window.showToast) {
+                    window.showToast('warning', 'Warning!', `No ${entityName}s selected`);
+                } else {
+                    alert(`No ${entityName}s selected`);
+                }
                 return;
             }
 
-            const btn = this;
-            const originalText = btn.innerHTML;
+            // Use the new modal confirmation alert system
+            if (window.showConfirmationModal) {
+                window.showConfirmationModal({
+                    id: 'delete-selected',
+                    type: 'danger',
+                    title: `Delete Selected ${entityName.charAt(0).toUpperCase() + entityName.slice(1)}s`,
+                    message: `Are you sure you want to delete the selected ${selectedArray.length} ${entityName}${selectedArray.length > 1 ? 's' : ''}? This action cannot be undone.`,
+                    confirmText: 'Delete Selected',
+                    cancelText: 'Cancel',
+                    onConfirm: function() {
+                        performBulkDelete();
+                    }
+                });
+            } else {
+                // Fallback to basic confirmation
+                if (confirm(`Are you sure you want to delete the selected ${selectedArray.length} ${entityName}${selectedArray.length > 1 ? 's' : ''}?`)) {
+                    performBulkDelete();
+                }
+            }
+        });
 
-            // Set loading state
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Deleting...';
-
+        function performBulkDelete() {
             // Prepare request data
             let requestData;
             if (customRequestData && typeof customRequestData === 'function') {
@@ -492,12 +497,9 @@ window.DataTableGlobal = (function () {
             })
             .then(response => response.json())
             .then(data => {
-                // Hide modal
-                $(modalSelector).modal('hide');
-
                 // Show success/error message
                 const isSuccess = data.success === true || data.status === 'success';
-                const message = data.message || (isSuccess ? 'Items deleted successfully' : 'Failed to delete items');
+                const message = data.message || (isSuccess ? `${entityName.charAt(0).toUpperCase() + entityName.slice(1)}s deleted successfully` : `Failed to delete ${entityName}s`);
                 
                 if (window.showToast) {
                     window.showToast(
@@ -521,14 +523,14 @@ window.DataTableGlobal = (function () {
             })
             .catch(error => {
                 console.error('Bulk delete error:', error);
-                alert(`Failed to delete selected ${entityName}s. Please try again.`);
-            })
-            .finally(() => {
-                // Reset button state
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+                const errorMessage = `Failed to delete selected ${entityName}s. Please try again.`;
+                if (window.showToast) {
+                    window.showToast('error', 'Error!', errorMessage);
+                } else {
+                    alert(errorMessage);
+                }
             });
-        });
+        }
     }
 
     // --- Update Select Options (Global) ---

@@ -41,8 +41,7 @@
                             <x-form.datatable-header 
                                 searchPlaceholder="Search menus..." 
                                 :showBulkDelete="true"
-                                bulkDeletePermission="delete-menus"
-                                bulkDeleteTarget="#deleteSelectedModal">
+                                bulkDeletePermission="delete-menus">
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                                         data-bs-toggle="dropdown">
@@ -100,7 +99,6 @@
 
                 @include('components.modals.menus.create')
                 @include('components.modals.menus.update')
-                @include('components.modals.menus.delete-selected')
             </div>
         </div>
     </div>

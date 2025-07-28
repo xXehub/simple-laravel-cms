@@ -41,14 +41,13 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <x-form.datatable-header 
-                                searchPlaceholder="Search permissions..." 
-                                :showBulkDelete="true"
-                                bulkDeletePermission="delete-permissions"
-                                bulkDeleteText="Delete Selected"
-                                bulkDeleteTarget="#deleteSelectedModal"
-                                :recordOptions="[10, 15, 25, 50, 100]"
-                                :defaultRecords="15" />
+                <x-form.datatable-header 
+                searchPlaceholder="Search permissions..." 
+                :showBulkDelete="true"
+                bulkDeletePermission="delete-permissions"
+                bulkDeleteText="Delete Selected"
+                :recordOptions="[10, 15, 25, 50, 100]"
+                :defaultRecords="15" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="datatable-permissions" class="table table-vcenter table-selectable">
@@ -90,7 +89,6 @@
                 <!-- Permission Modals -->
                 <x-modals.permissions.create />
                 <x-modals.permissions.edit />
-                <x-modals.permissions.delete-selected />
             </div>
         </div>
     </div>

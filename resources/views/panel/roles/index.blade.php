@@ -36,11 +36,10 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <x-form.datatable-header 
-                                searchPlaceholder="Search roles..." 
-                                :showBulkDelete="true"
-                                bulkDeletePermission="delete-roles"
-                                bulkDeleteTarget="#deleteSelectedModal" />
+                <x-form.datatable-header 
+                searchPlaceholder="Search roles..." 
+                :showBulkDelete="true"
+                bulkDeletePermission="delete-roles" />
                             
                             <div id="advanced-table">
                                 <div class="table-responsive">
@@ -81,7 +80,6 @@
                 <!-- Include Modal Components -->
                 <x-modals.roles.create :permissions="$permissions" />
                 <x-modals.roles.edit :permissions="$permissions" />
-                @include('components.modals.roles.delete-selected')
             </div>
         </div>
     </div>

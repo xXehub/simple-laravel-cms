@@ -3,7 +3,6 @@
     'showBulkDelete' => false,
     'bulkDeletePermission' => null,
     'bulkDeleteText' => 'Hapus Terpilih',
-    'bulkDeleteTarget' => '#deleteSelectedModal',
     'recordOptions' => [10, 25, 50, 100],
     'defaultRecords' => 15,
     'recordText' => 'records'
@@ -46,8 +45,7 @@
                 {{ $slot ?? '' }}
                 @if ($showBulkDelete && $bulkDeletePermission)
                     @can($bulkDeletePermission)
-                        <button type="button" id="delete-selected-btn" class="btn btn-danger" 
-                            data-bs-toggle="modal" data-bs-target="{{ $bulkDeleteTarget }}" disabled>
+                        <button type="button" id="delete-selected-btn" class="btn btn-danger btn-bulk-delete" disabled>
                             {{ $bulkDeleteText }} (<span id="selected-count">0</span>)
                         </button>
                     @endcan
