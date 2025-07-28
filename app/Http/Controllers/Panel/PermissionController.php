@@ -131,7 +131,7 @@ class PermissionController extends Controller
             'method' => $request->method(),
             'url' => $request->url()
         ]);
-        
+
         $permissionId = $request->route('id') ?? $request->input('id');
         $permission = Permission::findOrFail($permissionId);
 
@@ -151,7 +151,7 @@ class PermissionController extends Controller
             'url' => $request->url(),
             'input' => $request->all()
         ]);
-        
+
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'integer|exists:permissions,id'

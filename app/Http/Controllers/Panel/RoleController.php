@@ -17,26 +17,34 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $roles = Role::with('permissions')->select('roles.*');
-
-            return DataTables::of($roles)
-                ->addColumn('permissions_count', function ($role) {
-                    return $role->permissions->count();
-                })
-                ->addColumn('action', function ($role) {
-                    return view('components.modals.roles.action', compact('role'))->render();
-                })
-                ->editColumn('created_at', function ($role) {
-                    return $role->created_at->format('Y-m-d H:i:s');
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+        if ($request->ajax() && $request->has('draw')) {
+            return $this->datatable($request);
         }
 
         $roles = Role::with('permissions')->paginate(20);
         $permissions = Permission::all();
         return view('panel.roles.index', compact('roles', 'permissions'));
+    }
+
+    /**
+     * Handle DataTable AJAX requests for roles
+     */
+    public function datatable(Request $request)
+    {
+        $roles = Role::with('permissions')->select('roles.*');
+
+        return DataTables::of($roles)
+            ->addColumn('permissions_count', function ($role) {
+                return $role->permissions->count();
+            })
+            ->addColumn('action', function ($role) {
+                return view('components.modals.roles.action', compact('role'))->render();
+            })
+            ->editColumn('created_at', function ($role) {
+                return $role->created_at->format('Y-m-d H:i:s');
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     /**

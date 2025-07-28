@@ -49,7 +49,7 @@ class MenuController extends Controller
         $data['tombol_kembali'] = 'Kembali';
 
         if ($request->ajax() && $request->has('draw')) {
-            return $this->getDataTablesData($request);
+            return $this->datatable($request);
         }
 
         if ($request->ajax()) {
@@ -72,7 +72,7 @@ class MenuController extends Controller
     /**
      * Get DataTables data for AJAX request
      */
-    private function getDataTablesData(Request $request)
+    public function datatable(Request $request)
     {
         $draw = $request->get('draw');
         $start = $request->get('start', 0);
