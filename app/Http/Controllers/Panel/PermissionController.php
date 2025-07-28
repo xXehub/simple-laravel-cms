@@ -14,8 +14,12 @@ class PermissionController extends Controller
     /**
      * Display permissions listing
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax() && $request->has('draw')) {
+            return $this->datatable($request);
+        }
+
         return view('panel.permissions.index');
     }
 

@@ -103,7 +103,7 @@
             window.userDeleteRoute = '{{ route('panel.users.destroy', ':id') }}';
 
             // Initialize Users DataTable
-            UsersDataTable.initialize('{{ route('panel.users.datatable') }}')
+            UsersDataTable.initialize('{{ route('panel.users') }}')
                 .then(table => {
                     usersTable = table;
                     UsersDataTable.setupModalHandlers();

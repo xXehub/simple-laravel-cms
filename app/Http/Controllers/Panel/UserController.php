@@ -31,6 +31,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        // Handle DataTable AJAX requests
+        if ($request->ajax() && $request->has('draw')) {
+            return $this->datatable($request);
+        }
+
         // Get current menu from request
         $currentSlug = $request->route()->uri ?? 'panel/users';
         $menu = MasterMenu::where('slug', $currentSlug)->first();
@@ -184,14 +189,21 @@ class UserController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = User::withRoles();
+        $query = User::with('roles');
 
-        // Add search if provided
+        // Add search if provided  
         if ($search = $request->get('search')['value'] ?? null) {
-            $query->search($search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('username', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
         }
 
         return DataTables::of($query)
+            ->addColumn('checkbox', function ($user) {
+                return '<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select user" value="' . $user->id . '"/>';
+            })
             ->addColumn('roles', function ($user) {
                 return $user->roles->pluck('name')->toArray();
             })
@@ -208,24 +220,9 @@ class UserController extends Controller
                 ])->render();
             })
             ->editColumn('created_at', function ($user) {
-                return $user->created_at->toISOString();
+                return $user->created_at->format('Y-m-d H:i:s');
             })
-            ->addColumn('id', function ($user) {
-                return $user->id;
-            })
-            ->addColumn('name', function ($user) {
-                return $user->name;
-            })
-            ->addColumn('username', function ($user) {
-                return $user->username;
-            })
-            ->addColumn('avatar_url', function ($user) {
-                return $user->avatar_url;
-            })
-            ->addColumn('email', function ($user) {
-                return $user->email;
-            })
-            ->rawColumns(['action'])
+            ->rawColumns(['checkbox', 'action'])
             ->make(true);
     }
 
