@@ -8,14 +8,32 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use App\Http\Requests\Panel\Role\StoreRoleRequest;
 use App\Http\Requests\Panel\Role\UpdateRoleRequest;
+use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
 {
     /**
      * Display roles listing
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $roles = Role::with('permissions')->select('roles.*');
+
+            return DataTables::of($roles)
+                ->addColumn('permissions_count', function ($role) {
+                    return $role->permissions->count();
+                })
+                ->addColumn('action', function ($role) {
+                    return view('components.modals.roles.action', compact('role'))->render();
+                })
+                ->editColumn('created_at', function ($role) {
+                    return $role->created_at->format('Y-m-d H:i:s');
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
         $roles = Role::with('permissions')->paginate(20);
         $permissions = Permission::all();
         return view('panel.roles.index', compact('roles', 'permissions'));
@@ -103,5 +121,29 @@ class RoleController extends Controller
 
         return redirect()->route('panel.roles')
             ->with('success', 'Role deleted successfully');
+    }
+
+    /**
+     * Bulk delete roles
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'role_ids' => 'required|array',
+            'role_ids.*' => 'exists:roles,id'
+        ]);
+
+        $roleIds = $request->role_ids;
+        
+        // Prevent deletion of admin role
+        $adminRole = Role::where('name', 'admin')->first();
+        if ($adminRole && in_array($adminRole->id, $roleIds)) {
+            return redirect()->back()->with('error', 'Cannot delete admin role');
+        }
+
+        $deleted = Role::whereIn('id', $roleIds)->delete();
+
+        return redirect()->route('panel.roles')
+            ->with('success', "{$deleted} role(s) deleted successfully");
     }
 }
