@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Manajemen User - Superadmin - Super Apps.</title>
+  <!-- BEGIN PAGE LEVEL STYLES -->
+  <link href="./libs/jsvectormap/dist/jsvectormap.css?1744816593" rel="stylesheet" />
+  <!-- END PAGE LEVEL STYLES -->
+  <!-- BEGIN GLOBAL MANDATORY STYLES -->
+  <link href="./dist/css/tabler.css?1744816593" rel="stylesheet" />
+  <!-- END GLOBAL MANDATORY STYLES -->
+  <!-- BEGIN PLUGINS STYLES -->
+  <link href="./dist/css/tabler-flags.css?1744816593" rel="stylesheet" />
+  <link href="./dist/css/tabler-socials.css?1744816593" rel="stylesheet" />
+  <link href="./dist/css/tabler-payments.css?1744816593" rel="stylesheet" />
+  <link href="./dist/css/tabler-vendors.css?1744816593" rel="stylesheet" />
+  <link href="./dist/css/tabler-marketing.css?1744816593" rel="stylesheet" />
+  <link href="./dist/css/tabler-themes.css?1744816593" rel="stylesheet" />
+  <!-- END PLUGINS STYLES -->
+  <!-- BEGIN DEMO STYLES -->
+  <link href="./preview/css/demo.css?1744816593" rel="stylesheet" />
+  <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+  <!-- END DEMO STYLES -->
+  <!-- BEGIN CUSTOM FONT -->
+  <style>
+    @import url("https://rsms.me/inter/inter.css");
+  </style>
+  <!-- END CUSTOM FONT -->
+</head>
+
+<body class="layout-fluid">
+  <!-- BEGIN GLOBAL THEME SCRIPT -->
+  <script src="./dist/js/tabler-theme.min.js?1744816593"></script>
+  <!-- END GLOBAL THEME SCRIPT -->
+  <div class="page">
+    <!--  BEGIN SIDEBAR  -->
+    <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+      <div class="container-fluid">
+        <!-- BEGIN NAVBAR TOGGLER -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+          aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- END NAVBAR TOGGLER -->
+
+        <!-- BEGIN NAVBAR LOGO -->
+        <!-- <div class="navbar-brand navbar-brand-autodark">
+            <a href="."><svg xmlns="http://www.w3.org/2000/svg" width="110" height="32" viewBox="0 0 232 68" class="navbar-brand-image">
+                <path
+                  d="M64.6 16.2C63 9.9 58.1 5 51.8 3.4 40 1.5 28 1.5 16.2 3.4 9.9 5 5 9.9 3.4 16.2 1.5 28 1.5 40 3.4 51.8 5 58.1 9.9 63 16.2 64.6c11.8 1.9 23.8 1.9 35.6 0C58.1 63 63 58.1 64.6 51.8c1.9-11.8 1.9-23.8 0-35.6zM33.3 36.3c-2.8 4.4-6.6 8.2-11.1 11-1.5.9-3.3.9-4.8.1s-2.4-2.3-2.5-4c0-1.7.9-3.3 2.4-4.1 2.3-1.4 4.4-3.2 6.1-5.3-1.8-2.1-3.8-3.8-6.1-5.3-2.3-1.3-3-4.2-1.7-6.4s4.3-2.9 6.5-1.6c4.5 2.8 8.2 6.5 11.1 10.9 1 1.4 1 3.3.1 4.7zM49.2 46H37.8c-2.1 0-3.8-1-3.8-3s1.7-3 3.8-3h11.4c2.1 0 3.8 1 3.8 3s-1.7 3-3.8 3z"
+                  fill="#066fd1"
+                  style="fill: var(--tblr-primary, #066fd1)"/>
+                <path
+                  d="M105.8 46.1c.4 0 .9.2 1.2.6s.6 1 .6 1.7c0 .9-.5 1.6-1.4 2.2s-2 .9-3.2.9c-2 0-3.7-.4-5-1.3s-2-2.6-2-5.4V31.6h-2.2c-.8 0-1.4-.3-1.9-.8s-.9-1.1-.9-1.9c0-.7.3-1.4.8-1.8s1.2-.7 1.9-.7h2.2v-3.1c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v3.1h3.4c.8 0 1.4.3 1.9.8s.8 1.2.8 1.9-.3 1.4-.8 1.8-1.2.7-1.9.7h-3.4v13c0 .7.2 1.2.5 1.5s.8.5 1.4.5c.3 0 .6-.1 1.1-.2.5-.2.8-.3 1.2-.3zm28-20.7c.8 0 1.5.3 2.1.8.5.5.8 1.2.8 2.1v20.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2-.8-.8-1.2-.8-2.1c-.8.9-1.9 1.7-3.2 2.4-1.3.7-2.8 1-4.3 1-2.2 0-4.2-.6-6-1.7-1.8-1.1-3.2-2.7-4.2-4.7s-1.6-4.3-1.6-6.9c0-2.6.5-4.9 1.5-6.9s2.4-3.6 4.2-4.8c1.8-1.1 3.7-1.7 5.9-1.7 1.5 0 3 .3 4.3.8 1.3.6 2.5 1.3 3.4 2.1 0-.8.3-1.5.8-2.1.5-.5 1.2-.7 2-.7zm-9.7 21.3c2.1 0 3.8-.8 5.1-2.3s2-3.4 2-5.7-.7-4.2-2-5.8c-1.3-1.5-3-2.3-5.1-2.3-2 0-3.7.8-5 2.3-1.3 1.5-2 3.5-2 5.8s.6 4.2 1.9 5.7 3 2.3 5.1 2.3zm32.1-21.3c2.2 0 4.2.6 6 1.7 1.8 1.1 3.2 2.7 4.2 4.7s1.6 4.3 1.6 6.9-.5 4.9-1.5 6.9-2.4 3.6-4.2 4.8c-1.8 1.1-3.7 1.7-5.9 1.7-1.5 0-3-.3-4.3-.9s-2.5-1.4-3.4-2.3v.3c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.5-.8-1.2-.8-2.1V18.9c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v10c.8-1 1.8-1.8 3.2-2.5 1.3-.7 2.8-1 4.3-1zm-.7 21.3c2 0 3.7-.8 5-2.3s2-3.5 2-5.8-.6-4.2-1.9-5.7-3-2.3-5.1-2.3-3.8.8-5.1 2.3-2 3.4-2 5.7.7 4.2 2 5.8c1.3 1.6 3 2.3 5.1 2.3zm23.6 1.9c0 .8-.3 1.5-.8 2.1s-1.3.8-2.1.8-1.5-.3-2-.8-.8-1.3-.8-2.1V18.9c0-.8.3-1.5.8-2.1s1.3-.8 2.1-.8 1.5.3 2 .8.8 1.3.8 2.1v29.7zm29.3-10.5c0 .8-.3 1.4-.9 1.9-.6.5-1.2.7-2 .7h-15.8c.4 1.9 1.3 3.4 2.6 4.4 1.4 1.1 2.9 1.6 4.7 1.6 1.3 0 2.3-.1 3.1-.4.7-.2 1.3-.5 1.8-.8.4-.3.7-.5.9-.6.6-.3 1.1-.4 1.6-.4.7 0 1.2.2 1.7.7s.7 1 .7 1.7c0 .9-.4 1.6-1.3 2.4-.9.7-2.1 1.4-3.6 1.9s-3 .8-4.6.8c-2.7 0-5-.6-7-1.7s-3.5-2.7-4.6-4.6-1.6-4.2-1.6-6.6c0-2.8.6-5.2 1.7-7.2s2.7-3.7 4.6-4.8 3.9-1.7 6-1.7 4.1.6 6 1.7 3.4 2.7 4.5 4.7c.9 1.9 1.5 4.1 1.5 6.3zm-12.2-7.5c-3.7 0-5.9 1.7-6.6 5.2h12.6v-.3c-.1-1.3-.8-2.5-2-3.5s-2.5-1.4-4-1.4zm30.3-5.2c1 0 1.8.3 2.4.8.7.5 1 1.2 1 1.9 0 1-.3 1.7-.8 2.2-.5.5-1.1.8-1.8.7-.5 0-1-.1-1.6-.3-.2-.1-.4-.1-.6-.2-.4-.1-.7-.1-1.1-.1-.8 0-1.6.3-2.4.8s-1.4 1.3-1.9 2.3-.7 2.3-.7 3.7v11.4c0 .8-.3 1.5-.8 2.1-.5.6-1.2.8-2.1.8s-1.5-.3-2.1-.8c-.5-.6-.8-1.3-.8-2.1V28.8c0-.8.3-1.5.8-2.1.5-.6 1.2-.8 2.1-.8s1.5.3 2.1.8c.5.6.8 1.3.8 2.1v.6c.7-1.3 1.8-2.3 3.2-3 1.3-.7 2.8-1 4.3-1z"
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  fill="#4a4a4a"/>
+                </svg>
+            </a>
+          </div> -->
+        <!-- END NAVBAR LOGO -->
+
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+          <!-- BEGIN NAVBAR MENU -->
+          <ul class="navbar-nav pt-lg-3">
+            <li class="nav-item">
+              <a class="nav-link" href="#navbar-addons" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-1">
+                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M15 15l3.35 3.35" />
+                    <path d="M9 15l-3.35 3.35" />
+                    <path d="M5.65 5.65l3.35 3.35" />
+                    <path d="M18.35 5.65l-3.35 3.35" />
+                  </svg></span>
+                <span class="nav-link-title"> Beranda </span>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="#navbar-addons" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
+                <span
+                  class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/lifebuoy -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-1">
+                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M15 15l3.35 3.35" />
+                    <path d="M9 15l-3.35 3.35" />
+                    <path d="M5.65 5.65l3.35 3.35" />
+                    <path d="M18.35 5.65l-3.35 3.35" />
+                  </svg></span>
+                <span class="nav-link-title"> Dashboard </span>
+              </a>
+            </li>
+
+            <li class="nav-item active dropdown">
+              <a class="nav-link dropdown-toggle" href="#navbar-layout" data-bs-toggle="dropdown"
+                data-bs-auto-close="false" role="button" aria-expanded="true">
+                <span
+                  class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/layout-2 -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-1">
+                    <path d="M4 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                    <path d="M4 13m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                    <path d="M14 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                    <path d="M14 15m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                  </svg></span>
+                <span class="nav-link-title"> Panel Management </span>
+              </a>
+              <div class="dropdown-menu show">
+                <div class="dropdown-menu-columns">
+                  <div class="dropdown-menu-column">
+                    <a class="dropdown-item " href="./superadmin-users.html"
+                      style="background-color: gray; color: white;"> Users </a>
+                    <a class="dropdown-item" href="./superadmin-roles.html"> Roles </a>
+                    <a class="dropdown-item" href="./superadmin-permissions.html"> Permissions </a>
+                    <a class="dropdown-item" href="./superadmin-menus.html"> Menus </a>
+                    <a class="dropdown-item" href="./superadmin-pages.html"> Pages </a>
+                    <a class="dropdown-item" href="./superadmin-menulain.html"> Menu Lain </a>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="#navbar-addons" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
+                <span
+                  class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/lifebuoy -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-1">
+                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M15 15l3.35 3.35" />
+                    <path d="M9 15l-3.35 3.35" />
+                    <path d="M5.65 5.65l3.35 3.35" />
+                    <path d="M18.35 5.65l-3.35 3.35" />
+                  </svg></span>
+                <span class="nav-link-title"> Pengaturan </span>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="#navbar-addons" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
+                <span
+                  class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/lifebuoy -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-1">
+                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M15 15l3.35 3.35" />
+                    <path d="M9 15l-3.35 3.35" />
+                    <path d="M5.65 5.65l3.35 3.35" />
+                    <path d="M18.35 5.65l-3.35 3.35" />
+                  </svg></span>
+                <span class="nav-link-title"> Tentang Kami </span>
+              </a>
+            </li>
+          </ul>
+          <!-- END NAVBAR MENU -->
+
+        </div>
+      </div>
+    </aside>
+    <div class="page-wrapper">
+      <div class="page-header d-print-none" aria-label="Page header">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">Overview</div>
+                <h2 class="page-title">Dashboard</h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <a href="#" class="btn btn-primary btn-5 d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
+                    <!-- Download SVG icon from http://tabler.io/icons/icon/plus -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-2">
+                      <path d="M12 5l0 14"></path>
+                      <path d="M5 12l14 0"></path>
+                    </svg>
+                    Tambah Menu
+                  </a>
+                  <a href="#" class="btn btn-primary btn-6 d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
+                    <!-- Download SVG icon from http://tabler.io/icons/icon/plus -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-2">
+                      <path d="M12 5l0 14"></path>
+                      <path d="M5 12l14 0"></path>
+                    </svg>
+                  </a>
+                </div>
+                <!-- BEGIN MODAL -->
+                <!-- END MODAL -->
+              </div>
+            </div>
+          </div>
+        </div>
+      <!--  END SIDEBAR  -->
+      <div class="page-body">
+        <div class="container-xl">
+          <div class="row row-cards">
+            <div class="col-12">
+
+              <div class="card">
+                <div class="card-table">
+                  <div class="card-header">
+                    <div class="row w-full">
+                      <div class="col">
+                      </div>
+                      <div class="col-md-auto col-sm-12">
+                        <div class="ms-auto d-flex flex-wrap btn-list">
+                          <div class="input-group input-group-flat w-auto">
+                            <span class="input-group-text">
+                              <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-1">
+                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                <path d="M21 21l-6 -6" />
+                              </svg>
+                            </span>
+                            <input id="advanced-table-search" type="text" class="form-control" autocomplete="off" />
+                            <span class="input-group-text">
+                              <kbd>ctrl + K</kbd>
+                            </span>
+                          </div>
+                          <div class="dropdown">
+                            <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown">Download</a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="#">pdf</a>
+                              <a class="dropdown-item" href="#">excell</a>
+                            </div>
+                          </div>
+                          <a href="#" class="btn btn-danger"> Hapus Semua </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="advanced-table">
+                    <div class="table-responsive">
+                      <table class="table table-vcenter table-selectable">
+                        <thead>
+                          <tr>
+                            <th class="w-1"></th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-name">Nama</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-city">Username</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-status">Email</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-tags">Role</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-tags">Status</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-tags">Dibuat</button>
+                            </th>
+                            <th>
+                              <button class="table-sort d-flex justify-content-between"
+                                data-sort="sort-category">Aksi</button>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody class="table-tbody">
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Angela Fransisca
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">angela@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Ethan
+                            </td>
+                            <td class="sort-username">05030107</td>
+                            <td class="sort-email">ethan@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="8"  height="8"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Clarin
+                            </td>
+                            <td class="sort-username">1204220025</td>
+                            <td class="sort-email">clarin@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Benjamin Sprouse
+                            </td>
+                            <td class="sort-username">1204220001</td>
+                            <td class="sort-email">bb@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-danger-lt">Inactive</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Muhammad Izzul
+                            </td>
+                            <td class="sort-username">1204220052</td>
+                            <td class="sort-email">izzul@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Haq Sanni
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">haq@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-danger-lt">Inactive</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Maromi 
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">angela@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Rara Larasati
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">rara@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Angela Fransisca
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">angela@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox"
+                                aria-label="Select invoice" value="true" />
+                            </td>
+                            <td class="sort-name">
+                              <span class="avatar avatar-xs me-2"
+                                style="background-image: url(./static/avatars/000m.jpg)">
+                              </span>
+                              Angela Fransisca
+                            </td>
+                            <td class="sort-username">1204220007</td>
+                            <td class="sort-email">angela@gmail.com</td>
+                            <td class="sort-role">Admin</td>
+                                   <td class="sort-status">
+                              <span class="badge bg-success-lt">Active</span>
+                            </td>
+                            <td class="sort-email">December 08, 2024</td>
+                            <td class="sort-role"><a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a> <a class="btn btn-primary btn-sm"><svg  xmlns="http://www.w3.org/2000/svg"  width="12"  height="12"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></a></td>
+                          </tr>
+                          
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="card-footer d-flex align-items-center">
+                      <div class="dropdown">
+                        <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
+                          <span id="page-count" class="me-1">20</span>
+                          <span>records</span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" onclick="setPageListItems(event)" data-value="10">10 records</a>
+                          <a class="dropdown-item" onclick="setPageListItems(event)" data-value="20">20 records</a>
+                          <a class="dropdown-item" onclick="setPageListItems(event)" data-value="50">50 records</a>
+                          <a class="dropdown-item" onclick="setPageListItems(event)" data-value="100">100 records</a>
+                        </div>
+                      </div>
+                      <ul class="pagination m-0 ms-auto">
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-left -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" class="icon icon-1">
+                              <path d="M15 6l-6 6l6 6" />
+                            </svg>
+                            prev
+                          </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                        <li class="page-item"><a class="page-link" href="#">6</a></li>
+                        <li class="page-item"><a class="page-link" href="#">7</a></li>
+                        <li class="page-item"><a class="page-link" href="#">8</a></li>
+                        <li class="page-item"><a class="page-link" href="#">9</a></li>
+                        <li class="page-item"><a class="page-link" href="#">10</a></li>
+                        <li class="page-item">
+                          <a class="page-link" href="#">
+                            next
+                            <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-right -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" class="icon icon-1">
+                              <path d="M9 6l6 6l-6 6" />
+                            </svg>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <script>
+                const advancedTable = {
+                  headers: [
+                    { "data-sort": "sort-name", name: "Name" },
+                    { "data-sort": "sort-city", name: "City" },
+                    { "data-sort": "sort-status", name: "Status" },
+                    { "data-sort": "sort-date", name: "Start date" },
+                    { "data-sort": "sort-tags", name: "Tags" },
+                    { "data-sort": "sort-category", name: "Category" },
+                  ],
+                };
+                const setPageListItems = (e) => {
+                  window.tabler_list["advanced-table"].page = parseInt(e.target.dataset.value);
+                  window.tabler_list["advanced-table"].update();
+                  document.querySelector("#page-count").innerHTML = e.target.dataset.value;
+                };
+                window.tabler_list = window.tabler_list || {};
+                document.addEventListener("DOMContentLoaded", function () {
+                  const list = (window.tabler_list["advanced-table"] = new List("advanced-table", {
+                    sortClass: "table-sort",
+                    listClass: "table-tbody",
+                    page: parseInt("20"),
+                    pagination: {
+                      item: (value) => {
+                        return `<li class="page-item"><a class="page-link cursor-pointer">${value.page}</a></li>`;
+                      },
+                      innerWindow: 1,
+                      outerWindow: 1,
+                      left: 0,
+                      right: 0,
+                    },
+                    valueNames: advancedTable.headers.map((header) => header["data-sort"]),
+                  }));
+                  const searchInput = document.querySelector("#advanced-table-search");
+                  if (searchInput) {
+                    searchInput.addEventListener("input", () => {
+                      list.search(searchInput.value);
+                    });
+                  }
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>
