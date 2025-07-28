@@ -191,4 +191,101 @@ class MenuService
 
         return $breadcrumb;
     }
+
+    /**
+     * Get public navbar menus for authenticated users
+     * Returns hierarchical menu structure for navbar display
+     */
+    public function getNavbarMenus(): array
+    {
+        // Get only root level menus that are public and active
+        $rootMenus = MasterMenu::whereNull('parent_id')
+            ->where('route_type', 'public')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        $navbarMenus = [];
+
+        foreach ($rootMenus as $menu) {
+            // Check if user has access to this menu
+            if (!$menu->isAccessible()) {
+                continue;
+            }
+
+            $menuData = [
+                'id' => $menu->id,
+                'nama_menu' => $menu->nama_menu,
+                'slug' => $menu->slug,
+                'route_name' => $menu->route_name,
+                'icon' => $menu->icon,
+                'url' => $this->buildMenuUrl($menu),
+                'children' => $this->getAccessibleChildren($menu->id)
+            ];
+
+            // Only add menu if it has accessible children or is accessible itself
+            if (!empty($menuData['children']) || $menu->isAccessible()) {
+                $navbarMenus[] = $menuData;
+            }
+        }
+
+        return $navbarMenus;
+    }
+
+    /**
+     * Get accessible children for a menu
+     */
+    private function getAccessibleChildren(int $parentId): array
+    {
+        $children = MasterMenu::where('parent_id', $parentId)
+            ->where('route_type', 'public')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        $accessibleChildren = [];
+
+        foreach ($children as $child) {
+            if (!$child->isAccessible()) {
+                continue;
+            }
+
+            $childData = [
+                'id' => $child->id,
+                'nama_menu' => $child->nama_menu,
+                'slug' => $child->slug,
+                'route_name' => $child->route_name,
+                'icon' => $child->icon,
+                'url' => $this->buildMenuUrl($child),
+                'children' => $this->getAccessibleChildren($child->id)
+            ];
+
+            $accessibleChildren[] = $childData;
+        }
+
+        return $accessibleChildren;
+    }
+
+    /**
+     * Build URL for menu item
+     */
+    private function buildMenuUrl(MasterMenu $menu): string
+    {
+        // If menu has a route name, use it
+        if ($menu->route_name) {
+            try {
+                return route($menu->route_name);
+            } catch (\Exception $e) {
+                // Fallback to slug-based URL if route doesn't exist
+            }
+        }
+
+        // If menu has a slug, build URL with it
+        if ($menu->slug) {
+            return url('/' . $menu->slug);
+        }
+
+        // Default fallback for parent menus
+        return '#';
+    }
 }
