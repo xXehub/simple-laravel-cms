@@ -17,7 +17,7 @@
 
     @can('delete-menus')
         <button type="button" class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 12px;"
-            onclick="confirmDeleteMenu({{ $menu['id'] }}, '{{ addslashes($menu['nama_menu']) }}')" title="Delete Menu">
+            onclick="confirmDeleteMenu({{ $menu['id'] }}, '{{ addslashes($menu['label']) }}')" title="Delete Menu">
             <i class="fa-solid fa-trash-can"></i>
         </button>
     @endcan

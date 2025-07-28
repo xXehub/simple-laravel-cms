@@ -90,7 +90,6 @@
                 <!-- Permission Modals -->
                 <x-modals.permissions.create />
                 <x-modals.permissions.edit />
-                <x-modals.permissions.delete />
                 <x-modals.permissions.delete-selected />
             </div>
         </div>
@@ -104,6 +103,7 @@
 
             // Set the edit route for backward compatibility
             window.permissionEditRoute = '{{ route('panel.permissions.edit', ':id') }}';
+            window.permissionDeleteRoute = '{{ route('panel.permissions.destroy', ':id') }}';
 
             // Initialize Permissions DataTable
             PermissionsDataTable.initialize('{{ route('panel.permissions.datatable') }}')

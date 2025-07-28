@@ -72,7 +72,7 @@ class UserController extends Controller
             $user->syncRoles($request->validated()['roles'] ?? []);
         }
 
-        return ResponseHelper::redirect('panel.users', 'User created successfully');
+        return ResponseHelper::redirect('panel.users', 'User berhasil dibuat!');
     }
 
     /**
@@ -112,7 +112,7 @@ class UserController extends Controller
         $user->update($userData);
         $user->syncRoles($request->validated()['roles'] ?? []);
 
-        return ResponseHelper::redirect('panel.users', 'User updated successfully');
+        return ResponseHelper::redirect('panel.users', 'User berhasil diperbarui!');
     }
 
     /**
@@ -123,12 +123,12 @@ class UserController extends Controller
         $user = $this->getUserById($request);
 
         if ($user->id === auth()->id()) {
-            return ResponseHelper::error('You cannot delete your own account');
+            return ResponseHelper::error('Tidak dapat menghapus akun sendiri');
         }
 
         $user->delete();
 
-        return ResponseHelper::redirect('panel.users', 'User deleted successfully');
+        return ResponseHelper::redirect('panel.users', 'User berhasil dihapus!');
     }
 
     /**
@@ -250,12 +250,12 @@ class UserController extends Controller
             $user->update(['avatar' => $filename]);
             $user->refresh();
 
-            return ResponseHelper::handleBack($request, 'Avatar uploaded successfully', [
+            return ResponseHelper::handleBack($request, 'Avatar berhasil diunggah!', [
                 'avatar_url' => $user->avatar_url
             ]);
 
         } catch (\Exception $e) {
-            return ResponseHelper::handleBack($request, 'Failed to upload avatar: ' . $e->getMessage(), null, 'error');
+            return ResponseHelper::handleBack($request, 'Gagal mengunggah avatar: ' . $e->getMessage(), null, 'error');
         }
     }
 
@@ -278,12 +278,12 @@ class UserController extends Controller
                 $user->refresh();
             }
 
-            return ResponseHelper::handleBack($request, 'Avatar deleted successfully', [
+            return ResponseHelper::handleBack($request, 'Avatar berhasil dihapus!', [
                 'avatar_url' => $user->avatar_url
             ]);
 
         } catch (\Exception $e) {
-            return ResponseHelper::handleBack($request, 'Failed to delete avatar: ' . $e->getMessage(), null, 'error');
+            return ResponseHelper::handleBack($request, 'Gagal menghapus avatar: ' . $e->getMessage(), null, 'error');
         }
     }
 }

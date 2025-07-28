@@ -185,14 +185,22 @@ window.PermissionsDataTable = (function () {
     }
 
     function deletePermission(permissionId, permissionName) {
-        $('#delete_permission_id').val(permissionId);
-        $('#delete_permission_name').text(permissionName);
-        
-        // Update form action
-        const form = $('#deletePermissionForm')[0];
-        form.action = form.action.includes(':id') 
-            ? form.action.replace(':id', permissionId)
-            : form.action.replace(/\/\d+$/, '') + '/' + permissionId;
+        // Use the new confirmation modal if available
+        if (typeof confirmDeletePermission === 'function') {
+            confirmDeletePermission(permissionId, permissionName);
+        } else {
+            // Fallback to old method if confirmation modal is not available
+            $('#delete_permission_id').val(permissionId);
+            $('#delete_permission_name').text(permissionName);
+            
+            // Update form action
+            const form = $('#deletePermissionForm')[0];
+            if (form) {
+                form.action = form.action.includes(':id') 
+                    ? form.action.replace(':id', permissionId)
+                    : form.action.replace(/\/\d+$/, '') + '/' + permissionId;
+            }
+        }
     }
 
     // --- Helper Functions ---
@@ -234,5 +242,5 @@ window.PermissionsDataTable = (function () {
 
 // --- Legacy Support ---
 window.editPermission = (permissionId, editRoute = null) => PermissionsDataTable.editPermission(permissionId, editRoute);
-window.deletePermission = (permissionId, permissionName) => PermissionsDataTable.deletePermission(permissionId, permissionName);  
+window.deletePermission = (permissionId, permissionName) => typeof confirmDeletePermission === 'function' ? confirmDeletePermission(permissionId, permissionName) : PermissionsDataTable.deletePermission(permissionId, permissionName);
 window.setPageListItems = (event) => PermissionsDataTable.setPageListItems(event);
