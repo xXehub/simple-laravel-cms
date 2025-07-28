@@ -14,7 +14,12 @@ window.DataTableGlobal = (function () {
         defaultPageLength: 15,
         lengthMenu: [10, 15, 25, 50, 100],
         language: {
-            processing: "Memuat...",
+            processing: `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2">Memuat data...</div>
+            </div>
+        `,
             zeroRecords: "Tidak ada data yang ditemukan",
             info: "",
             infoEmpty: "",
@@ -60,7 +65,9 @@ window.DataTableGlobal = (function () {
         const prevDisabled = pageInfo.page === 0 ? "disabled" : "";
         paginationHtml += `
             <li class="page-item ${prevDisabled}">
-                <a class="page-link datatable-pagination-btn" href="#" data-action="previous" ${prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ""}>
+                <a class="page-link datatable-pagination-btn" href="#" data-action="previous" ${
+                    prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ""
+                }>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                         <path d="M15 6l-6 6l6 6"/>
                     </svg>
@@ -93,14 +100,19 @@ window.DataTableGlobal = (function () {
             if (endPage < totalPages - 1) {
                 paginationHtml += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
             }
-            paginationHtml += `<li class="page-item"><a class="page-link datatable-pagination-btn" href="#" data-action="page" data-page="${totalPages - 1}">${totalPages}</a></li>`;
+            paginationHtml += `<li class="page-item"><a class="page-link datatable-pagination-btn" href="#" data-action="page" data-page="${
+                totalPages - 1
+            }">${totalPages}</a></li>`;
         }
 
         // Next button
-        const nextDisabled = pageInfo.page === pageInfo.pages - 1 ? "disabled" : "";
+        const nextDisabled =
+            pageInfo.page === pageInfo.pages - 1 ? "disabled" : "";
         paginationHtml += `
             <li class="page-item ${nextDisabled}">
-                <a class="page-link datatable-pagination-btn" href="#" data-action="next" ${nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ""}>
+                <a class="page-link datatable-pagination-btn" href="#" data-action="next" ${
+                    nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ""
+                }>
                     selanjutnya
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                         <path d="M9 6l6 6l-6 6"/>
@@ -149,15 +161,22 @@ window.DataTableGlobal = (function () {
             updateRecordInfo: false,
             ...options,
         };
+        
         buildCustomPagination(api, opts.paginationSelector);
         // Optionally update record info
-        if (opts.updateRecordInfo && typeof window.updateRecordInfo === "function") {
+        if (
+            opts.updateRecordInfo &&
+            typeof window.updateRecordInfo === "function"
+        ) {
             window.updateRecordInfo(settings);
         }
     }
 
     // --- Page Length Dropdown Handler ---
-    function createPageLengthHandler(tableInstance, pageCountSelector = "#page-count") {
+    function createPageLengthHandler(
+        tableInstance,
+        pageCountSelector = "#page-count"
+    ) {
         return function (event) {
             event.preventDefault();
 
@@ -168,20 +187,27 @@ window.DataTableGlobal = (function () {
                 value = parseInt($(event.target).text(), 10);
             }
 
-            if (!isNaN(value) && tableInstance && typeof tableInstance.page === 'object') {
+            if (
+                !isNaN(value) &&
+                tableInstance &&
+                typeof tableInstance.page === "object"
+            ) {
                 // Update page length
                 tableInstance.page.len(value).draw();
 
                 // Update display counter
                 $(pageCountSelector).text(value);
 
-                console.log('Page length updated to:', value);
+                console.log("Page length updated to:", value);
             }
         };
     }
 
     // --- Search Input Handler ---
-    function createSearchHandler(tableInstance, searchInputSelector = "#advanced-table-search") {
+    function createSearchHandler(
+        tableInstance,
+        searchInputSelector = "#advanced-table-search"
+    ) {
         // Clear previous handlers
         $(searchInputSelector).off("keyup.search input.search");
 
@@ -192,7 +218,10 @@ window.DataTableGlobal = (function () {
             const searchValue = this.value;
 
             searchTimeout = setTimeout(() => {
-                if (tableInstance && typeof tableInstance.search === 'function') {
+                if (
+                    tableInstance &&
+                    typeof tableInstance.search === "function"
+                ) {
                     tableInstance.search(searchValue).draw();
                 }
             }, 300); // Delay 300ms untuk mengurangi request
@@ -200,7 +229,11 @@ window.DataTableGlobal = (function () {
     }
 
     // --- Setup Page Length Handler Global ---
-    function setupPageLengthHandler(tableInstance, dropdownSelector = ".dropdown-item[data-value]", pageCountSelector = "#page-count") {
+    function setupPageLengthHandler(
+        tableInstance,
+        dropdownSelector = ".dropdown-item[data-value]",
+        pageCountSelector = "#page-count"
+    ) {
         // Clear previous handlers untuk avoid duplicates
         $(dropdownSelector).off("click.pagelength");
 
@@ -216,7 +249,7 @@ window.DataTableGlobal = (function () {
                 // Update display
                 $(pageCountSelector).text(value);
 
-                console.log('Page length set to:', value);
+                console.log("Page length set to:", value);
             }
         });
     }
@@ -225,8 +258,8 @@ window.DataTableGlobal = (function () {
     function setupCheckboxHandlers(selectedArray, updateCallbacks = {}) {
         const {
             onUpdate = () => {},
-                onStateChange = () => {},
-                onButtonUpdate = () => {}
+            onStateChange = () => {},
+            onButtonUpdate = () => {},
         } = updateCallbacks;
 
         // Select all checkbox
@@ -243,16 +276,23 @@ window.DataTableGlobal = (function () {
         // Individual row checkboxes
         $(document)
             .off("change.global-checkbox", ".table-selectable-check")
-            .on("change.global-checkbox", ".table-selectable-check", function () {
-                updateSelectedArray(selectedArray);
-                updateSelectAllState();
-                onStateChange();
-                onButtonUpdate();
-            });
+            .on(
+                "change.global-checkbox",
+                ".table-selectable-check",
+                function () {
+                    updateSelectedArray(selectedArray);
+                    updateSelectAllState();
+                    onStateChange();
+                    onButtonUpdate();
+                }
+            );
     }
 
     // --- Update Selected Array (Global) ---
-    function updateSelectedArray(selectedArray, countSelector = "#selected-count") {
+    function updateSelectedArray(
+        selectedArray,
+        countSelector = "#selected-count"
+    ) {
         selectedArray.length = 0; // Clear array
         $(".table-selectable-check:checked").each(function () {
             selectedArray.push($(this).val());
@@ -262,7 +302,10 @@ window.DataTableGlobal = (function () {
     }
 
     // --- Update Select All Checkbox State (Global) ---
-    function updateSelectAllState(selectAllSelector = "#select-all", checkboxClass = ".table-selectable-check") {
+    function updateSelectAllState(
+        selectAllSelector = "#select-all",
+        checkboxClass = ".table-selectable-check"
+    ) {
         const totalCheckboxes = $(checkboxClass).length;
         const checkedCheckboxes = $(checkboxClass + ":checked").length;
         $(selectAllSelector).prop(
@@ -276,7 +319,11 @@ window.DataTableGlobal = (function () {
     }
 
     // --- Update Record Info (Global) ---
-    function updateRecordInfo(tableInstance, infoSelector = "#record-info", entityName = "entries") {
+    function updateRecordInfo(
+        tableInstance,
+        infoSelector = "#record-info",
+        entityName = "entries"
+    ) {
         if (tableInstance && tableInstance.page) {
             const info = tableInstance.page.info();
             const start = info.start + 1;
@@ -284,7 +331,7 @@ window.DataTableGlobal = (function () {
             const total = info.recordsTotal;
             const filtered = info.recordsDisplay;
 
-            let infoText = '';
+            let infoText = "";
             if (total > 0) {
                 if (filtered !== total) {
                     infoText = `Menampilkan <strong>${start} to ${end}</strong> of <strong>${filtered}</strong> ${entityName} (difilter dari <strong>${total}</strong> total)`;
@@ -313,7 +360,7 @@ window.DataTableGlobal = (function () {
 
     // --- Standard Modal Handlers (Global) ---
     function setupStandardModalHandlers(modalConfigs = []) {
-        modalConfigs.forEach(config => {
+        modalConfigs.forEach((config) => {
             $(config.modalSelector).on("hidden.bs.modal", function () {
                 if (config.formSelector) {
                     const form = document.querySelector(config.formSelector);
@@ -329,7 +376,9 @@ window.DataTableGlobal = (function () {
     }
 
     // --- Keyboard Shortcuts for Search ---
-    function setupKeyboardShortcuts(searchInputSelector = "#advanced-table-search") {
+    function setupKeyboardShortcuts(
+        searchInputSelector = "#advanced-table-search"
+    ) {
         $(document).on("keydown", function (e) {
             // Focus search input on Ctrl+F
             if ((e.ctrlKey || e.metaKey) && e.key === "f") {
@@ -340,7 +389,10 @@ window.DataTableGlobal = (function () {
     }
 
     // --- Select All Checkbox Handler ---
-    function setupSelectAllHandler(selectAllSelector = "#select-all", checkboxClass = ".table-selectable-check") {
+    function setupSelectAllHandler(
+        selectAllSelector = "#select-all",
+        checkboxClass = ".table-selectable-check"
+    ) {
         $(selectAllSelector).on("change", function () {
             const checked = this.checked;
             $(checkboxClass).prop("checked", checked).trigger("change");
@@ -366,65 +418,77 @@ window.DataTableGlobal = (function () {
 
     // --- TomSelect Modal Management (Global) ---
     function setupTomSelectModalHandlers(modalConfig, tomSelectInstances) {
-        const {
-            createModal,
-            editModal,
-            initCallback
-        } = modalConfig;
+        const { createModal, editModal, initCallback } = modalConfig;
 
         if (createModal) {
-            $(createModal).on('show.bs.modal', function () {
+            $(createModal).on("show.bs.modal", function () {
                 setTimeout(() => {
-                    if (initCallback) initCallback('create');
+                    if (initCallback) initCallback("create");
                 }, 200);
             });
         }
 
         if (editModal) {
-            $(editModal).on('show.bs.modal', function () {
+            $(editModal).on("show.bs.modal", function () {
                 setTimeout(() => {
-                    if (initCallback) initCallback('edit');
+                    if (initCallback) initCallback("edit");
                 }, 200);
             });
         }
 
         if (createModal || editModal) {
-            $(`${createModal || ''}, ${editModal || ''}`).on('hidden.bs.modal', function () {
-                destroyTomSelects(tomSelectInstances);
-            });
+            $(`${createModal || ""}, ${editModal || ""}`).on(
+                "hidden.bs.modal",
+                function () {
+                    destroyTomSelects(tomSelectInstances);
+                }
+            );
         }
     }
 
     // --- Initialize TomSelect Instances (Global) ---
     function initializeTomSelectInstances(selectors, tomSelectInstances) {
         return waitForTomSelect().then(() => {
-            selectors.forEach(selectId => {
+            selectors.forEach((selectId) => {
                 const element = document.getElementById(selectId);
                 if (element && !tomSelectInstances[selectId]) {
                     if (element.tomselect) {
                         try {
                             element.tomselect.destroy();
                         } catch (error) {
-                            console.error(`Failed to destroy existing TomSelect for ${selectId}:`, error);
+                            console.error(
+                                `Failed to destroy existing TomSelect for ${selectId}:`,
+                                error
+                            );
                         }
                     }
 
                     try {
                         const config = {
-                            plugins: ['remove_button', 'clear_button'],
-                            allowEmptyOption: selectId.includes('parent'),
+                            plugins: ["remove_button", "clear_button"],
+                            allowEmptyOption: selectId.includes("parent"),
                             create: false,
-                            placeholder: selectId.includes('parent') ? 'Select parent menu...' : selectId.includes('roles') ? 'Select roles...' : 'Select option...'
+                            placeholder: selectId.includes("parent")
+                                ? "Select parent menu..."
+                                : selectId.includes("roles")
+                                ? "Select roles..."
+                                : "Select option...",
                         };
 
-                        if (selectId.includes('roles')) {
-                            config.plugins = ['remove_button'];
+                        if (selectId.includes("roles")) {
+                            config.plugins = ["remove_button"];
                             config.maxItems = null;
                         }
 
-                        tomSelectInstances[selectId] = new TomSelect(element, config);
+                        tomSelectInstances[selectId] = new TomSelect(
+                            element,
+                            config
+                        );
                     } catch (error) {
-                        console.error(`Failed to initialize TomSelect for ${selectId}:`, error);
+                        console.error(
+                            `Failed to initialize TomSelect for ${selectId}:`,
+                            error
+                        );
                     }
                 }
             });
@@ -439,97 +503,118 @@ window.DataTableGlobal = (function () {
             entityName = "items",
             tableInstance,
             updateCallback,
-            customRequestData = null
+            customRequestData = null,
         } = config;
 
         // Handle bulk delete button click
-        $(document).off("click.bulkdelete", ".btn-bulk-delete").on("click.bulkdelete", ".btn-bulk-delete", function () {
-            if (selectedArray.length === 0) {
-                if (window.showToast) {
-                    window.showToast('warning', 'Warning!', `No ${entityName}s selected`);
-                } else {
-                    alert(`No ${entityName}s selected`);
+        $(document)
+            .off("click.bulkdelete", ".btn-bulk-delete")
+            .on("click.bulkdelete", ".btn-bulk-delete", function () {
+                if (selectedArray.length === 0) {
+                    if (window.showToast) {
+                        window.showToast(
+                            "warning",
+                            "Warning!",
+                            `No ${entityName}s selected`
+                        );
+                    } else {
+                        alert(`No ${entityName}s selected`);
+                    }
+                    return;
                 }
-                return;
-            }
 
-            // Use the new modal confirmation alert system
-            if (window.showConfirmationModal) {
-                window.showConfirmationModal({
-                    id: 'delete-selected',
-                    type: 'danger',
-                    title: `Delete Selected ${entityName.charAt(0).toUpperCase() + entityName.slice(1)}s`,
-                    message: `Are you sure you want to delete the selected ${selectedArray.length} ${entityName}${selectedArray.length > 1 ? 's' : ''}? This action cannot be undone.`,
-                    confirmText: 'Delete Selected',
-                    cancelText: 'Cancel',
-                    onConfirm: function() {
+                // Use the new modal confirmation alert system
+                if (window.showConfirmationModal) {
+                    window.showConfirmationModal({
+                        id: "delete-selected",
+                        type: "danger",
+                        title: `Delete Selected ${
+                            entityName.charAt(0).toUpperCase() +
+                            entityName.slice(1)
+                        }s`,
+                        message: `Are you sure you want to delete the selected ${
+                            selectedArray.length
+                        } ${entityName}${
+                            selectedArray.length > 1 ? "s" : ""
+                        }? This action cannot be undone.`,
+                        confirmText: "Delete Selected",
+                        cancelText: "Cancel",
+                        onConfirm: function () {
+                            performBulkDelete();
+                        },
+                    });
+                } else {
+                    // Fallback to basic confirmation
+                    if (
+                        confirm(
+                            `Are you sure you want to delete the selected ${
+                                selectedArray.length
+                            } ${entityName}${
+                                selectedArray.length > 1 ? "s" : ""
+                            }?`
+                        )
+                    ) {
                         performBulkDelete();
                     }
-                });
-            } else {
-                // Fallback to basic confirmation
-                if (confirm(`Are you sure you want to delete the selected ${selectedArray.length} ${entityName}${selectedArray.length > 1 ? 's' : ''}?`)) {
-                    performBulkDelete();
                 }
-            }
-        });
+            });
 
         function performBulkDelete() {
             // Prepare request data
             let requestData;
-            if (customRequestData && typeof customRequestData === 'function') {
+            if (customRequestData && typeof customRequestData === "function") {
                 requestData = customRequestData(selectedArray);
             } else {
                 // Auto-detect field name based on entity
-                const fieldName = entityName === 'permission' ? 'ids' : `${entityName}_ids`;
+                const fieldName =
+                    entityName === "permission" ? "ids" : `${entityName}_ids`;
                 requestData = { [fieldName]: selectedArray };
             }
 
-            // Send delete request
-            fetch(deleteRoute, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Show success/error message
-                const isSuccess = data.success === true || data.status === 'success';
-                const message = data.message || (isSuccess ? `${entityName.charAt(0).toUpperCase() + entityName.slice(1)}s deleted successfully` : `Failed to delete ${entityName}s`);
-                
-                if (window.showToast) {
-                    window.showToast(
-                        isSuccess ? 'success' : 'error',
-                        isSuccess ? 'Success!' : 'Error!',
-                        message
-                    );
-                } else {
-                    alert((isSuccess ? 'Success: ' : 'Error: ') + message);
-                }
+            // Create a form and submit it to trigger session-based modal alerts
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = deleteRoute;
+            form.style.display = "none";
 
-                // Refresh table and reset selection
-                if (tableInstance) {
-                    refreshDataTable(tableInstance, true);
-                }
-                
-                selectedArray.length = 0;
-                if (updateCallback && typeof updateCallback === 'function') {
-                    updateCallback();
-                }
-            })
-            .catch(error => {
-                console.error('Bulk delete error:', error);
-                const errorMessage = `Failed to delete selected ${entityName}s. Please try again.`;
-                if (window.showToast) {
-                    window.showToast('error', 'Error!', errorMessage);
+            // Add CSRF token
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "_token";
+            csrfInput.value = document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content");
+            form.appendChild(csrfInput);
+
+            // Add method override for DELETE
+            const methodInput = document.createElement("input");
+            methodInput.type = "hidden";
+            methodInput.name = "_method";
+            methodInput.value = "DELETE";
+            form.appendChild(methodInput);
+
+            // Add the selected IDs
+            Object.entries(requestData).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    value.forEach((id) => {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = `${key}[]`;
+                        input.value = id;
+                        form.appendChild(input);
+                    });
                 } else {
-                    alert(errorMessage);
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
                 }
             });
+
+            // Append and submit the form
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 
@@ -543,9 +628,11 @@ window.DataTableGlobal = (function () {
         }
 
         Object.entries(options).forEach(([value, text]) => {
-            const option = document.createElement('option');
+            const option = document.createElement("option");
             option.value = value;
-            option.textContent = cleanText ? text.replace(/[└├│─\s]+/g, '').trim() : text;
+            option.textContent = cleanText
+                ? text.replace(/[└├│─\s]+/g, "").trim()
+                : text;
             selectElement.appendChild(option);
         });
     }
@@ -565,17 +652,17 @@ window.DataTableGlobal = (function () {
     }
 
     function destroyTomSelects(tomSelectInstances) {
-        Object.values(tomSelectInstances).forEach(instance => {
-            if (instance && typeof instance.destroy === 'function') {
+        Object.values(tomSelectInstances).forEach((instance) => {
+            if (instance && typeof instance.destroy === "function") {
                 try {
                     instance.destroy();
                 } catch (error) {
-                    console.warn('Error destroying TomSelect:', error);
+                    console.warn("Error destroying TomSelect:", error);
                 }
             }
         });
         // Clear the instances object
-        Object.keys(tomSelectInstances).forEach(key => {
+        Object.keys(tomSelectInstances).forEach((key) => {
             delete tomSelectInstances[key];
         });
     }
@@ -585,23 +672,30 @@ window.DataTableGlobal = (function () {
         if (instance) {
             try {
                 if (Array.isArray(value)) {
-                    instance.setValue(value.map(v => typeof v === 'object' ? v.id || v.name || v : v));
+                    instance.setValue(
+                        value.map((v) =>
+                            typeof v === "object" ? v.id || v.name || v : v
+                        )
+                    );
                 } else {
-                    instance.setValue(value || '');
+                    instance.setValue(value || "");
                 }
             } catch (error) {
-                console.warn(`Failed to set TomSelect value for ${selectId}:`, error);
+                console.warn(
+                    `Failed to set TomSelect value for ${selectId}:`,
+                    error
+                );
             }
         }
     }
 
     function syncTomSelects(tomSelectInstances) {
-        Object.values(tomSelectInstances).forEach(instance => {
-            if (instance && typeof instance.sync === 'function') {
+        Object.values(tomSelectInstances).forEach((instance) => {
+            if (instance && typeof instance.sync === "function") {
                 try {
                     instance.sync();
                 } catch (error) {
-                    console.warn('TomSelect sync error:', error);
+                    console.warn("TomSelect sync error:", error);
                 }
             }
         });
@@ -620,10 +714,17 @@ window.DataTableGlobal = (function () {
                 updatePageCount(config.pageLength, options.pageCountSelector);
             }
             if (options.pageLengthHandlerSelector) {
-                setupPageLengthHandler(table, options.pageLengthHandlerSelector, options.pageCountSelector);
+                setupPageLengthHandler(
+                    table,
+                    options.pageLengthHandlerSelector,
+                    options.pageCountSelector
+                );
             }
             if (options.selectAllSelector) {
-                setupSelectAllHandler(options.selectAllSelector, options.checkboxClass);
+                setupSelectAllHandler(
+                    options.selectAllSelector,
+                    options.checkboxClass
+                );
             }
             if (options.enableKeyboardShortcuts) {
                 setupKeyboardShortcuts(options.searchInputSelector);

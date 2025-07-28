@@ -244,7 +244,7 @@ class MenuController extends Controller
             }
 
             if (!$this->menuService->canDelete($menuId)) {
-                $errors[] = "Cannot delete '{$menu->nama_menu}' - has child menus";
+                $errors[] = "Gagal menghapus '{$menu->nama_menu}' memiliki menu anak";
                 continue;
             }
 
@@ -253,13 +253,13 @@ class MenuController extends Controller
         }
 
         if ($deletedCount > 0) {
-            $message = "Successfully deleted {$deletedCount} menu(s)";
+            $message = "Berhasil menghapus {$deletedCount} menu(s)";
             $type = 'success';
             if (!empty($errors)) {
-                $message .= ". However, some menus could not be deleted: " . implode(', ', $errors);
+                $message .= ". Namun, beberapa menu tidak dapat dihapus: " . implode(', ', $errors);
             }
         } else {
-            $message = 'No menus were deleted. ' . implode(', ', $errors);
+            $message = 'Tidak ada menu yang dihapus. ' . implode(', ', $errors);
             $type = 'error';
         }
 
