@@ -50,7 +50,7 @@
                 :defaultRecords="15" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
-                                    <table id="datatable-permissions" class="table table-vcenter table-selectable">
+                                    <table id="datatable-permissions">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">

@@ -45,7 +45,7 @@
                 bulkDeletePermission="delete-users" />
                             <div id="advanced-table">
                                 <div class="table-responsive">
-                                    <table id="datatable-users" class="table table-vcenter card-table table-selectable ">
+                                    <table id="datatable-users">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">

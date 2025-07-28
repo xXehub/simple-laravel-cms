@@ -59,7 +59,7 @@
                             </x-form.datatable-header>
                             <div id="advanced-table">
                                 <div class="table-responsive">
-                                    <table id="menusTable" class="table table-vcenter table-selectable">
+                                    <table id="menusTable">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">

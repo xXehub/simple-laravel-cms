@@ -406,6 +406,10 @@ window.DataTableGlobal = (function () {
             serverSide: true,
             autoWidth: false,
             dom: "rt",
+             classes: {
+                sTable: "table table-vcenter table-striped card-table", // opsi ke 2 : table table-vcenter card-table table-selectable
+                sWrapper: "table-responsive",
+            },
             pageLength: config.defaultPageLength,
             lengthMenu: [config.lengthMenu, config.lengthMenu],
             language: config.language,

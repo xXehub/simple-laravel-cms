@@ -43,7 +43,7 @@
                             
                             <div id="advanced-table">
                                 <div class="table-responsive">
-                                    <table id="rolesTable" class="table table-vcenter table-selectable">
+                                    <table id="rolesTable">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">
