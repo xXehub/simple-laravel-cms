@@ -73,26 +73,27 @@
 
                     <!-- Search bar -->
                     <div class="input-icon mb-2">
-                        <input type="text" value="" class="form-control" placeholder="Search…" />
-                        <span class="input-icon-addon">
-                            <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-1">
-                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                <path d="M21 21l-6 -6" />
-                            </svg>
-                        </span>
+                        <form method="GET" action="{{ route('beranda') }}">
+                            <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control" placeholder="Search…" />
+                            <span class="input-icon-addon">
+                                <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="icon icon-1">
+                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                    <path d="M21 21l-6 -6" />
+                                </svg>
+                            </span>
+                        </form>
                     </div>
                 </div>
 
                 <!-- untuk pages dinamis-->
                 @php
-                    $samplePages = \App\Models\Page::published()->orderBy('sort_order')->get();
                     $colors = ['dc2626', '2563eb', '059669', 'ea580c', '7c3aed', 'db2777']; // Red, Blue, Green, Orange, Purple, Pink
                 @endphp
 
-                @forelse($samplePages as $index => $page)
+                @forelse($pages as $index => $page)
                     <div class="col-md-6 col-lg-3">
                         <div class="card">
                             <div class="card-body p-4 text-center">
@@ -157,38 +158,82 @@
                             </div>
                         </div>
                     </div>
-                @endforelse <!-- Pagination (Dummy Data) -->
-                <div class="d-flex justify-content-between flex-wrap align-items-center mb-1 gap-2">
-                    <p class="m-0 text-secondary">Showing <span>1</span> to
-                        <span>4</span> of <span>12</span>
-                        entries
-                    </p>
-                    <ul class="pagination m-0 ms-auto">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                    <path d="M15 6l-6 6l6 6" />
-                                </svg>
-                                sebelumnya
-                            </a>
-                        </li>
+                @endforelse 
+                
+                <!-- Pagination dari Laravel -->
+                @if($pages->hasPages())
+                    <div class="d-flex justify-content-between flex-wrap align-items-center mb-1 gap-2">
+                        <p class="m-0 text-secondary">
+                            Showing {{ $pages->firstItem() ?? 0 }} to {{ $pages->lastItem() ?? 0 }} of {{ $pages->total() }} entries
+                        </p>
+                        
+                        <ul class="pagination m-0 ms-auto">
+                            {{-- Previous Page Link --}}
+                            @if ($pages->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                            <path d="M15 6l-6 6l6 6" />
+                                        </svg>
+                                        sebelumnya
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $pages->previousPageUrl() }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                            <path d="M15 6l-6 6l6 6" />
+                                        </svg>
+                                        sebelumnya
+                                    </a>
+                                </li>
+                            @endif
 
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            {{-- Pagination Elements --}}
+                            @foreach ($pages->getUrlRange(1, $pages->lastPage()) as $page => $url)
+                                @if ($page == $pages->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
 
-                        <li class="page-item">
-                            <a class="page-link" href="#">
-                                selanjutnya
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                    <path d="M9 6l6 6l-6 6" />
-                                </svg>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                            {{-- Next Page Link --}}
+                            @if ($pages->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $pages->nextPageUrl() }}">
+                                        selanjutnya
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                            <path d="M9 6l6 6l-6 6" />
+                                        </svg>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        selanjutnya
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                            <path d="M9 6l6 6l-6 6" />
+                                        </svg>
+                                    </span>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
 </x-layout.app>
