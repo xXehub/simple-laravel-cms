@@ -19,7 +19,7 @@
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                Add Role
+                                Tambah Role
                             </button>
                         @endcan
                     </div>
@@ -36,11 +36,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                <x-form.datatable-header 
-                searchPlaceholder="Search roles..." 
+                <x-form.datatable-header
+                searchPlaceholder="Cari roles..."
                 :showBulkDelete="true"
                 bulkDeletePermission="delete-roles" />
-                            
+
                             <div id="advanced-table">
                                 <div class="table-responsive">
                                     <table id="rolesTable">
@@ -55,7 +55,7 @@
                                                 <th>Guard</th>
                                                 <th>Permissions</th>
                                                 <th>Dibuat</th>
-                                                <th class="w-3">Action</th>
+                                                <th class="w-3"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-tbody">
@@ -65,8 +65,8 @@
                                 </div>
                                 <div class="card-footer d-flex align-items-center">
                                     <div class="col-auto d-flex align-items-center">
-                                        <p class="m-0 text-secondary" id="record-info">Showing <strong>0 to 0</strong>
-                                            of <strong>0 entries</strong></p>
+                                        <p class="m-0 text-secondary" id="record-info">Menampilkan<strong>0 to 0</strong>
+                                            dari <strong>0 data</strong></p>
                                     </div>
                                     <ul class="pagination m-0 ms-auto" id="datatable-pagination">
                                         <!-- Pagination will be filled by DataTables -->
@@ -89,7 +89,7 @@
         <script src="{{ asset('js/datatable/roles.js') }}"></script>
         <script>
             let rolesTable;
-            
+
             // Set global edit route for fallback
             window.roleEditRoute = '{{ route('panel.roles.edit', ':id') }}';
             window.roleDeleteRoute = '{{ route('panel.roles.destroy', ':id') }}';
