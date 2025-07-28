@@ -6,7 +6,7 @@
                     <!-- Page pre-title -->
                     <div class="page-pretitle">Panel/Permissions</div>
                     <h2 class="page-title">
-                        <i class="fas fa-key me-2"></i>Permissions Management
+                        <i class="fas fa-key me-2"></i>Manajemen Permission
                     </h2>
                 </div>
                 <!-- Page title actions -->
@@ -23,7 +23,7 @@
                                     <line x1="5" y1="12" x2="19" y2="12">
                                     </line>
                                 </svg>
-                                Add Permission
+                                Tambah Permission
                             </button>
                         @endcan
                     </div>
@@ -41,11 +41,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                <x-form.datatable-header 
-                searchPlaceholder="Search permissions..." 
+                <x-form.datatable-header
+                searchPlaceholder="Cari permissions..."
                 :showBulkDelete="true"
                 bulkDeletePermission="delete-permissions"
-                bulkDeleteText="Delete Selected"
+                bulkDeleteText="Hapus Terpilih"
                 :recordOptions="[10, 15, 25, 50, 100]"
                 :defaultRecords="15" />
                             <div id="advanced-table">
@@ -62,7 +62,7 @@
                                                 <th>Group</th>
                                                 <th>Guard</th>
                                                 <th>Created</th>
-                                                <th class="w-3">Actions</th>
+                                                <th class="w-3"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-tbody">
@@ -72,7 +72,7 @@
                                 </div>
                                 <div class="card-footer d-flex align-items-center">
                                     <div class="col-auto d-flex align-items-center">
-                                        <p class="m-0 text-secondary" id="record-info">Showing <strong>0 to 0</strong>
+                                        <p class="m-0 text-secondary" id="record-info">Menampilkan <strong>0 to 0</strong>
                                             of <strong>0 entries</strong>
                                         </p>
                                     </div>
