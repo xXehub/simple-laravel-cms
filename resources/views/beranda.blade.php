@@ -73,7 +73,7 @@
 
                     <!-- Search bar -->
                     <div class="input-icon mb-2">
-                        <form method="GET" action="{{ route('beranda') }}">
+                        <form method="GET" action="{{ request()->url() }}">
                             <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control" placeholder="Search…" />
                             <span class="input-icon-addon">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
@@ -160,79 +160,117 @@
                     </div>
                 @endforelse 
                 
-                <!-- Pagination dari Laravel -->
-                @if($pages->hasPages())
-                    <div class="d-flex justify-content-between flex-wrap align-items-center mb-1 gap-2">
-                        <p class="m-0 text-secondary">
-                            Showing {{ $pages->firstItem() ?? 0 }} to {{ $pages->lastItem() ?? 0 }} of {{ $pages->total() }} entries
-                        </p>
-                        
-                        <ul class="pagination m-0 ms-auto">
-                            {{-- Previous Page Link --}}
-                            @if ($pages->onFirstPage())
-                                <li class="page-item disabled">
-                                    <span class="page-link">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                            <path d="M15 6l-6 6l6 6" />
-                                        </svg>
-                                        sebelumnya
-                                    </span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $pages->previousPageUrl() }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                            <path d="M15 6l-6 6l6 6" />
-                                        </svg>
-                                        sebelumnya
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Pagination Elements --}}
-                            @foreach ($pages->getUrlRange(1, $pages->lastPage()) as $page => $url)
-                                @if ($page == $pages->currentPage())
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ $page }}</span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                    </li>
+                <!-- Pagination dan Showing Text - Selalu tampil -->
+                <div class="col-12">
+                    <div class="d-flex justify-content-between flex-wrap align-items-center mt-3 gap-2">
+                        <!-- Showing text -->
+                        <div>
+                            <p class="m-0 text-secondary">
+                                Showing {{ $pages->firstItem() ?? 0 }} to {{ $pages->lastItem() ?? 0 }} of {{ $pages->total() }} entries
+                                @if($search)
+                                    (filtered from search: "{{ $search }}")
                                 @endif
-                            @endforeach
+                            </p>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        @if($pages->lastPage() > 1)
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination m-0">
+                                    {{-- Previous Page Link --}}
+                                    @if ($pages->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                    <path d="M15 6l-6 6l6 6" />
+                                                </svg>
+                                                prev
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $pages->previousPageUrl() }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                    <path d="M15 6l-6 6l6 6" />
+                                                </svg>
+                                                prev
+                                            </a>
+                                        </li>
+                                    @endif
 
-                            {{-- Next Page Link --}}
-                            @if ($pages->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $pages->nextPageUrl() }}">
-                                        selanjutnya
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                            <path d="M9 6l6 6l-6 6" />
-                                        </svg>
-                                    </a>
-                                </li>
-                            @else
-                                <li class="page-item disabled">
-                                    <span class="page-link">
-                                        selanjutnya
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                            <path d="M9 6l6 6l-6 6" />
-                                        </svg>
-                                    </span>
-                                </li>
-                            @endif
-                        </ul>
+                                    {{-- Pagination Elements --}}
+                                    @php
+                                        $start = max(1, $pages->currentPage() - 2);
+                                        $end = min($pages->lastPage(), $pages->currentPage() + 2);
+                                    @endphp
+
+                                    @if($start > 1)
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $pages->url(1) }}">1</a>
+                                        </li>
+                                        @if($start > 2)
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        @endif
+                                    @endif
+
+                                    @for($i = $start; $i <= $end; $i++)
+                                        @if ($i == $pages->currentPage())
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ $i }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $pages->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+
+                                    @if($end < $pages->lastPage())
+                                        @if($end < $pages->lastPage() - 1)
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        @endif
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $pages->url($pages->lastPage()) }}">{{ $pages->lastPage() }}</a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Next Page Link --}}
+                                    @if ($pages->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $pages->nextPageUrl() }}">
+                                                next
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                    <path d="M9 6l6 6l-6 6" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                next
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                    <path d="M9 6l6 6l-6 6" />
+                                                </svg>
+                                            </span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </nav>
+                        @endif
                     </div>
-                @endif
+                </div>
             </div>
         </div>
     </div>
