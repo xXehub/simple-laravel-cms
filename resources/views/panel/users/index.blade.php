@@ -39,8 +39,8 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                <x-form.datatable-header 
-                searchPlaceholder="Search users..." 
+                <x-form.datatable-header
+                searchPlaceholder="Cari users..."
                 :showBulkDelete="true"
                 bulkDeletePermission="delete-users" />
                             <div id="advanced-table">
@@ -56,8 +56,8 @@
                                                 <th>Username</th>
                                                 <th>Email</th>
                                                 <th>Role</th>
-                                                <th>Registered</th>
-                                                <th class="w-3">Actions</th>
+                                                <th>Dibuat</th>
+                                                <th class="w-3"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-tbody">
@@ -95,7 +95,7 @@
         <script src="{{ asset('js/datatable/users.js') }}"></script>
         <script>
             let usersTable;
-            
+
             // Set global edit route for fallback
             window.userEditRoute = '{{ route('panel.users.edit', ':id') }}';
             window.userDeleteRoute = '{{ route('panel.users.destroy', ':id') }}';
