@@ -38,8 +38,8 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-table">
-                            <x-form.datatable-header 
-                                searchPlaceholder="Search menus..." 
+                            <x-form.datatable-header
+                                searchPlaceholder="Cari menus..."
                                 :showBulkDelete="true"
                                 bulkDeletePermission="delete-menus">
                                 <div class="dropdown">
@@ -67,7 +67,7 @@
                                                         aria-label="Select all menus" id="select-all" />
                                                 </th>
                                                 <th></th>
-                                                <th>ICO</th>
+                                                <th>ICON</th>
                                                 <th style="width: 20%">Nama Menu</th>
                                                 <th style="width: 10%">Slug</th>
                                                 <th style="width: 20%">Parent</th>
@@ -75,7 +75,7 @@
                                                 <th class="w-1">Urutan</th>
                                                 <th style="width: 10%">Status</th>
                                                 <th style="width: 30%">Roles</th>
-                                                <th class="w-3">Aksi</th>
+                                                <th class="w-3"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-tbody">
@@ -110,7 +110,7 @@
         <script src="{{ asset('js/datatable/menus.js') }}"></script>
         <script>
             let menusTable;
-            
+
             // Set global routes for menu operations
             window.menuDeleteRoute = '{{ route('panel.menus.destroy', ':id') }}';
 
@@ -125,13 +125,13 @@
                 return new Promise((resolve, reject) => {
                     let attempts = 0;
                     const maxAttempts = 50; // 5 seconds max wait
-                    
+
                     function check() {
                         attempts++;
-                        
-                        if (typeof DataTableGlobal !== 'undefined' && 
-                            typeof MenusDataTable !== 'undefined' && 
-                            typeof $ !== 'undefined' && 
+
+                        if (typeof DataTableGlobal !== 'undefined' &&
+                            typeof MenusDataTable !== 'undefined' &&
+                            typeof $ !== 'undefined' &&
                             typeof $.fn.DataTable !== 'undefined') {
                             resolve();
                         } else if (attempts >= maxAttempts) {
@@ -140,7 +140,7 @@
                             setTimeout(check, 100);
                         }
                     }
-                    
+
                     check();
                 });
             }
