@@ -43,6 +43,11 @@
     <link href="{{ asset('libs/tom-select/dist/css/tom-select.bootstrap5.min.css?1744816592') }}" rel="stylesheet" />
     <link href="{{ asset('libs/nouislider/dist/nouislider.min.css?1744816592') }}" rel="stylesheet" />
 
+
+    <script src="{{ asset('libs/typed.js/dist/typed.umd.js?1744816592') }}" defer ></script>
+    <script src="{{ asset('dist/js/tabler.min.js?1744816592') }}" defer ></script>
+    {{-- <script src="{{ asset('preview/js/demo.min.js?1744816592') }}" defer ></script> --}}
+
     <!-- Tabler CSS Framework -->
     <link href="{{ asset('dist/css/tabler.css?1744816593') }}" rel="stylesheet" />
     <link href="{{ asset('dist/css/tabler-themes.css?1744816593') }}" rel="stylesheet" />
