@@ -1,4 +1,10 @@
-@props(['title' => 'KantorKu SuperApp', 'pakaiSidebar' => false, 'pakaiTopBar' => null, 'pakaiFluid' => true])
+@props([
+    'title' => 'KantorKu SuperApp',
+    'pakaiSidebar' => false,
+    'pakaiTopBar' => null,
+    'pakaiFluid' => true,
+    'hasDivPage' => true,
+])
 
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -60,39 +66,27 @@
 </head>
 
 @php
-    $authRoutes = [
-        'login',
-        'register',
-        'password.request',
-        'password.reset',
-        'password.confirm',
-        'verification.notice',
-        'verification.verify',
-    ];
-
-    // If pakaiTopBar is explicitly set, use it; otherwise auto-detect based on auth routes
-    $showTopBar = $pakaiTopBar !== null ? $pakaiTopBar : !in_array(Route::currentRouteName(), $authRoutes);
+    // Use pakaiTopBar prop directly - if null, default to false
+    $showTopBar = $pakaiTopBar ?? false;
 @endphp
 
 <body class="{{ $pakaiFluid ? 'layout-fluid' : '' }}">
     <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
+    @if ($hasDivPage)
+        <div class="page">
+    @endif
 
-    <div class="page">
-        <x-layout.tema-builder />
+    @includeWhen($pakaiSidebar, 'components.layout.sidebar')
+    @includeWhen($showTopBar, 'components.layout.top-bar')
+    <x-alert.modal-alert />
+    {{ $slot }}
+    @includeWhen($showTopBar, 'components.layout.footer')
 
-        @includeWhen($pakaiSidebar, 'components.layout.sidebar')
-        @includeWhen($showTopBar, 'components.layout.top-bar')
-
-
-        <x-alert.modal-alert />
-        {{ $slot }}
-
-
-        @includeWhen($showTopBar, 'components.layout.footer')
-    </div>
+    @if ($hasDivPage)
+        </div>
+    @endif
     {{-- untuk setting tema --}}
     <x-layout.tema-builder />
-
     <!-- Profile & Settings Modals -->
     <x-modals.profile />
     <x-modals.settings />

@@ -1,4 +1,5 @@
-<x-layout.app title="{{ setting('welcome_title', 'Laravel Superapp CMS') }}" :pakai-sidebar="false" :pakaiFluid="false">
+<x-layout.app title="{{ setting('welcome_title', 'Laravel Superapp CMS') }}" :pakai-sidebar="false" :pakaiFluid="false"
+    :pakaiTopBar="true">
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
@@ -69,12 +70,13 @@
                     <!-- Search bar -->
                     <div class="input-icon mb-2">
                         <form method="GET" action="{{ route('beranda') }}">
-                            <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control" placeholder="Search…" />
+                            <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control"
+                                placeholder="Search…" />
                             <span class="input-icon-addon">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="icon icon-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                                     <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
                                     <path d="M21 21l-6 -6" />
                                 </svg>
@@ -137,9 +139,9 @@
                         <div class="alert alert-info text-center">
                             <div class="empty">
                                 <div class="empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M14 3v4a1 1 0 0 0 1 1h4" />
                                         <path
@@ -153,26 +155,28 @@
                             </div>
                         </div>
                     </div>
-                @endforelse 
-                
+                @endforelse
+
                 <!-- Pagination Section - Sesuai Template Asli -->
-                @if($pages->lastPage() > 1 || $pages->total() > 0)
+                @if ($pages->lastPage() > 1 || $pages->total() > 0)
                     <div class="d-flex justify-content-between flex-wrap align-items-center mb-1 gap-2">
                         <!-- Showing text - kiri -->
                         <p class="m-0 text-secondary">
-                            Menampilkan {{ $pages->firstItem() ?? 0 }} hingga {{ $pages->lastItem() ?? 0 }} dari {{ $pages->total() }} entri
+                            Menampilkan {{ $pages->firstItem() ?? 0 }} hingga {{ $pages->lastItem() ?? 0 }} dari
+                            {{ $pages->total() }} entri
                         </p>
-                        
+
                         <!-- Pagination - kanan -->
-                        @if($pages->lastPage() > 1)
+                        @if ($pages->lastPage() > 1)
                             <ul class="pagination m-0 ms-auto">
                                 {{-- Previous Page Link --}}
                                 @if ($pages->onFirstPage())
                                     <li class="page-item disabled">
                                         <span class="page-link">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-1">
                                                 <path d="M15 6l-6 6l6 6" />
                                             </svg>
                                             sebelumnya
@@ -182,8 +186,9 @@
                                     <li class="page-item">
                                         <a class="page-link" href="{{ $pages->previousPageUrl() }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-1">
                                                 <path d="M15 6l-6 6l6 6" />
                                             </svg>
                                             sebelumnya
@@ -197,37 +202,39 @@
                                     $end = min($pages->lastPage(), $pages->currentPage() + 2);
                                 @endphp
 
-                                @if($start > 1)
+                                @if ($start > 1)
                                     <li class="page-item">
                                         <a class="page-link" href="{{ $pages->url(1) }}">1</a>
                                     </li>
-                                    @if($start > 2)
+                                    @if ($start > 2)
                                         <li class="page-item disabled">
                                             <span class="page-link">...</span>
                                         </li>
                                     @endif
                                 @endif
 
-                                @for($i = $start; $i <= $end; $i++)
+                                @for ($i = $start; $i <= $end; $i++)
                                     @if ($i == $pages->currentPage())
                                         <li class="page-item active">
                                             <span class="page-link">{{ $i }}</span>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $pages->url($i) }}">{{ $i }}</a>
+                                            <a class="page-link"
+                                                href="{{ $pages->url($i) }}">{{ $i }}</a>
                                         </li>
                                     @endif
                                 @endfor
 
-                                @if($end < $pages->lastPage())
-                                    @if($end < $pages->lastPage() - 1)
+                                @if ($end < $pages->lastPage())
+                                    @if ($end < $pages->lastPage() - 1)
                                         <li class="page-item disabled">
                                             <span class="page-link">...</span>
                                         </li>
                                     @endif
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ $pages->url($pages->lastPage()) }}">{{ $pages->lastPage() }}</a>
+                                        <a class="page-link"
+                                            href="{{ $pages->url($pages->lastPage()) }}">{{ $pages->lastPage() }}</a>
                                     </li>
                                 @endif
 
@@ -237,8 +244,9 @@
                                         <a class="page-link" href="{{ $pages->nextPageUrl() }}">
                                             selanjutnya
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-1">
                                                 <path d="M9 6l6 6l-6 6" />
                                             </svg>
                                         </a>
@@ -248,8 +256,9 @@
                                         <span class="page-link">
                                             selanjutnya
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-1">
                                                 <path d="M9 6l6 6l-6 6" />
                                             </svg>
                                         </span>

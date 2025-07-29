@@ -10,6 +10,7 @@ class App extends Component
     public $pakaiSidebar;
     public $pakaiTopBar;
     public $pakaiFluid;
+    public $hasDivPage;
 
     /**
      * Create a new component instance.
@@ -18,13 +19,15 @@ class App extends Component
      * @param bool $pakaiSidebar
      * @param bool $pakaiTopBar
      * @param bool $pakaiFluid
+     * @param bool $hasDivPage
      */
-    public function __construct($title = 'anjay CMS', $pakaiSidebar = false, $pakaiTopBar = null, $pakaiFluid = true)
+    public function __construct($title = 'anjay CMS', $pakaiSidebar = false, $pakaiTopBar = null, $pakaiFluid = true, $hasDivPage = true)
     {
         $this->title = $title;
         $this->pakaiSidebar = $pakaiSidebar;
         $this->pakaiTopBar = $pakaiTopBar;
         $this->pakaiFluid = $pakaiFluid;
+        $this->hasDivPage = $hasDivPage;
     }
 
     /**

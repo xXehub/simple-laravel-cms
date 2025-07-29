@@ -26,7 +26,7 @@ class MasterMenuSeeder extends Seeder
             'route_type' => 'public',
             'controller_class' => 'App\\Http\\Controllers\\BerandaController',
             'view_path' => 'beranda',
-            'middleware_list' => ["web"],
+            'middleware_list' => ["web", "auth"],
             'meta_title' => 'Home',
             'meta_description' => 'Welcome to our website',
         ]);
