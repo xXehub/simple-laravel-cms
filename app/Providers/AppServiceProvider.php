@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register VisitTrackingService as singleton
+        $this->app->singleton(\App\Services\VisitTrackingService::class);
     }
 
     /**

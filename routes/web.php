@@ -21,6 +21,19 @@ Auth::routes([
     'verify' => false,
 ]);
 
+/* Route untuk Visit Tracking Management */
+Route::middleware(['auth', 'permission:access-panel'])->prefix('panel')->name('panel.')->group(function () {
+    Route::prefix('visit-tracking')->name('visit-tracking.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Panel\VisitTrackingController::class, 'index'])->name('index');
+        Route::post('/update-retention', [App\Http\Controllers\Panel\VisitTrackingController::class, 'updateRetention'])->name('update-retention');
+        Route::post('/manual-reset', [App\Http\Controllers\Panel\VisitTrackingController::class, 'manualReset'])->name('manual-reset');
+        Route::post('/force-sync', [App\Http\Controllers\Panel\VisitTrackingController::class, 'forceSync'])->name('force-sync');
+        Route::post('/auto-cleanup', [App\Http\Controllers\Panel\VisitTrackingController::class, 'autoCleanup'])->name('auto-cleanup');
+        Route::post('/reset-cache', [App\Http\Controllers\Panel\VisitTrackingController::class, 'resetCache'])->name('reset-cache');
+        Route::get('/export', [App\Http\Controllers\Panel\VisitTrackingController::class, 'exportData'])->name('export');
+    });
+});
+
 /* Redirect ke home setelah login/register - Biar Laravel UI tetap jalan */
 Route::get('/home', function () {
     return redirect('/');
@@ -46,4 +59,5 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/{slug}', [DynamicController::class, 'handleDynamicPage'])
     ->where('slug', '[a-zA-Z0-9\-\/]+')
+    ->middleware('track_visit')
     ->name('dynamic.page');

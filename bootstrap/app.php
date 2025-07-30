@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'dynamic_menu_access' => \App\Http\Middleware\DynamicMenuAccess::class,
+            'track_visit' => \App\Http\Middleware\TrackMenuVisit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

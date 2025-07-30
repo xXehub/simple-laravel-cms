@@ -25,7 +25,8 @@ class MasterMenu extends Model
         'view_path',
         'middleware_list',
         'meta_title',
-        'meta_description'
+        'meta_description',
+        'visit_count'
     ];
 
     protected $casts = [
@@ -96,6 +97,27 @@ class MasterMenu extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Increment visit count for this menu
+     */
+    public function incrementVisit()
+    {
+        $this->increment('visit_count');
+        return $this;
+    }
+
+    /**
+     * Get most visited menus
+     */
+    public static function getMostVisited($limit = 10)
+    {
+        return static::whereNotNull('slug')
+            ->where('is_active', true)
+            ->orderBy('visit_count', 'desc')
+            ->limit($limit)
+            ->get();
     }
 
     /**
@@ -553,6 +575,14 @@ class MasterMenu extends Model
         }
         
         return $this->view_path . '.' . $method;
+    }
+
+    /**
+     * Get base view path for this menu
+     */
+    public function getViewPath(): ?string
+    {
+        return $this->view_path;
     }
 
     /**

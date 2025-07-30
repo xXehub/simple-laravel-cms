@@ -159,6 +159,9 @@ class DynamicRouteService
      */
     protected function registerDynamicRouteFromCache(array $routeData, string $url, array $middleware, ?string $routeName): void
     {
+        // Add visit tracking middleware
+        $middleware[] = 'track_visit';
+        
         $route = Route::get($url, [\App\Http\Controllers\DynamicController::class, 'handleDynamicPage'])
             ->defaults('menu_id', $routeData['id']);
 
@@ -183,6 +186,10 @@ class DynamicRouteService
 
         $url = $this->prepareUrl($menu);
         $middleware = $menu->getMiddlewareList();
+        
+        // Add visit tracking middleware to all dynamic routes
+        $middleware[] = 'track_visit';
+        
         $routeName = $menu->route_name;
 
         try {

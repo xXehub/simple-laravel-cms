@@ -299,10 +299,10 @@
                                                     <span class="badge bg-primary-lt">{{ $user['role'] }}</span>
                                                 </td>
                                                 <td class="sort-status">
-                                                    @if ($user['status'] === 'Active')
-                                                        <span class="badge bg-success-lt">Active</span>
+                                                    @if ($user['status'] === 'Verified')
+                                                        <span class="badge bg-success-lt">Verified</span>
                                                     @else
-                                                        <span class="badge bg-warning-lt">Pending</span>
+                                                        <span class="badge bg-warning-lt">Unverified</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-secondary">{{ $user['created_at'] }}</td>
@@ -313,8 +313,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     {{-- system overview --}}
                     <div class="col-lg-4">
                         <div class="card">
@@ -362,7 +360,7 @@
                     <div class="col-md-12 col-lg-8">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Most Visited Pages</h3>
+                                <h3 class="card-title">Most Visited Menus</h3>
                             </div>
                             <div class="card-table table-responsive">
                                 <table class="table table-vcenter">
