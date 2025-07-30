@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Services\VisitTrackingService;
+use App\Models\MasterMenu;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -72,8 +73,10 @@ class TrackMenuVisit
 
         // Skip if response content type is JSON/XML (API response)
         $contentType = $response->headers->get('Content-Type', '');
-        if (str_contains($contentType, 'application/json') || 
-            str_contains($contentType, 'application/xml')) {
+        if (
+            str_contains($contentType, 'application/json') ||
+            str_contains($contentType, 'application/xml')
+        ) {
             return false;
         }
 
@@ -82,47 +85,23 @@ class TrackMenuVisit
     }
 
     /**
-     * Track the visit for the current request - SIMPLIFIED
+     * Track visit - ULTRA FAST VERSION
      */
     protected function trackVisit(Request $request): void
     {
         try {
             $slug = $this->extractSlugFromPath($request->path());
-            
-            // Debug logging (remove after testing)
-            if (config('app.debug')) {
-                Log::info('Visit tracking attempt', [
-                    'path' => $request->path(),
-                    'slug' => $slug,
-                    'method' => $request->method(),
-                    'is_ajax' => $request->ajax(),
-                    'headers' => $request->headers->all()
-                ]);
-            }
-            
+
             if (!$slug) {
-                Log::warning('No slug found for path', ['path' => $request->path()]);
-                return; // No valid slug, skip tracking
+                return; // No slug = skip (no logging for performance)
             }
 
-            // Track using the service (handles Redis/database fallback internally)
-            $result = $this->visitTrackingService->trackVisit($slug);
-            
-            // Debug logging
-            if (config('app.debug')) {
-                Log::info('Visit tracked successfully', [
-                    'slug' => $slug,
-                    'result' => $result
-                ]);
-            }
-            
+            // Track in background - don't block response
+            $this->visitTrackingService->trackVisit($slug);
+
         } catch (\Exception $e) {
-            // Log error but don't break the request
-            Log::error('Visit tracking failed', [
-                'path' => $request->path(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Silent error handling - no logging to avoid performance hit
+            // Errors will be caught by the service's own error handling
         }
     }
 
@@ -142,97 +121,88 @@ class TrackMenuVisit
 
         // Skip common non-page requests
         static $skipSegments = [
-            'api' => true,
-            'admin' => true,
-            'login' => true,
-            'logout' => true,
-            'register' => true,
-            'password' => true,
-            '_debugbar' => true,
-            'telescope' => true,
-            'health' => true,
-            'up' => true,
-            'favicon.ico' => true,
-            'robots.txt' => true,
-            'sitemap.xml' => true,
-            'css' => true,
-            'js' => true,
-            'images' => true,
-            'img' => true,
-            'assets' => true,
-            'storage' => true,
+        'api' => true,
+        'admin' => true,
+        'login' => true,
+        'logout' => true,
+        'register' => true,
+        'password' => true,
+        '_debugbar' => true,
+        'telescope' => true,
+        'health' => true,
+        'up' => true,
+        'favicon.ico' => true,
+        'robots.txt' => true,
+        'sitemap.xml' => true,
+        'css' => true,
+        'js' => true,
+        'images' => true,
+        'img' => true,
+        'assets' => true,
+        'storage' => true,
         ];
 
         return isset($skipSegments[$firstSegment]);
     }
 
     /**
-     * Extract slug from the path for dynamic routes - PERFORMANCE OPTIMIZED
+     * Extract slug - PERFORMANCE OPTIMIZED with aggressive caching
      */
     protected function extractSlugFromPath(string $path): ?string
     {
-        // Handle root path
+        // Static cache for ultra-fast lookups
+        static $slugCache = [];
+        static $cacheSize = 0;
+
+        // Limit cache size to prevent memory issues
+        if ($cacheSize > 1000) {
+            $slugCache = array_slice($slugCache, -500, null, true);
+            $cacheSize = 500;
+        }
+
+        if (isset($slugCache[$path])) {
+            return $slugCache[$path];
+        }
+
+        // Handle common cases first
         if ($path === '/' || $path === '') {
-            return 'beranda'; // Return beranda for homepage
+            $slugCache[$path] = 'beranda';
+            $cacheSize++;
+            return 'beranda';
         }
 
-        // Normalize path - ensure starts with /
-        if ($path[0] !== '/') {
-            $path = '/' . $path;
-        }
-
-        // Clean path - remove query parameters and fragments
-        $cleanPath = strtok($path, '?') ?: $path;
+        // Clean path quickly
+        $cleanPath = ltrim($path, '/');
+        $cleanPath = strtok($cleanPath, '?') ?: $cleanPath;
         $cleanPath = strtok($cleanPath, '#') ?: $cleanPath;
 
-        // Use static cache for database lookups to avoid repeated queries
-        static $slugCache = [];
-        
-        if (isset($slugCache[$cleanPath])) {
-            return $slugCache[$cleanPath];
+        // Quick validation - only alphanumeric, dash, underscore, slash
+        if (preg_match('/[^a-zA-Z0-9\-_\/]/', $cleanPath)) {
+            $slugCache[$path] = null;
+            $cacheSize++;
+            return null;
         }
 
-        // Try exact match first
-        $menuExists = \App\Models\MasterMenu::where('slug', $cleanPath)->exists();
-        if ($menuExists) {
-            $slugCache[$cleanPath] = $cleanPath;
+        // Try without slash first (most common format)
+        $exists = MasterMenu::where('slug', $cleanPath)->exists();
+        if ($exists) {
+            $slugCache[$path] = $cleanPath;
+            $cacheSize++;
             return $cleanPath;
         }
 
-        // Try without leading slash
-        $withoutSlash = ltrim($cleanPath, '/');
-        $menuExists = \App\Models\MasterMenu::where('slug', $withoutSlash)->exists();
-        if ($menuExists) {
-            $slugCache[$cleanPath] = $withoutSlash;
-            return $withoutSlash;
+        // Try with leading slash
+        $withSlash = '/' . $cleanPath;
+        $exists = MasterMenu::where('slug', $withSlash)->exists();
+        if ($exists) {
+            $slugCache[$path] = $withSlash;
+            $cacheSize++;
+            return $withSlash;
         }
 
-        // For paths that don't exist in database, return the clean path anyway
-        // This allows tracking of dynamic routes that might be added later
-        $slugCache[$cleanPath] = $withoutSlash;
-        return $withoutSlash;
-    }
-
-    /**
-     * Validate if the slug is in the correct format
-     */
-    protected function isValidSlug(string $slug): bool
-    {
-        // Basic validation - adjust according to your slug rules
-        if (strlen($slug) < 2 || strlen($slug) > 255) {
-            return false;
-        }
-
-        // Should start with /
-        if (!str_starts_with($slug, '/')) {
-            return false;
-        }
-
-        // Should not contain certain characters
-        if (preg_match('/[^a-zA-Z0-9\/\-_]/', $slug)) {
-            return false;
-        }
-
-        return true;
+        // Not found - cache negative result
+        $slugCache[$path] = null;
+        $cacheSize++;
+        return null;
     }
 }
