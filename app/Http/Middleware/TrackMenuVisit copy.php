@@ -45,39 +45,45 @@ class TrackMenuVisit
             return false;
         }
 
-        // Skip certain paths first (most specific)
-        if ($this->shouldSkipTracking($request->path())) {
+        // Skip AJAX requests (including DataTable requests)
+        if ($request->ajax()) {
             return false;
         }
 
-        // Skip DataTable AJAX requests specifically 
-        // DataTable sends these query parameters: draw, start, length
-        if ($request->has(['draw', 'start', 'length'])) {
-            return false; // This is definitely a DataTable AJAX request
+        // Skip if request wants JSON response (API calls)
+        if ($request->wantsJson()) {
+            return false;
         }
 
-        // Skip if X-Requested-With header indicates AJAX AND it's requesting JSON
+        // Skip if X-Requested-With header indicates AJAX
         if ($request->header('X-Requested-With') === 'XMLHttpRequest') {
-            // Check if it's actually requesting JSON data (like DataTable)
-            $acceptHeader = $request->header('Accept', '');
-            if (str_contains($acceptHeader, 'application/json')) {
-                return false; // AJAX request wanting JSON = not a page visit
-            }
-        }
-
-        // Skip pure API calls (URLs starting with /api/)
-        if (str_starts_with($request->path(), 'api/')) {
             return false;
         }
 
-        // Skip if response content type is JSON/XML (API response)
+        // Skip if Accept header requests JSON/XML (API responses)
+        $acceptHeader = $request->header('Accept', '');
+        if (str_contains($acceptHeader, 'application/json') || 
+            str_contains($acceptHeader, 'application/xml')) {
+            return false;
+        }
+
+        // Skip if Content-Type suggests API response
         $contentType = $response->headers->get('Content-Type', '');
         if (str_contains($contentType, 'application/json') || 
             str_contains($contentType, 'application/xml')) {
             return false;
         }
 
-        // Track everything else (normal page visits)
+        // Skip DataTable-specific query parameters
+        if ($request->has(['draw', 'start', 'length'])) {
+            return false; // This is a DataTable AJAX request
+        }
+
+        // Skip certain paths
+        if ($this->shouldSkipTracking($request->path())) {
+            return false;
+        }
+
         return true;
     }
 
@@ -89,39 +95,18 @@ class TrackMenuVisit
         try {
             $slug = $this->extractSlugFromPath($request->path());
             
-            // Debug logging (remove after testing)
-            if (config('app.debug')) {
-                Log::info('Visit tracking attempt', [
-                    'path' => $request->path(),
-                    'slug' => $slug,
-                    'method' => $request->method(),
-                    'is_ajax' => $request->ajax(),
-                    'headers' => $request->headers->all()
-                ]);
-            }
-            
             if (!$slug) {
-                Log::warning('No slug found for path', ['path' => $request->path()]);
                 return; // No valid slug, skip tracking
             }
 
             // Track using the service (handles Redis/database fallback internally)
-            $result = $this->visitTrackingService->trackVisit($slug);
-            
-            // Debug logging
-            if (config('app.debug')) {
-                Log::info('Visit tracked successfully', [
-                    'slug' => $slug,
-                    'result' => $result
-                ]);
-            }
+            $this->visitTrackingService->trackVisit($slug);
             
         } catch (\Exception $e) {
             // Log error but don't break the request
             Log::error('Visit tracking failed', [
                 'path' => $request->path(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
         }
     }
@@ -173,7 +158,7 @@ class TrackMenuVisit
     {
         // Handle root path
         if ($path === '/' || $path === '') {
-            return 'beranda'; // Return beranda for homepage
+            return '/';
         }
 
         // Normalize path - ensure starts with /
@@ -207,10 +192,9 @@ class TrackMenuVisit
             return $withoutSlash;
         }
 
-        // For paths that don't exist in database, return the clean path anyway
-        // This allows tracking of dynamic routes that might be added later
-        $slugCache[$cleanPath] = $withoutSlash;
-        return $withoutSlash;
+        // Cache negative results too to avoid repeated queries
+        $slugCache[$cleanPath] = null;
+        return null;
     }
 
     /**
