@@ -4,6 +4,7 @@
     'pakaiTopBar' => null,
     'pakaiFluid' => true,
     'hasDivPage' => true,
+    'bodyClass' => null,
 ])
 
 <!doctype html>
@@ -71,7 +72,7 @@
     $showTopBar = $pakaiTopBar ?? false;
 @endphp
 
-<body class="{{ $pakaiFluid ? 'layout-fluid' : '' }}">
+<body class="{{ $bodyClass ?? ($pakaiFluid ? 'layout-fluid' : '') }}">
     <script src="{{ asset('dist/js/tabler-theme.min.js?1744816593') }}"></script>
     @if ($hasDivPage)
         <div class="page">
