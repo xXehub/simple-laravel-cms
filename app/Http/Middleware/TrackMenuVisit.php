@@ -86,7 +86,7 @@ class TrackMenuVisit
             // Generate user identifier for unique visitor tracking
             $userIdentifier = $this->generateUserIdentifier($request);
 
-            // Dispatch to queue for background processing
+            // dispatch ke queue untuk memproses di background
             TrackVisitJob::dispatch($slug, $userIdentifier);
 
         } catch (\Exception $e) {

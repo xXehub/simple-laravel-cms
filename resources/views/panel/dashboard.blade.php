@@ -8,10 +8,10 @@
                     <div class="col">
                         <!-- Page pre-title -->
                         <div class="page-pretitle">
-                            Summary
+                            {{ $data['sub_judul'] }}
                         </div>
                         <h2 class="page-title">
-                            Dashboard Superadmin
+                            {{ $data['judul'] }}
                         </h2>
                     </div>
                     <!-- Page title actions -->
@@ -33,7 +33,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="text-muted text-uppercase small fw-bold">TOTAL USER
+                                    <div class="text-muted text-uppercase small fw-bold">{{ $data['card_1'] }}
                                     </div>
                                     <div class="dropdown">
                                         <a class="text-muted" href="#" data-bs-toggle="dropdown">Last 7
@@ -93,7 +93,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="text-muted text-uppercase small fw-bold">TOTAL PAGES
+                                    <div class="text-muted text-uppercase small fw-bold">{{ $data['card_2'] }}
                                     </div>
                                     <div class="dropdown">
                                         <a class="text-muted" href="#" data-bs-toggle="dropdown">Last 7
@@ -154,7 +154,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="text-muted text-uppercase small fw-bold">TOTAL MENUS
+                                    <div class="text-muted text-uppercase small fw-bold">{{ $data['card_3'] }}
                                     </div>
                                     <div class="dropdown">
                                         <a class="text-muted" href="#" data-bs-toggle="dropdown">Last 7
@@ -213,7 +213,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="text-muted text-uppercase small fw-bold">TOTAL ROLES
+                                    <div class="text-muted text-uppercase small fw-bold">{{ $data['card_4'] }}
                                     </div>
                                     <div class="dropdown">
                                         <a class="text-muted" href="#" data-bs-toggle="dropdown">Last 7
@@ -360,38 +360,46 @@
                     <div class="col-md-12 col-lg-8">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Most Visited Menus</h3>
+                                <h3 class="card-title">Menu Teratas</h3>
                             </div>
                             <div class="card-table table-responsive">
                                 <table class="table table-vcenter">
                                     <thead>
                                         <tr>
-                                            <th>Page name</th>
-                                            <th>Visitors</th>
-                                            <th>Unique</th>
-                                            <th colspan="2">Bounce rate</th>
+                                            <th>{{ $data['page']}}</th>
+                                            <th>{{ $data['kunjungan'] }}</th>
+                                            <th>{{ $data['pengunjung'] }}</th>
+                                            <th colspan="2">{{ $data['rate'] }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($mostVisitedPages as $index => $page)
-                                        <tr>
-                                            <td>
-                                                /{{ $page['slug'] }}
-                                                <a href="{{ url($page['slug']) }}" class="ms-1" aria-label="Open page" target="_blank">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                                        <path d="M9 15l6 -6" />
-                                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
-                                                        <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
-                                                    </svg>
-                                                </a>
-                                            </td>
-                                            <td class="text-secondary">{{ number_format($page['visitors']) }}</td>
-                                            <td class="text-secondary">{{ number_format($page['unique']) }}</td>
-                                            <td class="text-secondary">{{ $page['bounce_rate'] }}</td>
-                                            <td class="text-end w-1">
-                                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-{{ $index + 1 }}"></div>
-                                            </td>
-                                        </tr>
+                                        @foreach ($mostVisitedPages as $index => $page)
+                                            <tr>
+                                                <td>
+                                                    /{{ $page['slug'] }}
+                                                    <a href="{{ url($page['slug']) }}" class="ms-1"
+                                                        aria-label="Open page" target="_blank">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon icon-1">
+                                                            <path d="M9 15l6 -6" />
+                                                            <path
+                                                                d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
+                                                            <path
+                                                                d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
+                                                        </svg>
+                                                    </a>
+                                                </td>
+                                                <td class="text-secondary">{{ number_format($page['visitors']) }}</td>
+                                                <td class="text-secondary">{{ number_format($page['unique']) }}</td>
+                                                <td class="text-secondary">{{ $page['bounce_rate'] }}</td>
+                                                <td class="text-end w-1">
+                                                    <div class="chart-sparkline chart-sparkline-sm"
+                                                        id="sparkline-bounce-rate-{{ $index + 1 }}"></div>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -400,41 +408,39 @@
                     </div>
 
 
-              {{-- Dynamic charts for each page --}}
-              <script>
-                  document.addEventListener("DOMContentLoaded", function () {
-                      @foreach($mostVisitedPages as $index => $page)
-                      if (window.ApexCharts && document.getElementById("sparkline-bounce-rate-{{ $index + 1 }}")) {
-                          new ApexCharts(document.getElementById("sparkline-bounce-rate-{{ $index + 1 }}"), {
-                              chart: {
-                                  type: "line",
-                                  fontFamily: "inherit",
-                                  height: 24,
-                                  animations: {
-                                      enabled: false,
-                                  },
-                                  sparkline: {
-                                      enabled: true,
-                                  },
-                              },
-                              tooltip: {
-                                  enabled: false,
-                              },
-                              stroke: {
-                                  width: 2,
-                                  lineCap: "round",
-                              },
-                              series: [
-                                  {
-                                      color: "var(--tblr-primary)",
-                                      data: {{ json_encode($page['chart_data']) }},
-                                  },
-                              ],
-                          }).render();
-                      }
-                      @endforeach
-                  });
-              </script>
+                    {{-- Dynamic charts for each page --}}
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            @foreach ($mostVisitedPages as $index => $page)
+                                if (window.ApexCharts && document.getElementById("sparkline-bounce-rate-{{ $index + 1 }}")) {
+                                    new ApexCharts(document.getElementById("sparkline-bounce-rate-{{ $index + 1 }}"), {
+                                        chart: {
+                                            type: "line",
+                                            fontFamily: "inherit",
+                                            height: 24,
+                                            animations: {
+                                                enabled: false,
+                                            },
+                                            sparkline: {
+                                                enabled: true,
+                                            },
+                                        },
+                                        tooltip: {
+                                            enabled: false,
+                                        },
+                                        stroke: {
+                                            width: 2,
+                                            lineCap: "round",
+                                        },
+                                        series: [{
+                                            color: "var(--tblr-primary)",
+                                            data: {{ json_encode($page['chart_data']) }},
+                                        }, ],
+                                    }).render();
+                                }
+                            @endforeach
+                        });
+                    </script>
                 </div>
             </div>
         </div>
