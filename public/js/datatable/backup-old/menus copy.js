@@ -218,20 +218,22 @@ window.MenusDataTable = (function () {
 
     // --- Menu Management with Cache ---
     function openCreateModal(route) {
+        // Show modal immediately for better UX
+        $('#createMenuModal').modal('show');
+        
         if (parentMenuCache) {
             parentMenuOptions = parentMenuCache;
             updateCreateParentMenuSelect();
             initializeTomSelectInstances().then(() => {
                 resetCreateForm();
-                $('#createMenuModal').modal('show');
             });
         } else {
+            // Fetch in background while modal is already shown
             refreshParentMenuOptions(route).then(() => {
                 updateCreateParentMenuSelect();
                 return initializeTomSelectInstances();
             }).then(() => {
                 resetCreateForm();
-                $('#createMenuModal').modal('show');
             });
         }
     }
@@ -239,20 +241,25 @@ window.MenusDataTable = (function () {
     function openEditModal(menu, route) {
         const cachedMenu = menuCache.get(menu.id) || menu;
         
+        // Show modal immediately for better UX
+        $('#editMenuModal').modal('show');
+        
         if (parentMenuCache) {
             parentMenuOptions = parentMenuCache;
             updateParentMenuSelect();
             initializeTomSelectInstances().then(() => {
                 fillEditModal(cachedMenu);
-                $('#editMenuModal').modal('show');
             });
         } else {
+            // Pre-fill basic data immediately
+            fillEditModalBasic(cachedMenu);
+            
+            // Fetch parent menus in background
             refreshParentMenuOptions(route).then(() => {
                 updateParentMenuSelect();
                 return initializeTomSelectInstances();
             }).then(() => {
                 fillEditModal(cachedMenu);
-                $('#editMenuModal').modal('show');
             });
         }
     }
@@ -275,7 +282,7 @@ window.MenusDataTable = (function () {
         $('#deleteMenuModal').modal('show');
     }
 
-    function fillEditModal(menu) {
+    function fillEditModalBasic(menu) {
         if (!$('#edit_menu_id').length) return;
 
         const form = $('#editMenuForm')[0];
@@ -285,7 +292,7 @@ window.MenusDataTable = (function () {
                 form.action.replace(/\/\d+$/, '') + '/' + menu.id;
         }
 
-        // Fill basic fields
+        // Fill basic fields immediately (no TomSelect dependency)
         $('#edit_menu_id').val(menu.id);
         $('#edit_nama_menu').val(menu.nama_menu);
         $('#edit_slug').val(menu.slug);
@@ -298,8 +305,14 @@ window.MenusDataTable = (function () {
         $('#edit_meta_description').val(menu.meta_description || "");
         $('#edit_urutan').val(menu.urutan);
         $('#edit_is_active').prop('checked', menu.is_active == 1);
+    }
 
-        // Set TomSelect values
+    function fillEditModal(menu) {
+    function fillEditModal(menu) {
+        // Fill basic fields first
+        fillEditModalBasic(menu);
+
+        // Set TomSelect values (this part requires TomSelect to be ready)
         DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_route_type', menu.route_type || 'public');
         
         const parentValue = menu.parent_id ? String(menu.parent_id) : '';

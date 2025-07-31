@@ -1,38 +1,41 @@
 /**
- * Users DataTable Configuration - Simplified Optimized Version
+ * Users DataTable Configuration
+ * Server-side processing enabled for better performance
  * @author KantorKu SuperApp Team
- * @version 2.3.0 - Faster edit modal with simplified code
+ * @version 2.2.0
  */
 
 window.UsersDataTable = (function () {
     "use strict";
 
-    let usersTable;
-    let selectedUsers = [];
-    let userCache = new Map(); // Simple cache for faster edit loading
+    let usersTable; // DataTable instance
+    let selectedUsers = []; // Array of selected user IDs for bulk actions
 
     // --- Table Configuration ---
     function getTableConfig(route) {
+        // Base config from global with AJAX route
         const baseConfig = DataTableGlobal.generateStandardConfig({
             tableConfig: {
-                ajax: { url: route, type: "GET" },
-                order: [[1, "asc"]],
+                ajax: {
+                    url: route,
+                    type: "GET"
+                },
+                order: [
+                    [1, "asc"]
+                ],
                 deferRender: true
             }
         });
 
+        // Users-specific columns and settings
         const usersConfig = {
-            columns: [
-                { // Checkbox
+            columns: [{ // Checkbox
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: (data, type, row) => {
-                        // Cache data saat render untuk edit cepat
-                        userCache.set(row.id, row);
-                        return `<input class="form-check-input m-0 align-middle table-selectable-check" 
-                               type="checkbox" value="${row.id}"/>`;
-                    }
+                    render: (data, type, row) =>
+                        `<input class="form-check-input m-0 align-middle table-selectable-check" 
+                               type="checkbox" value="${row.id}"/>`
                 },
                 { // Name with avatar
                     data: "name",
@@ -43,8 +46,14 @@ window.UsersDataTable = (function () {
                         return `<span class="avatar avatar-xs me-2" style="background-image: url('${avatar}');"></span>${data}`;
                     }
                 },
-                { data: "username", name: "username" },
-                { data: "email", name: "email" },
+                {
+                    data: "username",
+                    name: "username"
+                },
+                {
+                    data: "email",
+                    name: "email"
+                },
                 { // Roles
                     data: "roles",
                     name: "roles",
@@ -58,7 +67,9 @@ window.UsersDataTable = (function () {
                     data: "created_at",
                     name: "created_at",
                     render: (data) => new Date(data).toLocaleDateString("en-US", {
-                        year: "numeric", month: "long", day: "numeric"
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
                     })
                 },
                 { // Actions
@@ -74,9 +85,6 @@ window.UsersDataTable = (function () {
                 DataTableGlobal.updateRecordInfo(usersTable, "#record-info", "users");
                 DataTableGlobal.updateSelectAllState();
                 updateBulkDeleteButton();
-                
-                // Manage cache size
-                if (userCache.size > 500) userCache.clear();
             }
         };
 
@@ -86,20 +94,24 @@ window.UsersDataTable = (function () {
     // --- Initialize Table ---
     function initialize(route) {
         return DataTableGlobal.waitForLibraries().then(() => {
+            // Create table
             usersTable = $("#datatable-users").DataTable(getTableConfig(route));
 
-            // Setup handlers dari DataTableGlobal
+            // Setup global handlers
             DataTableGlobal.createSearchHandler(usersTable, "#advanced-table-search");
             DataTableGlobal.setupPageLengthHandler(usersTable, ".dropdown-item[data-value]", "#page-count");
             DataTableGlobal.setupKeyboardShortcuts("#advanced-table-search");
 
+            // Setup specific handlers
             setupEventHandlers();
+
             return usersTable;
         });
     }
 
     // --- Event Handlers ---
     function setupEventHandlers() {
+        // Checkbox selection with bulk delete button updates
         DataTableGlobal.setupCheckboxHandlers(selectedUsers, {
             onUpdate: updateBulkDeleteButton,
             onStateChange: updateBulkDeleteButton,
@@ -112,86 +124,9 @@ window.UsersDataTable = (function () {
         $("#selected-count").text(selectedUsers.length);
     }
 
-    // --- User Management - OPTIMIZED ---
-    function editUser(userId, editRoute = null) {
-        const numericId = parseInt(userId);
-        
-        // Cek cache dulu - instant loading jika ada
-        const cachedUser = userCache.get(numericId);
-        if (cachedUser) {
-            fillEditForm(cachedUser);
-            return;
-        }
-
-        // Jika tidak ada di cache, fetch dari server
-        const route = editRoute || window.userEditRoute;
-        if (!route) {
-            console.error('Edit route not configured');
-            alert('Edit route not configured properly');
-            return;
-        }
-
-        fetch(route.replace(':id', userId), {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            const user = data.user;
-            userCache.set(numericId, user); // Cache untuk next time
-            fillEditForm(user);
-        })
-        .catch(error => {
-            console.error('Error loading user:', error);
-            alert('Error loading user data');
-        });
-    }
-
-    // Simplified form filling
-    function fillEditForm(user) {
-        $('#edit_user_id').val(user.id);
-        $('#edit_name').val(user.name);
-        $('#edit_username').val(user.username);
-        $('#edit_email').val(user.email);
-        $('#edit_password, #edit_password_confirmation').val('');
-
-        // Update form action
-        const form = $('#editUserForm')[0];
-        form.action = form.action.includes(':id') ?
-            form.action.replace(':id', user.id) :
-            form.action.replace(/\/\d+$/, '') + '/' + user.id;
-
-        // Handle roles
-        $('#edit_roles_container input[name="roles[]"]').prop('checked', false);
-        if (user.roles) {
-            user.roles.forEach(role => {
-                $(`#edit_roles_container input[value="${role.name || role}"]`).prop('checked', true);
-            });
-        }
-    }
-
-    function deleteUser(userId, userName) {
-        if (typeof confirmDeleteUser === 'function') {
-            confirmDeleteUser(userId, userName);
-        } else {
-            $('#delete_user_id').val(userId);
-            $('#delete_user_name').text(userName);
-
-            const form = $('#deleteUserForm')[0];
-            if (form) {
-                form.action = form.action.includes(':id') ?
-                    form.action.replace(':id', userId) :
-                    form.action.replace(/\/\d+$/, '') + '/' + userId;
-            }
-        }
-    }
-
     // --- Bulk Delete ---
-    let bulkDeleteRoute = "";
-
     function setupBulkDeleteHandlers() {
+        console.log('Setting up bulk delete handlers with route:', bulkDeleteRoute);
         DataTableGlobal.setupBulkDeleteHandler({
             modalSelector: "#deleteSelectedModal",
             selectedArray: selectedUsers,
@@ -203,21 +138,100 @@ window.UsersDataTable = (function () {
         });
     }
 
-    function setBulkDeleteRoute(route) {
-        bulkDeleteRoute = route;
-        if (usersTable) setupBulkDeleteHandlers();
+    // --- User Management ---
+    function editUser(userId, editRoute = null) {
+        // Use provided editRoute or fall back to global route
+        const route = editRoute || window.userEditRoute;
+        
+        if (!route) {
+            console.error('Edit route not provided and global route not found');
+            alert('Edit route not configured properly');
+            return;
+        }
+        
+        const url = route.replace(':id', userId);
+
+        fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const user = data.user;
+
+                // Fill form fields
+                $('#edit_user_id').val(user.id);
+                $('#edit_name').val(user.name);
+                $('#edit_username').val(user.username);
+                $('#edit_email').val(user.email);
+                $('#edit_password, #edit_password_confirmation').val('');
+
+                // Update form action
+                const form = $('#editUserForm')[0];
+                form.action = form.action.includes(':id') ?
+                    form.action.replace(':id', user.id) :
+                    form.action.replace(/\/\d+$/, '') + '/' + user.id;
+
+                // Handle roles
+                $('#edit_roles_container input[name="roles[]"]').prop('checked', false);
+                user.roles.forEach(role => {
+                    $(`#edit_roles_container input[value="${role.name}"]`).prop('checked', true);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading user:', error);
+                alert('Error loading user data');
+            });
+    }
+
+    function deleteUser(userId, userName) {
+        // Use the new confirmation modal if available
+        if (typeof confirmDeleteUser === 'function') {
+            confirmDeleteUser(userId, userName);
+        } else {
+            // Fallback to old method if confirmation modal is not available
+            $('#delete_user_id').val(userId);
+            $('#delete_user_name').text(userName);
+
+            // Update form action
+            const form = $('#deleteUserForm')[0];
+            if (form) {
+                form.action = form.action.includes(':id') ?
+                    form.action.replace(':id', userId) :
+                    form.action.replace(/\/\d+$/, '') + '/' + userId;
+            }
+        }
     }
 
     // --- Helper Functions ---
     function setupModalHandlers() {
-        DataTableGlobal.setupStandardModalHandlers([
-            { modalSelector: "#createUserModal", formSelector: "#createUserForm" },
-            { modalSelector: "#editUserModal", formSelector: "#editUserForm" }
+        DataTableGlobal.setupStandardModalHandlers([{
+                modalSelector: "#createUserModal",
+                formSelector: "#createUserForm"
+            },
+            {
+                modalSelector: "#editUserModal",
+                formSelector: "#editUserForm"
+            }
         ]);
     }
 
     function setPageListItems(event) {
         DataTableGlobal.createPageLengthHandler(usersTable, "#page-count")(event);
+    }
+
+    let bulkDeleteRoute = "";
+
+    function setBulkDeleteRoute(route) {
+        console.log('Setting bulk delete route for users:', route);
+        bulkDeleteRoute = route;
+        // Setup handlers after route is set
+        if (usersTable) {
+            console.log('Setting up bulk delete handlers for users');
+            setupBulkDeleteHandlers();
+        }
     }
 
     // --- Public API ---
@@ -231,10 +245,7 @@ window.UsersDataTable = (function () {
         setupEventHandlers,
         getTable: () => usersTable,
         getSelectedUsers: () => selectedUsers,
-        refreshDataTable: () => {
-            userCache.clear(); // Clear cache saat refresh
-            return DataTableGlobal.refreshDataTable(usersTable);
-        },
+        refreshDataTable: () => DataTableGlobal.refreshDataTable(usersTable),
         updateRecordInfo: () => DataTableGlobal.updateRecordInfo(usersTable, "#record-info", "users")
     };
 })();
