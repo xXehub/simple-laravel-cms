@@ -4,24 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Services\VisitTrackingService;
+use App\Jobs\TrackVisitJob;
 use App\Models\MasterMenu;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class TrackMenuVisit
 {
-    protected $visitTrackingService;
-
-    public function __construct(VisitTrackingService $visitTrackingService)
-    {
-        $this->visitTrackingService = $visitTrackingService;
-    }
-
     /**
-     * Handle an incoming request - OPTIMIZED FOR PERFORMANCE
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Handle an incoming request - Optimized for performance
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -46,32 +36,30 @@ class TrackMenuVisit
             return false;
         }
 
-        // Skip certain paths first (most specific)
+        // Skip certain paths first
         if ($this->shouldSkipTracking($request->path())) {
             return false;
         }
 
-        // Skip DataTable AJAX requests specifically 
-        // DataTable sends these query parameters: draw, start, length
+        // Skip DataTable AJAX requests (they send draw, start, length parameters)
         if ($request->has(['draw', 'start', 'length'])) {
-            return false; // This is definitely a DataTable AJAX request
+            return false;
         }
 
-        // Skip if X-Requested-With header indicates AJAX AND it's requesting JSON
+        // Skip AJAX requests wanting JSON data
         if ($request->header('X-Requested-With') === 'XMLHttpRequest') {
-            // Check if it's actually requesting JSON data (like DataTable)
             $acceptHeader = $request->header('Accept', '');
             if (str_contains($acceptHeader, 'application/json')) {
-                return false; // AJAX request wanting JSON = not a page visit
+                return false;
             }
         }
 
-        // Skip pure API calls (URLs starting with /api/)
+        // Skip API calls
         if (str_starts_with($request->path(), 'api/')) {
             return false;
         }
 
-        // Skip if response content type is JSON/XML (API response)
+        // Skip if response is JSON/XML (API response)
         $contentType = $response->headers->get('Content-Type', '');
         if (
             str_contains($contentType, 'application/json') ||
@@ -80,12 +68,11 @@ class TrackMenuVisit
             return false;
         }
 
-        // Track everything else (normal page visits)
         return true;
     }
 
     /**
-     * Track visit - ULTRA FAST VERSION
+     * Track visit using queue for zero performance impact
      */
     protected function trackVisit(Request $request): void
     {
@@ -93,116 +80,97 @@ class TrackMenuVisit
             $slug = $this->extractSlugFromPath($request->path());
 
             if (!$slug) {
-                return; // No slug = skip (no logging for performance)
+                return; // No valid slug found
             }
 
-            // Track in background - don't block response
-            $this->visitTrackingService->trackVisit($slug);
+            // Generate user identifier for unique visitor tracking
+            $userIdentifier = $this->generateUserIdentifier($request);
+
+            // Dispatch to queue for background processing
+            TrackVisitJob::dispatch($slug, $userIdentifier);
 
         } catch (\Exception $e) {
-            // Silent error handling - no logging to avoid performance hit
-            // Errors will be caught by the service's own error handling
+            // Silent error handling - don't affect user experience
         }
     }
 
     /**
-     * Determine if tracking should be skipped for this path - PERFORMANCE OPTIMIZED
+     * Generate unique user identifier for accurate tracking
+     */
+    protected function generateUserIdentifier(Request $request): string
+    {
+        $ip = $request->ip();
+        
+        // Use user ID if authenticated
+        if (auth()->check()) {
+            return 'user_' . auth()->id() . '_' . $ip;
+        }
+        
+        // For anonymous users, use IP only
+        return 'ip_' . $ip;
+    }
+
+    /**
+     * Check if tracking should be skipped for this path
      */
     protected function shouldSkipTracking(string $path): bool
     {
-        // Quick checks first (most common cases)
         if (empty($path) || $path === '/') {
             return false; // Track homepage
         }
 
-        // Use simple string operations for better performance
-        $firstChar = $path[0] ?? '';
         $firstSegment = strtok($path, '/');
 
         // Skip common non-page requests
-        static $skipSegments = [
-        'api' => true,
-        'admin' => true,
-        'login' => true,
-        'logout' => true,
-        'register' => true,
-        'password' => true,
-        '_debugbar' => true,
-        'telescope' => true,
-        'health' => true,
-        'up' => true,
-        'favicon.ico' => true,
-        'robots.txt' => true,
-        'sitemap.xml' => true,
-        'css' => true,
-        'js' => true,
-        'images' => true,
-        'img' => true,
-        'assets' => true,
-        'storage' => true,
+        $skipSegments = [
+            'admin', 'login', 'logout', 'register', 'password',
+            '_debugbar', 'telescope', 'health', 'up',
+            'favicon.ico', 'robots.txt', 'sitemap.xml',
+            'css', 'js', 'images', 'img', 'assets', 'storage',
+            'build', 'libs'
         ];
 
-        return isset($skipSegments[$firstSegment]);
+        return in_array($firstSegment, $skipSegments);
     }
 
     /**
-     * Extract slug - PERFORMANCE OPTIMIZED with aggressive caching
+     * Extract slug from path with caching
      */
     protected function extractSlugFromPath(string $path): ?string
     {
-        // Static cache for ultra-fast lookups
         static $slugCache = [];
-        static $cacheSize = 0;
-
-        // Limit cache size to prevent memory issues
-        if ($cacheSize > 1000) {
-            $slugCache = array_slice($slugCache, -500, null, true);
-            $cacheSize = 500;
-        }
 
         if (isset($slugCache[$path])) {
             return $slugCache[$path];
         }
 
-        // Handle common cases first
+        // Handle homepage
         if ($path === '/' || $path === '') {
             $slugCache[$path] = 'beranda';
-            $cacheSize++;
             return 'beranda';
         }
 
-        // Clean path quickly
+        // Clean path
         $cleanPath = ltrim($path, '/');
         $cleanPath = strtok($cleanPath, '?') ?: $cleanPath;
-        $cleanPath = strtok($cleanPath, '#') ?: $cleanPath;
 
-        // Quick validation - only alphanumeric, dash, underscore, slash
+        // Basic validation
         if (preg_match('/[^a-zA-Z0-9\-_\/]/', $cleanPath)) {
             $slugCache[$path] = null;
-            $cacheSize++;
             return null;
         }
 
-        // Try without slash first (most common format)
-        $exists = MasterMenu::where('slug', $cleanPath)->exists();
+        // Check if menu exists with this slug
+        $exists = MasterMenu::where('slug', $cleanPath)
+                           ->orWhere('slug', '/' . $cleanPath)
+                           ->exists();
+
         if ($exists) {
             $slugCache[$path] = $cleanPath;
-            $cacheSize++;
             return $cleanPath;
         }
 
-        // Try with leading slash
-        $withSlash = '/' . $cleanPath;
-        $exists = MasterMenu::where('slug', $withSlash)->exists();
-        if ($exists) {
-            $slugCache[$path] = $withSlash;
-            $cacheSize++;
-            return $withSlash;
-        }
-
-        // Not found - cache negative result
         $slugCache[$path] = null;
-        $cacheSize++;
         return null;
     }
 }

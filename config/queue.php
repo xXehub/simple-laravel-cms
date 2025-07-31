@@ -72,6 +72,16 @@ return [
             'after_commit' => false,
         ],
 
+        // Dedicated queue for visit tracking - DATABASE ONLY
+        'visit_tracking' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => 'visit_tracking', // Dedicated queue for visit tracking
+            'retry_after' => 60, // Shorter retry for faster processing
+            'after_commit' => false,
+        ],
+
     ],
 
     /*
