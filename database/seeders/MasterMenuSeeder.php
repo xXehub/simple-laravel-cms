@@ -29,7 +29,7 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "track_visit"],
             'meta_title' => 'Home',
             'meta_description' => 'Welcome to our website',
-            'visit_count' => 1250, // Popular public page
+            'visit_count' => 0, // Popular public page
         ]);
 
         // --------------------
@@ -45,11 +45,11 @@ class MasterMenuSeeder extends Seeder
             'is_active' => 1,
             'route_type' => 'admin',
             'controller_class' => 'App\\Http\\Controllers\\Panel\\DashboardController',
-            'view_path' => null,
+            'view_path' => 'panel.dashboard',
             'middleware_list' => ["web", "auth", "permission:view-dashboard"],
             'meta_title' => 'Admin Dashboard',
             'meta_description' => 'Administrative dashboard with system overview',
-            'visit_count' => 850, // Sering diakses admin
+            'visit_count' => 0, // Sering diakses admin
         ]);
         $panelManagement = MasterMenu::create([
             'nama_menu' => 'Panel Management',
@@ -81,7 +81,7 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "auth", "permission:view-users"],
             'meta_title' => 'User Management',
             'meta_description' => 'Manage system users and their roles',
-            'visit_count' => 420, // Moderately visited
+            'visit_count' => 0, // Moderately visited
         ]);
         $roles = MasterMenu::create([
             'nama_menu' => 'Roles',
@@ -142,7 +142,7 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "auth", "permission:view-pages"],
             'meta_title' => 'Page Management',
             'meta_description' => 'Manage CMS pages and content',
-            'visit_count' => 680, // Popular admin feature
+            'visit_count' => 0, // Popular admin feature
         ]);
         $settings = MasterMenu::create([
             'nama_menu' => 'Settings',
@@ -189,7 +189,7 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "track_visit"],
             'meta_title' => 'Articles',
             'meta_description' => 'Browse our latest articles',
-            'visit_count' => 950, // Popular public content
+            'visit_count' => 0, // Popular public content
         ]);
         $contact = MasterMenu::create([
             'nama_menu' => 'Contact',
