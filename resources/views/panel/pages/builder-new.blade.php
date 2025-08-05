@@ -1,4 +1,4 @@
-<x-layout.app title="Page Builder - {{ $page->title }}" :pakaiSidebar="false" :pakaiTopBar="false">
+<x-layout.app :title="'Page Builder - ' . $page->title" :pakaiSidebar="false" :pakaiTopBar="false">
     <div class="page-wrapper">
         <!-- Builder Header -->
         <div class="page-header d-print-none sticky-top bg-white border-bottom">
@@ -37,33 +37,6 @@
                                 </svg>
                                 Save Page
                             </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="1"/>
-                                        <circle cx="19" cy="12" r="1"/>
-                                        <circle cx="5" cy="12" r="1"/>
-                                    </svg>
-                                    More
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item" href="#" onclick="togglePublishStatus()">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9,11 12,14 20,4"/>
-                                            <path d="M21 12v7a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h11"/>
-                                        </svg>
-                                        {{ $page->is_published ? 'Unpublish' : 'Publish' }}
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pageSettingsModal">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                            <circle cx="12" cy="12" r="3"/>
-                                        </svg>
-                                        Page Settings
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -96,7 +69,8 @@
                                                         <div class="component-item" data-component="section" title="Section">
                                                             <div class="component-preview">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                                    <rect x="4" y="4" width="16" height="4" rx="1"/>
+                                                                    <rect x="4" y="12" width="16" height="8" rx="1"/>
                                                                 </svg>
                                                             </div>
                                                             <small>Section</small>
@@ -106,7 +80,7 @@
                                                         <div class="component-item" data-component="container" title="Container">
                                                             <div class="component-preview">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <rect x="5" y="5" width="14" height="14" rx="1" ry="1"/>
+                                                                    <rect x="6" y="6" width="12" height="12" rx="2"/>
                                                                 </svg>
                                                             </div>
                                                             <small>Container</small>
@@ -116,8 +90,8 @@
                                                         <div class="component-item" data-component="row" title="Row">
                                                             <div class="component-preview">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <rect x="4" y="6" width="16" height="4" rx="1"/>
-                                                                    <rect x="4" y="14" width="16" height="4" rx="1"/>
+                                                                    <rect x="4" y="8" width="6" height="8" rx="1"/>
+                                                                    <rect x="14" y="8" width="6" height="8" rx="1"/>
                                                                 </svg>
                                                             </div>
                                                             <small>Row</small>
@@ -127,8 +101,7 @@
                                                         <div class="component-item" data-component="column" title="Column">
                                                             <div class="component-preview">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <rect x="6" y="4" width="4" height="16" rx="1"/>
-                                                                    <rect x="14" y="4" width="4" height="16" rx="1"/>
+                                                                    <rect x="9" y="4" width="6" height="16" rx="1"/>
                                                                 </svg>
                                                             </div>
                                                             <small>Column</small>
@@ -139,14 +112,14 @@
                                         </div>
                                     </div>
 
-                                    <!-- Content Components -->
+                                    <!-- Basic Components -->
                                     <div class="accordion-item">
                                         <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-components">
-                                                Content
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#basic-components">
+                                                Basic
                                             </button>
                                         </h2>
-                                        <div id="content-components" class="accordion-collapse collapse" data-bs-parent="#componentsAccordion">
+                                        <div id="basic-components" class="accordion-collapse collapse" data-bs-parent="#componentsAccordion">
                                             <div class="accordion-body p-2">
                                                 <div class="row g-2">
                                                     <div class="col-6">
@@ -338,73 +311,6 @@
         </div>
     </div>
 
-    <!-- Page Settings Modal -->
-    <div class="modal modal-blur fade" id="pageSettingsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Page Settings</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="pageSettingsForm">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Page Title</label>
-                                    <input type="text" class="form-control" id="page-title" value="{{ $page->title }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="mb-3">
-                                    <label class="form-label">URL Slug</label>
-                                    <input type="text" class="form-control" id="page-slug" value="{{ $page->slug }}">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Template</label>
-                                    <select class="form-control" id="page-template">
-                                        <option value="">Default Template</option>
-                                        @if(isset($templates) && count($templates) > 0)
-                                            @foreach($templates as $template)
-                                                <option value="{{ $template['value'] }}" {{ $page->template == $template['value'] ? 'selected' : '' }}>{{ $template['label'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Sort Order</label>
-                                    <input type="number" class="form-control" id="page-sort-order" value="{{ $page->sort_order }}">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Meta Title (SEO)</label>
-                            <input type="text" class="form-control" id="page-meta-title" value="{{ $page->meta_title }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Meta Description (SEO)</label>
-                            <textarea class="form-control" id="page-meta-description" rows="3">{{ $page->meta_description }}</textarea>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="page-is-published" {{ $page->is_published ? 'checked' : '' }}>
-                            <label class="form-check-label">Published</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="savePageSettings()">Save Settings</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     @push('styles')
     <style>
         .component-item {
@@ -579,11 +485,13 @@
                             </button>
                         </div>
                         <section class="py-4">
-                            <p class="text-muted mb-0">Section content goes here</p>
+                            <div class="container">
+                                <p class="text-muted mb-0">Section content goes here</p>
+                            </div>
                         </section>
                     </div>`;
                     break;
-                    
+
                 case 'container':
                     html = `<div class="builder-component" data-type="container" data-id="${id}">
                         <div class="component-toolbar">
@@ -595,7 +503,48 @@
                             </button>
                         </div>
                         <div class="container">
-                            <p class="text-muted mb-0">Container content</p>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-muted mb-0">Container content goes here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    break;
+
+                case 'row':
+                    html = `<div class="builder-component" data-type="row" data-id="${id}">
+                        <div class="component-toolbar">
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-muted mb-0">Column 1</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted mb-0">Column 2</p>
+                            </div>
+                        </div>
+                    </div>`;
+                    break;
+
+                case 'column':
+                    html = `<div class="builder-component" data-type="column" data-id="${id}">
+                        <div class="component-toolbar">
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="text-muted mb-0">Column content goes here</p>
                         </div>
                     </div>`;
                     break;
@@ -610,7 +559,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         </div>
-                        <h2>Heading Text</h2>
+                        <h2 class="mb-0">Heading Text</h2>
                     </div>`;
                     break;
 
@@ -624,7 +573,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         </div>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                     </div>`;
                     break;
 
@@ -638,7 +587,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         </div>
-                        <button class="btn btn-primary">Click Me</button>
+                        <a href="#" class="btn btn-primary">Click Me</a>
                     </div>`;
                     break;
 
@@ -657,9 +606,92 @@
                                 <h3 class="card-title">Card Title</h3>
                             </div>
                             <div class="card-body">
-                                <p class="text-muted">This is some text within a card body.</p>
+                                <p class="text-muted mb-0">This is some text within a card body.</p>
                             </div>
                         </div>
+                    </div>`;
+                    break;
+                    
+                case 'hero':
+                    html = `<div class="builder-component" data-type="hero" data-id="${id}">
+                        <div class="component-toolbar">
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <div class="hero hero-sm d-flex align-items-center" style="background-image: url(https://via.placeholder.com/1200x400/206bc4/ffffff?text=Hero+Background)">
+                            <div class="hero-body">
+                                <div class="container">
+                                    <h1 class="hero-title">Hero Title</h1>
+                                    <p class="hero-subtitle">This is a hero section with a background image and call-to-action content.</p>
+                                    <div class="mt-3">
+                                        <a href="#" class="btn btn-primary">Get Started</a>
+                                        <a href="#" class="btn btn-outline-light ms-2">Learn More</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    break;
+
+                case 'tabs':
+                    html = `<div class="builder-component" data-type="tabs" data-id="${id}">
+                        <div class="component-toolbar">
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="#tab-${id}-1" data-bs-toggle="tab">Tab 1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#tab-${id}-2" data-bs-toggle="tab">Tab 2</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#tab-${id}-3" data-bs-toggle="tab">Tab 3</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane active show" id="tab-${id}-1">
+                                        <h4>Tab 1 Content</h4>
+                                        <p class="text-muted">This is the content for the first tab.</p>
+                                    </div>
+                                    <div class="tab-pane" id="tab-${id}-2">
+                                        <h4>Tab 2 Content</h4>
+                                        <p class="text-muted">This is the content for the second tab.</p>
+                                    </div>
+                                    <div class="tab-pane" id="tab-${id}-3">
+                                        <h4>Tab 3 Content</h4>
+                                        <p class="text-muted">This is the content for the third tab.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    break;
+
+                case 'image':
+                    html = `<div class="builder-component" data-type="image" data-id="${id}">
+                        <div class="component-toolbar">
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                        <img src="https://via.placeholder.com/600x300/f8f9fa/206bc4?text=Image+Placeholder" class="img-fluid rounded" alt="Placeholder image">
                     </div>`;
                     break;
 
@@ -674,136 +706,35 @@
                             </button>
                         </div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">First item</li>
-                            <li class="list-group-item">Second item</li>
-                            <li class="list-group-item">Third item</li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-green me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                                First list item
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-green me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                                Second list item
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-green me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                                Third list item
+                            </li>
                         </ul>
-                    </div>`;
-                    break;
-
-                case 'image':
-                    html = `<div class="builder-component" data-type="image" data-id="${id}">
-                        <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-                        <img src="https://via.placeholder.com/400x200?text=Image+Placeholder" class="img-fluid" alt="Placeholder image">
-                    </div>`;
-                    break;
-
-                case 'row':
-                    html = `<div class="builder-component" data-type="row" data-id="${id}">
-                        <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="text-muted">Column 1 content</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-muted">Column 2 content</p>
-                            </div>
-                        </div>
-                    </div>`;
-                    break;
-
-                case 'column':
-                    html = `<div class="builder-component" data-type="column" data-id="${id}">
-                        <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1 2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-                        <div class="col-md-12">
-                            <p class="text-muted">Column content goes here</p>
-                        </div>
-                    </div>`;
-                    break;
-
-                case 'hero':
-                    html = `<div class="builder-component" data-type="hero" data-id="${id}">
-                        <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1 2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-                        <div class="hero">
-                            <div class="hero-body text-center">
-                                <h1 class="hero-title">Hero Title</h1>
-                                <p class="hero-subtitle">This is a hero section with centered content and call-to-action buttons.</p>
-                                <div class="mt-4">
-                                    <a href="#" class="btn btn-primary btn-lg me-2">Primary Action</a>
-                                    <a href="#" class="btn btn-outline-primary btn-lg">Secondary Action</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                    break;
-
-                case 'tabs':
-                    html = `<div class="builder-component" data-type="tabs" data-id="${id}">
-                        <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1 2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
-                                    <li class="nav-item">
-                                        <a href="#tab-${id}-1" class="nav-link active" data-bs-toggle="tab">Tab 1</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="#tab-${id}-2" class="nav-link" data-bs-toggle="tab">Tab 2</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="#tab-${id}-3" class="nav-link" data-bs-toggle="tab">Tab 3</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="card-body">
-                                <div class="tab-content">
-                                    <div class="tab-pane active show" id="tab-${id}-1">
-                                        <p>Content for Tab 1</p>
-                                    </div>
-                                    <div class="tab-pane" id="tab-${id}-2">
-                                        <p>Content for Tab 2</p>
-                                    </div>
-                                    <div class="tab-pane" id="tab-${id}-3">
-                                        <p>Content for Tab 3</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>`;
                     break;
 
                 default:
                     html = `<div class="builder-component" data-type="${type}" data-id="${id}">
                         <div class="component-toolbar">
-                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">Edit</button>
-                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">Delete</button>
+                            <button class="btn btn-sm text-white" onclick="editComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="btn btn-sm text-white" onclick="deleteComponent('${id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
                         </div>
                         <p>Component: ${type}</p>
                     </div>`;
+                    break;
             }
 
             return html;
@@ -861,41 +792,44 @@
             // Add common properties based on component type
             switch (type) {
                 case 'heading':
+                    const currentHeading = component.querySelector('h1,h2,h3,h4,h5,h6');
                     html += `
                         <div class="mb-3">
                             <label class="form-label">Text</label>
-                            <input type="text" class="form-control" id="prop-text" value="${component.querySelector('h1,h2,h3,h4,h5,h6').textContent}">
+                            <input type="text" class="form-control" id="prop-text" value="${currentHeading ? currentHeading.textContent : ''}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Level</label>
                             <select class="form-control" id="prop-level">
-                                <option value="h1">H1</option>
-                                <option value="h2" selected>H2</option>
-                                <option value="h3">H3</option>
-                                <option value="h4">H4</option>
-                                <option value="h5">H5</option>
-                                <option value="h6">H6</option>
+                                <option value="h1" ${currentHeading && currentHeading.tagName === 'H1' ? 'selected' : ''}>H1</option>
+                                <option value="h2" ${currentHeading && currentHeading.tagName === 'H2' ? 'selected' : ''}>H2</option>
+                                <option value="h3" ${currentHeading && currentHeading.tagName === 'H3' ? 'selected' : ''}>H3</option>
+                                <option value="h4" ${currentHeading && currentHeading.tagName === 'H4' ? 'selected' : ''}>H4</option>
+                                <option value="h5" ${currentHeading && currentHeading.tagName === 'H5' ? 'selected' : ''}>H5</option>
+                                <option value="h6" ${currentHeading && currentHeading.tagName === 'H6' ? 'selected' : ''}>H6</option>
                             </select>
                         </div>`;
                     break;
                     
                 case 'text':
+                    const currentText = component.querySelector('p');
                     html += `
                         <div class="mb-3">
                             <label class="form-label">Content</label>
-                            <textarea class="form-control" id="prop-content" rows="4">${component.querySelector('p').textContent}</textarea>
+                            <textarea class="form-control" id="prop-content" rows="4">${currentText ? currentText.textContent : ''}</textarea>
                         </div>`;
                     break;
                     
                 case 'button':
+                    const currentButton = component.querySelector('button');
                     html += `
                         <div class="mb-3">
                             <label class="form-label">Text</label>
-                            <input type="text" class="form-control" id="prop-text" value="${component.querySelector('button').textContent}">
+                            <input type="text" class="form-control" id="prop-text" value="${currentButton ? currentButton.textContent : ''}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">URL</label>
-                            <input type="url" class="form-control" id="prop-url" placeholder="https://">
+                            <input type="url" class="form-control" id="prop-url" value="">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Style</label>
@@ -905,41 +839,21 @@
                                 <option value="btn-success">Success</option>
                                 <option value="btn-danger">Danger</option>
                                 <option value="btn-outline-primary">Outline Primary</option>
+                                <option value="btn-outline-secondary">Outline Secondary</option>
                             </select>
                         </div>`;
                     break;
 
-                case 'card':
-                    html += `
-                        <div class="mb-3">
-                            <label class="form-label">Card Title</label>
-                            <input type="text" class="form-control" id="prop-title" value="${component.querySelector('.card-title').textContent}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Card Content</label>
-                            <textarea class="form-control" id="prop-content" rows="4">${component.querySelector('.card-body p').textContent}</textarea>
-                        </div>`;
-                    break;
-
-                case 'list':
-                    const listItems = Array.from(component.querySelectorAll('.list-group-item')).map(item => item.textContent).join('\n');
-                    html += `
-                        <div class="mb-3">
-                            <label class="form-label">List Items (one per line)</label>
-                            <textarea class="form-control" id="prop-items" rows="4">${listItems}</textarea>
-                        </div>`;
-                    break;
-
                 case 'image':
-                    const img = component.querySelector('img');
+                    const currentImg = component.querySelector('img');
                     html += `
                         <div class="mb-3">
                             <label class="form-label">Image URL</label>
-                            <input type="url" class="form-control" id="prop-src" value="${img.src}">
+                            <input type="url" class="form-control" id="prop-src" value="${currentImg ? currentImg.src : ''}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Alt Text</label>
-                            <input type="text" class="form-control" id="prop-alt" value="${img.alt}">
+                            <input type="text" class="form-control" id="prop-alt" value="${currentImg ? currentImg.alt : ''}">
                         </div>`;
                     break;
             }
@@ -973,7 +887,7 @@
                     const text = document.getElementById('prop-text').value;
                     const level = document.getElementById('prop-level').value;
                     const heading = component.querySelector('h1,h2,h3,h4,h5,h6');
-                    heading.outerHTML = `<${level}>${text}</${level}>`;
+                    heading.outerHTML = `<${level} class="mb-3">${text}</${level}>`;
                     break;
                     
                 case 'text':
@@ -989,27 +903,13 @@
                     button.textContent = btnText;
                     button.className = `btn ${btnStyle}`;
                     if (btnUrl) {
-                        button.setAttribute('onclick', `window.open('${btnUrl}', '_blank')`);
+                        // Convert button to link if URL provided
+                        const newElement = document.createElement('a');
+                        newElement.href = btnUrl;
+                        newElement.className = button.className;
+                        newElement.textContent = button.textContent;
+                        button.parentNode.replaceChild(newElement, button);
                     }
-                    break;
-
-                case 'card':
-                    const cardTitle = document.getElementById('prop-title').value;
-                    const cardContent = document.getElementById('prop-content').value;
-                    component.querySelector('.card-title').textContent = cardTitle;
-                    component.querySelector('.card-body p').textContent = cardContent;
-                    break;
-
-                case 'list':
-                    const listItems = document.getElementById('prop-items').value.split('\n').filter(item => item.trim());
-                    const listGroup = component.querySelector('.list-group');
-                    listGroup.innerHTML = '';
-                    listItems.forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item';
-                        li.textContent = item.trim();
-                        listGroup.appendChild(li);
-                    });
                     break;
 
                 case 'image':
@@ -1037,19 +937,122 @@
         }
 
         function loadExistingContent() {
-            // If page has existing builder data, load it
-            try {
-                const existingData = JSON.parse(pageData.builder_data || '[]');
-                if (existingData.length > 0) {
-                    const canvas = document.getElementById('page-canvas');
-                    existingData.forEach(comp => {
-                        canvas.insertAdjacentHTML('beforeend', `<div class="builder-component" data-type="${comp.type}" data-id="${comp.id}">${comp.html}</div>`);
-                    });
-                    hideCanvasPlaceholder();
-                }
-            } catch (e) {
-                console.log('No existing builder data found');
+            // If page has existing content, try to load it
+            if (pageData.content && pageData.content.trim()) {
+                const canvas = document.getElementById('page-canvas');
+                canvas.innerHTML = pageData.content;
+                hideCanvasPlaceholder();
             }
+        }
+
+        function generateHtmlContent() {
+            const canvas = document.getElementById('page-canvas');
+            let html = '';
+            
+            canvas.querySelectorAll('.builder-component').forEach(comp => {
+                const type = comp.dataset.type;
+                let cleanHtml = '';
+                
+                // Extract only the actual content based on component type
+                switch (type) {
+                    case 'section':
+                        const sectionContent = comp.querySelector('section');
+                        if (sectionContent) {
+                            cleanHtml = sectionContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'container':
+                        const containerContent = comp.querySelector('.container');
+                        if (containerContent) {
+                            cleanHtml = containerContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'heading':
+                        const headingContent = comp.querySelector('h1,h2,h3,h4,h5,h6');
+                        if (headingContent) {
+                            cleanHtml = headingContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'text':
+                        const textContent = comp.querySelector('p');
+                        if (textContent) {
+                            cleanHtml = textContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'button':
+                        const buttonContent = comp.querySelector('button, a.btn');
+                        if (buttonContent) {
+                            cleanHtml = buttonContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'card':
+                        const cardContent = comp.querySelector('.card');
+                        if (cardContent) {
+                            cleanHtml = cardContent.outerHTML;
+                        }
+                        break;
+                        
+                    case 'list':
+                        const listContent = comp.querySelector('.list-group, ul, ol');
+                        if (listContent) {
+                            cleanHtml = listContent.outerHTML;
+                        }
+                        break;
+
+                    case 'image':
+                        const imageContent = comp.querySelector('img');
+                        if (imageContent) {
+                            cleanHtml = imageContent.outerHTML;
+                        }
+                        break;
+
+                    case 'row':
+                        const rowContent = comp.querySelector('.row');
+                        if (rowContent) {
+                            cleanHtml = rowContent.outerHTML;
+                        }
+                        break;
+
+                    case 'column':
+                        const columnContent = comp.querySelector('.col-md-12, [class*="col-"]');
+                        if (columnContent) {
+                            cleanHtml = columnContent.outerHTML;
+                        }
+                        break;
+
+                    case 'hero':
+                        const heroContent = comp.querySelector('.hero');
+                        if (heroContent) {
+                            cleanHtml = heroContent.outerHTML;
+                        }
+                        break;
+
+                    case 'tabs':
+                        const tabsContent = comp.querySelector('.card');
+                        if (tabsContent) {
+                            cleanHtml = tabsContent.outerHTML;
+                        }
+                        break;
+                        
+                    default:
+                        // For custom components, try to extract meaningful content
+                        const allContent = comp.innerHTML
+                            .replace(/<div class="component-toolbar">.*?<\/div>/gs, '')
+                            .trim();
+                        cleanHtml = allContent;
+                }
+                
+                if (cleanHtml) {
+                    html += cleanHtml + '\n';
+                }
+            });
+            
+            return html;
         }
 
         // Save page functionality
@@ -1070,7 +1073,6 @@
             formData.append('is_published', pageData.is_published ? '1' : '0');
             
             // Include builder-specific data
-            formData.append('builder_data', JSON.stringify(builderData));
             formData.append('content', generateHtmlContent());
             
             fetch(`{{ route('panel.pages.update', $page->id) }}`, {
@@ -1116,192 +1118,6 @@
                 clearPropertiesPanel();
             }
         });
-
-        function generateHtmlContent() {
-            const canvas = document.getElementById('page-canvas');
-            let html = '';
-            
-            canvas.querySelectorAll('.builder-component').forEach(comp => {
-                const type = comp.dataset.type;
-                let cleanHtml = '';
-                
-                // Extract only the actual content based on component type
-                switch (type) {
-                    case 'section':
-                        const sectionContent = comp.querySelector('section');
-                        if (sectionContent) {
-                            cleanHtml = sectionContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'container':
-                        const containerContent = comp.querySelector('.container');
-                        if (containerContent) {
-                            cleanHtml = containerContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'heading':
-                        const headingContent = comp.querySelector('h1,h2,h3,h4,h5,h6');
-                        if (headingContent) {
-                            cleanHtml = headingContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'text':
-                        const textContent = comp.querySelector('p');
-                        if (textContent) {
-                            cleanHtml = textContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'button':
-                        const buttonContent = comp.querySelector('button');
-                        if (buttonContent) {
-                            cleanHtml = buttonContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'card':
-                        const cardContent = comp.querySelector('.card');
-                        if (cardContent) {
-                            cleanHtml = cardContent.outerHTML;
-                        }
-                        break;
-                        
-                    case 'list':
-                        const listContent = comp.querySelector('ul, ol');
-                        if (listContent) {
-                            cleanHtml = listContent.outerHTML;
-                        }
-                        break;
-
-                    case 'image':
-                        const imageContent = comp.querySelector('img');
-                        if (imageContent) {
-                            cleanHtml = imageContent.outerHTML;
-                        }
-                        break;
-
-                    case 'row':
-                        const rowContent = comp.querySelector('.row');
-                        if (rowContent) {
-                            cleanHtml = rowContent.outerHTML;
-                        }
-                        break;
-
-                    case 'column':
-                        const columnContent = comp.querySelector('.col-md-12, [class*="col-"]');
-                        if (columnContent) {
-                            cleanHtml = columnContent.outerHTML;
-                        }
-                        break;
-                        
-                    default:
-                        // For custom components, try to extract meaningful content
-                        const allContent = comp.innerHTML
-                            .replace(/<div class="component-toolbar">.*?<\/div>/gs, '')
-                            .trim();
-                        cleanHtml = allContent;
-                }
-                
-                if (cleanHtml) {
-                    html += cleanHtml + '\n';
-                }
-            });
-            
-            return html;
-        }
-
-        function savePageSettings() {
-            const formData = new FormData();
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-            formData.append('_method', 'PUT');
-            formData.append('title', document.getElementById('page-title').value);
-            formData.append('slug', document.getElementById('page-slug').value);
-            formData.append('template', document.getElementById('page-template').value);
-            formData.append('sort_order', document.getElementById('page-sort-order').value);
-            formData.append('meta_title', document.getElementById('page-meta-title').value);
-            formData.append('meta_description', document.getElementById('page-meta-description').value);
-            formData.append('is_published', document.getElementById('page-is-published').checked ? '1' : '0');
-            
-            fetch(`{{ route('panel.pages.update', $page->id) }}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Update page data
-                    pageData.title = document.getElementById('page-title').value;
-                    pageData.slug = document.getElementById('page-slug').value;
-                    pageData.is_published = document.getElementById('page-is-published').checked;
-                    
-                    // Update page title in header
-                    document.querySelector('.page-title').textContent = pageData.title;
-                    
-                    // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById('pageSettingsModal')).hide();
-                    
-                    alert('Page settings saved successfully!');
-                } else {
-                    alert('Error saving settings: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Settings save error:', error);
-                alert('Error saving settings: ' + error.message);
-            });
-        }
-
-        function togglePublishStatus() {
-            const newStatus = !pageData.is_published;
-            
-            const formData = new FormData();
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-            formData.append('_method', 'PUT');
-            formData.append('is_published', newStatus ? '1' : '0');
-            
-            fetch(`{{ route('panel.pages.update', $page->id) }}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    pageData.is_published = newStatus;
-                    location.reload(); // Reload to update UI
-                } else {
-                    alert('Error updating status: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Publish status error:', error);
-                alert('Error updating status: ' + error.message);
-            });
-        }
     </script>
     @endpush
 </x-layout.app>

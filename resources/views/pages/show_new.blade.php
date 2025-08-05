@@ -1,0 +1,75 @@
+{{-- Clean Page Builder View - Complete empty canvas for full page builder control --}}
+<x-layout.app :title="$page->title" :pakaiSidebar="false" :pakaiTopBar="false">
+    {{-- Page Builder Content: Complete control over the entire page layout --}}
+    <div class="page-wrapper">
+        @auth
+            @can('update-pages')
+                {{-- Floating edit button for authenticated users --}}
+                <div class="position-fixed" style="top: 20px; right: 20px; z-index: 1000;">
+                    <a href="{{ route('panel.pages.builder', $page->id) }}" class="btn btn-primary btn-sm shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/>
+                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/>
+                            <path d="M16 5l3 3"/>
+                        </svg>
+                        Edit
+                    </a>
+                </div>
+            @endcan
+        @endauth
+
+        {{-- Builder content gets complete control - no restrictions or containers --}}
+        @if($page->content)
+            {!! $page->content !!}
+        @else
+            {{-- Empty state when no content - only shown when page is completely empty --}}
+            <div class="page-body">
+                <div class="container-xl">
+                    <div class="row row-deck row-cards justify-content-center">
+                        <div class="col-md-8">
+                            <div class="empty">
+                                <div class="empty-img">
+                                    <img src="{{ asset('static/illustrations/undraw_building_websites_i78t.svg') }}" height="128" alt="">
+                                </div>
+                                <p class="empty-title">{{ $page->title }}</p>
+                                <p class="empty-subtitle text-muted">
+                                    This page is still under construction. Use the page builder to create amazing content.
+                                </p>
+                                @auth
+                                    @can('update-pages')
+                                        <div class="empty-action">
+                                            <a href="{{ route('panel.pages.builder', $page->id) }}" class="btn btn-primary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <rect x="4" y="4" width="16" height="4" rx="1"/>
+                                                    <rect x="4" y="12" width="6" height="8" rx="1"/>
+                                                    <rect x="14" y="12" width="6" height="8" rx="1"/>
+                                                </svg>
+                                                Start Building
+                                            </a>
+                                        </div>
+                                    @endcan
+                                @endauth
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    {{-- SEO Meta Tags --}}
+    @if($page->meta_title || $page->meta_description)
+        @push('meta')
+            @if($page->meta_title)
+                <meta name="title" content="{{ $page->meta_title }}">
+                <meta property="og:title" content="{{ $page->meta_title }}">
+            @endif
+            @if($page->meta_description)
+                <meta name="description" content="{{ $page->meta_description }}">
+                <meta property="og:description" content="{{ $page->meta_description }}">
+            @endif
+        @endpush
+    @endif
+</x-layout.app>

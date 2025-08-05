@@ -551,7 +551,7 @@ class PageController extends Controller
         // Get available templates for settings modal
         $templates = $this->getAvailableTemplates();
         
-        return view('panel.pages.builder', compact('page', 'templates'));
+        return view('panel.pages.builder-new', compact('page', 'templates'));
     }
 
     /**
