@@ -116,7 +116,7 @@
             // Set global routes
             window.pageEditRoute = '{{ route('panel.pages.edit', ':id') }}';
             window.pageDeleteRoute = '{{ route('panel.pages.destroy', ':id') }}';
-            window.pageViewRoute = '{{ url('/:slug') }}'; // Adjust this based on your frontend routes
+            window.pageViewRoute = '{{ route('dynamic.page', ':slug') }}'; // Use dynamic route for page viewing
 
             // Initialize Pages DataTable
             PagesDataTable.initialize('{{ route('panel.pages') }}')
