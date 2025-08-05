@@ -1,7 +1,7 @@
 /**
- * Pages DataTable Configuration - Optimized with caching
+ * Pages DataTable Configuration - Clean & Optimized
  * @author KantorKu SuperApp Team
- * @version 2.2.0 - Optimized and cleaned up
+ * @version 3.0.0 - Clean, optimized with fast caching
  */
 
 window.PagesDataTable = (function () {
@@ -124,23 +124,15 @@ window.PagesDataTable = (function () {
                 const element = document.getElementById(selectId);
                 if (element && !tomSelectInstances[selectId]) {
                     if (element.tomselect) {
-                        try {
-                            element.tomselect.destroy();
-                        } catch (error) {
-                            console.error(`Failed to destroy existing TomSelect for ${selectId}:`, error);
-                        }
+                        element.tomselect.destroy();
                     }
 
-                    try {
-                        tomSelectInstances[selectId] = new TomSelect(element, {
-                            plugins: ["clear_button"],
-                            allowEmptyOption: true,
-                            create: false,
-                            placeholder: "Select Template..."
-                        });
-                    } catch (error) {
-                        console.error(`Failed to initialize TomSelect for ${selectId}:`, error);
-                    }
+                    tomSelectInstances[selectId] = new TomSelect(element, {
+                        plugins: ["clear_button"],
+                        allowEmptyOption: false,
+                        create: false,
+                        placeholder: "Select Template..."
+                    });
                 }
             });
         });
@@ -201,7 +193,6 @@ window.PagesDataTable = (function () {
                 showEditModal(page);
             })
             .catch(error => {
-                console.error('Error loading page or templates:', error);
                 if (cachedPage) showEditModal(cachedPage);
                 else alert('Error loading page data');
             });
@@ -307,7 +298,6 @@ window.PagesDataTable = (function () {
             return templateOptions;
         })
         .catch(error => {
-            console.error('Error fetching template options:', error);
             templateOptions = {};
             templateCache = templateOptions;
             return templateOptions;
@@ -315,7 +305,7 @@ window.PagesDataTable = (function () {
     }
 
     function updateTemplateSelect() {
-        DataTableGlobal.updateSelectOptions('update_template', templateOptions, true);
+        DataTableGlobal.updateSelectOptions('update_template', templateOptions, false);
     }
 
     // --- Other Functions ---
@@ -337,10 +327,7 @@ window.PagesDataTable = (function () {
 
     function viewPage(pageSlug) {
         if (window.pageViewRoute) {
-            const url = window.pageViewRoute.replace(':slug', pageSlug);
-            window.open(url, '_blank');
-        } else {
-            console.error('Page view route not configured');
+            window.open(window.pageViewRoute.replace(':slug', pageSlug), '_blank');
         }
     }
 
@@ -378,11 +365,6 @@ window.PagesDataTable = (function () {
         DataTableGlobal.createPageLengthHandler(pagesTable, "#page-count")(event);
     }
 
-    function initializeAllHandlers(bulkDeleteRoute) {
-        setBulkDeleteRoute(bulkDeleteRoute);
-        setupEventHandlers();
-    }
-
     // --- Public API ---
     return {
         initialize,
@@ -393,9 +375,6 @@ window.PagesDataTable = (function () {
         setPageListItems,
         setBulkDeleteRoute,
         setupEventHandlers,
-        initializeTomSelectInstances,
-        initializeAllHandlers,
-        refreshTemplateOptions,
         getTable: () => pagesTable,
         getSelectedPages: () => selectedPages,
         refreshDataTable: () => {
@@ -403,7 +382,6 @@ window.PagesDataTable = (function () {
             templateCache = null;
             return DataTableGlobal.refreshDataTable(pagesTable);
         },
-        getTomSelectInstances: () => tomSelectInstances,
         updateRecordInfo: () => DataTableGlobal.updateRecordInfo(pagesTable, "#record-info", "pages")
     };
 })();
