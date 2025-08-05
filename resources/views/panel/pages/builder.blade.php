@@ -818,17 +818,37 @@
             
             const formData = new FormData();
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            formData.append('_method', 'PUT');
+            
+            // Include required fields from current page data
+            formData.append('title', pageData.title);
+            formData.append('slug', pageData.slug);
+            formData.append('template', pageData.template || '');
+            formData.append('sort_order', pageData.sort_order || '0');
+            formData.append('meta_title', pageData.meta_title || '');
+            formData.append('meta_description', pageData.meta_description || '');
+            formData.append('is_published', pageData.is_published ? '1' : '0');
+            
+            // Include builder-specific data
             formData.append('builder_data', JSON.stringify(builderData));
             formData.append('content', generateHtmlContent());
             
-            fetch(`{{ url('panel/pages') }}/${pageData.id}`, {
+            fetch(`{{ route('panel.pages.update', $page->id) }}`, {
                 method: 'POST',
                 headers: {
-                    'X-HTTP-Method-Override': 'PUT'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert('Page saved successfully!');
@@ -837,8 +857,8 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error saving page');
+                console.error('Save error:', error);
+                alert('Error saving page: ' + error.message);
             });
         });
 
@@ -875,6 +895,7 @@
         function savePageSettings() {
             const formData = new FormData();
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            formData.append('_method', 'PUT');
             formData.append('title', document.getElementById('page-title').value);
             formData.append('slug', document.getElementById('page-slug').value);
             formData.append('template', document.getElementById('page-template').value);
@@ -883,14 +904,22 @@
             formData.append('meta_description', document.getElementById('page-meta-description').value);
             formData.append('is_published', document.getElementById('page-is-published').checked ? '1' : '0');
             
-            fetch(`{{ url('panel/pages') }}/${pageData.id}`, {
+            fetch(`{{ route('panel.pages.update', $page->id) }}`, {
                 method: 'POST',
                 headers: {
-                    'X-HTTP-Method-Override': 'PUT'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Update page data
@@ -910,8 +939,8 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error saving settings');
+                console.error('Settings save error:', error);
+                alert('Error saving settings: ' + error.message);
             });
         }
 
@@ -920,16 +949,25 @@
             
             const formData = new FormData();
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            formData.append('_method', 'PUT');
             formData.append('is_published', newStatus ? '1' : '0');
             
-            fetch(`{{ url('panel/pages') }}/${pageData.id}`, {
+            fetch(`{{ route('panel.pages.update', $page->id) }}`, {
                 method: 'POST',
                 headers: {
-                    'X-HTTP-Method-Override': 'PUT'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     pageData.is_published = newStatus;
@@ -939,8 +977,8 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error updating status');
+                console.error('Publish status error:', error);
+                alert('Error updating status: ' + error.message);
             });
         }
     </script>
