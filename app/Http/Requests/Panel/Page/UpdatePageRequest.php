@@ -30,6 +30,7 @@ class UpdatePageRequest extends BaseRequest
             'meta_title' => $this->textRule(false),
             'meta_description' => $this->textRule(false, 500),
             'sort_order' => $this->numericRule(false, 0),
+            'builder_data' => 'sometimes|string',
         ];
     }
 

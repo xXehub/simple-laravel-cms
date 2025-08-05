@@ -17,11 +17,13 @@ class Page extends Model
         'is_published',
         'meta_title',
         'meta_description',
-        'sort_order'
+        'sort_order',
+        'builder_data'
     ];
 
     protected $casts = [
         'is_published' => 'boolean',
+        'builder_data' => 'array',
     ];
 
     /**

@@ -1,7 +1,7 @@
 /**
- * Pages DataTable Configuration - Optimized Pattern
+ * Pages DataTable Configuration - Optimized with caching
  * @author KantorKu SuperApp Team
- * @version 1.0.0 - Following users.js pattern for consistency
+ * @version 2.2.0 - Optimized and cleaned up
  */
 
 window.PagesDataTable = (function () {
@@ -9,13 +9,27 @@ window.PagesDataTable = (function () {
 
     let pagesTable;
     let selectedPages = [];
-    let pageCache = new Map(); // Simple cache for faster edit loading
+    let pageCache = new Map();
+    let tomSelectInstances = {};
+    let templateOptions = {};
+    let templateCache = null;
 
     // --- Table Configuration ---
     function getTableConfig(route) {
         const baseConfig = DataTableGlobal.generateStandardConfig({
             tableConfig: {
-                ajax: { url: route, type: "GET" },
+                ajax: { 
+                    url: route, 
+                    type: "GET",
+                    dataSrc: function(json) {
+                        if (json.data && Array.isArray(json.data)) {
+                            json.data.forEach(page => {
+                                if (page.id) pageCache.set(page.id, page);
+                            });
+                        }
+                        return json.data;
+                    }
+                },
                 order: [[1, "asc"]],
                 deferRender: true
             }
@@ -23,48 +37,50 @@ window.PagesDataTable = (function () {
 
         const pagesConfig = {
             columns: [
-                { // Checkbox
+                {
                     data: null,
                     orderable: false,
                     searchable: false,
-                    render: (data, type, row) => {
-                        // Cache data saat render untuk edit cepat
-                        pageCache.set(row.id, row);
-                        return `<input class="form-check-input m-0 align-middle table-selectable-check" 
-                               type="checkbox" value="${row.id}"/>`;
-                    }
+                    render: (data, type, row) =>
+                        `<input class="form-check-input m-0 align-middle table-selectable-check" 
+                               type="checkbox" value="${row.id}"/>`
                 },
-                { // Title
+                {
                     data: "title",
                     name: "title",
-                    render: (data, type, row) => {
-                        return `<strong>${data}</strong>`;
-                    }
+                    render: (data, type, row) => `<strong>${data}</strong>`
                 },
-                { // Slug
+                {
                     data: "slug", 
                     name: "slug",
                     render: (data) => `<code>${data}</code>`
                 },
-                { // Status
+                {
+                    data: "page_type",
+                    name: "page_type",
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: "template_info",
+                    name: "template",
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: "status_badge",
                     name: "is_published",
                     orderable: false,
                     searchable: false
                 },
-                { // Template
-                    data: "template",
-                    name: "template",
-                    render: (data) => data || 'default'
-                },
-                { // Created date
+                {
                     data: "created_at",
                     name: "created_at",
                     render: (data) => new Date(data).toLocaleDateString("en-US", {
                         year: "numeric", month: "long", day: "numeric"
                     })
                 },
-                { // Actions
+                {
                     data: "action",
                     name: "action",
                     orderable: false,
@@ -78,7 +94,6 @@ window.PagesDataTable = (function () {
                 DataTableGlobal.updateSelectAllState();
                 updateBulkDeleteButton();
                 
-                // Manage cache size
                 if (pageCache.size > 500) pageCache.clear();
             }
         };
@@ -91,7 +106,6 @@ window.PagesDataTable = (function () {
         return DataTableGlobal.waitForLibraries().then(() => {
             pagesTable = $("#datatable-pages").DataTable(getTableConfig(route));
 
-            // Setup handlers dari DataTableGlobal
             DataTableGlobal.createSearchHandler(pagesTable, "#advanced-table-search");
             DataTableGlobal.setupPageLengthHandler(pagesTable, ".dropdown-item[data-value]", "#page-count");
             DataTableGlobal.setupKeyboardShortcuts("#advanced-table-search");
@@ -101,12 +115,56 @@ window.PagesDataTable = (function () {
         });
     }
 
+    // --- TomSelect Management ---
+    function initializeTomSelectInstances() {
+        const selectors = ['update_template'];
+        
+        return DataTableGlobal.waitForTomSelect().then(() => {
+            selectors.forEach((selectId) => {
+                const element = document.getElementById(selectId);
+                if (element && !tomSelectInstances[selectId]) {
+                    if (element.tomselect) {
+                        try {
+                            element.tomselect.destroy();
+                        } catch (error) {
+                            console.error(`Failed to destroy existing TomSelect for ${selectId}:`, error);
+                        }
+                    }
+
+                    try {
+                        tomSelectInstances[selectId] = new TomSelect(element, {
+                            plugins: ["clear_button"],
+                            allowEmptyOption: true,
+                            create: false,
+                            placeholder: "Select Template..."
+                        });
+                    } catch (error) {
+                        console.error(`Failed to initialize TomSelect for ${selectId}:`, error);
+                    }
+                }
+            });
+        });
+    }
+
+    function clearTomSelectInstances() {
+        DataTableGlobal.destroyTomSelects(tomSelectInstances);
+    }
+
     // --- Event Handlers ---
     function setupEventHandlers() {
         DataTableGlobal.setupCheckboxHandlers(selectedPages, {
             onUpdate: updateBulkDeleteButton,
             onStateChange: updateBulkDeleteButton,
             onButtonUpdate: updateBulkDeleteButton
+        });
+
+        setupModalHandlers();
+        setupTomSelectModalHandlers();
+    }
+
+    function setupTomSelectModalHandlers() {
+        $('#updatePageModal').on('hidden.bs.modal', function() {
+            clearTomSelectInstances();
         });
     }
 
@@ -115,72 +173,166 @@ window.PagesDataTable = (function () {
         $("#selected-count").text(selectedPages.length);
     }
 
-    // --- Page Management - OPTIMIZED ---
+    // --- Page Management - Optimized with caching ---
     function editPage(pageId, editRoute = null) {
         const numericId = parseInt(pageId);
-        
-        // Cek cache dulu - instant loading jika ada
         const cachedPage = pageCache.get(numericId);
-        if (cachedPage) {
-            fillEditForm(cachedPage);
+        
+        if (cachedPage && templateCache) {
+            // Fast path: use cached data and templates
+            showEditModal(cachedPage);
             return;
         }
 
-        // Jika tidak ada di cache, fetch dari server
+        // Load templates if not cached
+        const templatesPromise = templateCache ? 
+            Promise.resolve(templateCache) : 
+            refreshTemplateOptions();
+
+        // Load page data if not cached
+        const pagePromise = cachedPage ? 
+            Promise.resolve(cachedPage) : 
+            fetchPageData(pageId, editRoute);
+
+        // Execute both promises concurrently for speed
+        Promise.all([templatesPromise, pagePromise])
+            .then(([templates, page]) => {
+                if (!cachedPage) pageCache.set(numericId, page);
+                showEditModal(page);
+            })
+            .catch(error => {
+                console.error('Error loading page or templates:', error);
+                if (cachedPage) showEditModal(cachedPage);
+                else alert('Error loading page data');
+            });
+    }
+
+    function fetchPageData(pageId, editRoute) {
         const route = editRoute || window.pageEditRoute;
         if (!route) {
-            console.error('Edit route not configured');
-            alert('Edit route not configured properly');
-            return;
+            throw new Error('Edit route not configured');
         }
 
-        fetch(route.replace(':id', pageId), {
+        return fetch(route.replace(':id', pageId), {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => data.page);
+    }
+
+    function showEditModal(page) {
+        updateTemplateSelect();
+        
+        initializeTomSelectInstances()
+            .then(() => {
+                fillEditModal(page);
+                $('#updatePageModal').modal('show');
+            })
+            .catch(() => {
+                fillEditModal(page);
+                $('#updatePageModal').modal('show');
+            });
+    }
+
+    function fillEditModal(page) {
+        if (!$('#update_page_id').length) return;
+
+        const form = $('#updatePageForm')[0];
+        if (form && page.id) {
+            form.action = form.action.includes(':id') ?
+                form.action.replace(':id', page.id) :
+                form.action.replace(/\/\d+$/, '') + '/' + page.id;
+        }
+
+        $('#update_page_id').val(page.id);
+        $('#update_title').val(page.title || '');
+        $('#update_slug').val(page.slug || '');
+        $('#update_content').val(page.content || '');
+        $('#update_meta_title').val(page.meta_title || '');
+        $('#update_meta_description').val(page.meta_description || '');
+        $('#update_sort_order').val(page.sort_order || 0);
+        $('#update_is_published').prop('checked', !!page.is_published);
+
+        const templateValue = page.template ? String(page.template) : '';
+        if (templateValue && tomSelectInstances['update_template']) {
+            DataTableGlobal.setTomSelectValue(tomSelectInstances, 'update_template', templateValue);
+        }
+
+        DataTableGlobal.syncTomSelects(tomSelectInstances);
+    }
+
+    // --- Utility Functions ---
+    function refreshTemplateOptions() {
+        if (!window.templatesRoute) {
+            templateOptions = {};
+            templateCache = templateOptions;
+            return Promise.resolve(templateOptions);
+        }
+
+        return fetch(window.templatesRoute, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
         .then(data => {
-            const page = data.page;
-            pageCache.set(numericId, page); // Cache untuk next time
-            fillEditForm(page);
+            templateOptions = {};
+            
+            if (Array.isArray(data)) {
+                data.forEach(template => {
+                    const key = template.value || template.name || template;
+                    const value = template.label || template.display_name || template.name || template;
+                    templateOptions[key] = value;
+                });
+            } else if (data.templates && Array.isArray(data.templates)) {
+                data.templates.forEach(template => {
+                    const key = template.value || template.name || template;
+                    const value = template.label || template.display_name || template.name || template;
+                    templateOptions[key] = value;
+                });
+            }
+            
+            templateCache = templateOptions;
+            return templateOptions;
         })
         .catch(error => {
-            console.error('Error loading page:', error);
-            alert('Error loading page data');
+            console.error('Error fetching template options:', error);
+            templateOptions = {};
+            templateCache = templateOptions;
+            return templateOptions;
         });
     }
 
-    // Simplified form filling
-    function fillEditForm(page) {
-        $('#edit_page_id').val(page.id);
-        $('#edit_title').val(page.title);
-        $('#edit_slug').val(page.slug);
-        $('#edit_content').val(page.content);
-        $('#edit_template').val(page.template || '');
-        $('#edit_meta_title').val(page.meta_title || '');
-        $('#edit_meta_description').val(page.meta_description || '');
-        $('#edit_sort_order').val(page.sort_order || 0);
-        $('#edit_is_published').prop('checked', page.is_published);
-
-        // Update form action - use correct URL pattern
-        const form = $('#editPageForm')[0];
-        if (form) {
-            form.action = `/panel/pages/${page.id}`;
-        }
-
-        // Show the modal after loading data using jQuery method for compatibility
-        $('#editPageModal').modal('show');
+    function updateTemplateSelect() {
+        DataTableGlobal.updateSelectOptions('update_template', templateOptions, true);
     }
 
+    // --- Other Functions ---
     function deletePage(pageId, pageTitle) {
-        if (typeof confirmDeletePage === 'function') {
-            confirmDeletePage(pageId, pageTitle);
-        } else {
-            // Use global confirmation modal - no form needed
-            console.warn('Global confirmDeletePage function not available, using fallback');
+        const cachedPage = pageCache.get(parseInt(pageId)) || { id: pageId, title: pageTitle };
+        
+        $('#delete_page_id').val(cachedPage.id);
+        $('#delete_page_title').text(cachedPage.title);
+
+        const form = $('#deletePageForm')[0];
+        if (form && cachedPage.id) {
+            form.action = form.action.includes(':id') ?
+                form.action.replace(':id', cachedPage.id) :
+                form.action.replace(/\/\d+$/, '') + '/' + cachedPage.id;
         }
+        
+        $('#deletePageModal').modal('show');
     }
 
     function viewPage(pageSlug) {
@@ -215,13 +367,20 @@ window.PagesDataTable = (function () {
     // --- Helper Functions ---
     function setupModalHandlers() {
         DataTableGlobal.setupStandardModalHandlers([
-            { modalSelector: "#createPageModal", formSelector: "#createPageForm" },
-            { modalSelector: "#editPageModal", formSelector: "#editPageForm" }
+            { modalSelector: "#createTemplatePageModal", formSelector: "#createTemplatePageForm" },
+            { modalSelector: "#createBuilderPageModal", formSelector: "#createBuilderPageForm" },
+            { modalSelector: "#updatePageModal", formSelector: "#updatePageForm" },
+            { modalSelector: "#uploadTemplateModal", formSelector: "#uploadTemplateForm" }
         ]);
     }
 
     function setPageListItems(event) {
         DataTableGlobal.createPageLengthHandler(pagesTable, "#page-count")(event);
+    }
+
+    function initializeAllHandlers(bulkDeleteRoute) {
+        setBulkDeleteRoute(bulkDeleteRoute);
+        setupEventHandlers();
     }
 
     // --- Public API ---
@@ -234,12 +393,17 @@ window.PagesDataTable = (function () {
         setPageListItems,
         setBulkDeleteRoute,
         setupEventHandlers,
+        initializeTomSelectInstances,
+        initializeAllHandlers,
+        refreshTemplateOptions,
         getTable: () => pagesTable,
         getSelectedPages: () => selectedPages,
         refreshDataTable: () => {
-            pageCache.clear(); // Clear cache saat refresh
+            pageCache.clear();
+            templateCache = null;
             return DataTableGlobal.refreshDataTable(pagesTable);
         },
+        getTomSelectInstances: () => tomSelectInstances,
         updateRecordInfo: () => DataTableGlobal.updateRecordInfo(pagesTable, "#record-info", "pages")
     };
 })();

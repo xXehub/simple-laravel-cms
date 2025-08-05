@@ -22,12 +22,15 @@ class StorePageRequest extends BaseRequest
         return [
             'title' => $this->textRule(),
             'slug' => $this->slugRule('pages'),
-            'content' => $this->textRule(true, 65535), // for text field
+            'content' => $this->textRule(false, 65535), // Make content optional for page builder
             'template' => $this->textRule(false),
             'is_published' => 'sometimes|boolean',
             'meta_title' => $this->textRule(false),
             'meta_description' => $this->textRule(false, 500),
             'sort_order' => $this->numericRule(false, 0),
+            'builder_data' => 'sometimes|string',
+            'open_after_create' => 'sometimes|boolean',
+            'open_builder' => 'sometimes|boolean',
         ];
     }
 
