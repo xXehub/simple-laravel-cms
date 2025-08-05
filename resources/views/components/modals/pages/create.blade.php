@@ -16,7 +16,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <form method="POST" action="{{ route('panel.pages.store') }}" id="createPageForm">
+                <form method="POST" action="{{ url('/panel/pages') }}" id="createPageForm">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
@@ -47,8 +47,8 @@
                                     <select class="form-control" id="create_template" name="template">
                                         <option value="">Default</option>
                                         <option value="about">About</option>
-                                        <option value="contact">Contact</option>
-                                        <option value="landing">Landing</option>
+                                        <option value="kontak">Kontak</option>
+                                        <option value="layanan">Layanan</option>
                                         <option value="custom">Custom</option>
                                     </select>
                                 </div>
@@ -71,11 +71,19 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-12">
+                            <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="create_meta_title" class="form-label">Meta Title</label>
                                     <input type="text" class="form-control" id="create_meta_title" name="meta_title"
                                            placeholder="SEO meta title">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="create_is_published" name="is_published" value="1" checked>
+                                        <span class="form-check-label">Published</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -84,13 +92,6 @@
                             <label for="create_meta_description" class="form-label">Meta Description</label>
                             <textarea class="form-control" id="create_meta_description" name="meta_description" rows="2"
                                       placeholder="SEO meta description"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-check">
-                                <input type="checkbox" class="form-check-input" id="create_is_published" name="is_published" checked>
-                                <span class="form-check-label">Published</span>
-                            </label>
                         </div>
                     </div>
 

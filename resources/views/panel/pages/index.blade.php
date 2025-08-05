@@ -103,7 +103,9 @@
     @can('create-pages')
         <x-modals.pages.create />
     @endcan
-    <x-modals.pages.update />
+    @can('update-pages')
+        <x-modals.pages.edit />
+    @endcan
 
     @push('scripts')
         <!-- Pages DataTable Module -->

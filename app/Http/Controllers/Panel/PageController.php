@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\Request;
+use App\Models\MasterMenu;
 use App\Http\Requests\Panel\Page\StorePageRequest;
 use App\Http\Requests\Panel\Page\UpdatePageRequest;
 use App\Helpers\ResponseHelper;
@@ -30,7 +31,7 @@ class PageController extends Controller
     }
 
     /**
-     * Display pages listing
+     * Display pages listing with dynamic view from database
      */
     public function index(Request $request)
     {
@@ -39,16 +40,29 @@ class PageController extends Controller
             return $this->datatable($request);
         }
 
-        // Regular view request
-        return view('panel.pages.index');
+        // Get current menu from request
+        $currentSlug = $request->route()->uri ?? 'panel/pages';
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Get dynamic view path from database
+        $viewPath = $menu?->getDynamicViewPath() ?? 'panel.pages.index';
+
+        return view($viewPath, compact('menu'));
     }
 
     /**
-     * Show create page form
+     * Show create page form with dynamic view
      */
-    public function create()
+    public function create(Request $request)
     {
-        return view('panel.pages.create');
+        // Get current menu for dynamic view resolution
+        $currentSlug = str_replace('/create', '', $request->route()->uri ?? 'panel/pages');
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Use create view path or fallback
+        $viewPath = 'panel.pages.create'; // Static for forms
+
+        return view($viewPath, compact('menu'));
     }
 
     /**
@@ -58,25 +72,12 @@ class PageController extends Controller
     {
         $data = $request->validated();
         
-        // Handle boolean fields
-        $data['is_published'] = $request->has('is_published');
-        $data['featured'] = $request->has('featured');
-        $data['show_in_menu'] = $request->has('show_in_menu');
+        // Handle boolean fields that exist in database
+        // For checkboxes, they're only sent when checked
+        $data['is_published'] = $request->has('is_published') ? true : false;
         
-        // Set defaults
+        // Set defaults for existing fields only
         $data['sort_order'] = $data['sort_order'] ?? 0;
-        $data['status'] = $data['status'] ?? 'draft';
-        $data['page_type'] = $data['page_type'] ?? 'page';
-        $data['template'] = $data['template'] ?? 'default';
-        
-        // Set creator
-        $data['created_by'] = auth()->id();
-        $data['updated_by'] = auth()->id();
-        
-        // Handle published_at
-        if ($data['is_published'] && $data['status'] === 'published' && !isset($data['published_at'])) {
-            $data['published_at'] = now();
-        }
 
         Page::create($data);
 
@@ -89,7 +90,7 @@ class PageController extends Controller
     public function edit(Request $request)
     {
         $page = $this->getPageById($request);
-        
+
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -100,17 +101,9 @@ class PageController extends Controller
                     'content' => $page->content,
                     'template' => $page->template,
                     'is_published' => $page->is_published,
-                    'status' => $page->status,
-                    'page_type' => $page->page_type,
-                    'excerpt' => $page->excerpt,
-                    'featured' => $page->featured,
-                    'show_in_menu' => $page->show_in_menu,
                     'meta_title' => $page->meta_title,
                     'meta_description' => $page->meta_description,
                     'sort_order' => $page->sort_order,
-                    'parent_id' => $page->parent_id,
-                    'menu_id' => $page->menu_id,
-                    'published_at' => $page->published_at ? $page->published_at->format('Y-m-d\TH:i') : null
                 ]
             ]);
         }
@@ -127,23 +120,12 @@ class PageController extends Controller
 
         $data = $request->validated();
         
-        // Handle boolean fields
-        $data['is_published'] = $request->has('is_published');
-        $data['featured'] = $request->has('featured');
-        $data['show_in_menu'] = $request->has('show_in_menu');
+        // Handle boolean fields that exist in database
+        // For checkboxes, they're only sent when checked
+        $data['is_published'] = $request->has('is_published') ? true : false;
         
-        // Set defaults
+        // Set defaults for existing fields only
         $data['sort_order'] = $data['sort_order'] ?? 0;
-        
-        // Set updater
-        $data['updated_by'] = auth()->id();
-        
-        // Handle published_at
-        if ($data['is_published'] && $data['status'] === 'published' && !$page->published_at) {
-            $data['published_at'] = now();
-        } elseif (!$data['is_published'] || $data['status'] !== 'published') {
-            $data['published_at'] = null;
-        }
 
         $page->update($data);
 
@@ -157,7 +139,7 @@ class PageController extends Controller
     {
         $page = $this->getPageById($request);
         $page->delete();
-
+        
         return ResponseHelper::redirect('panel.pages', 'Page deleted successfully');
     }
 
@@ -172,7 +154,7 @@ class PageController extends Controller
         ]);
 
         $deletedCount = Page::whereIn('id', $request->page_ids)->delete();
-        
+
         $message = "Successfully deleted {$deletedCount} page(s)";
         $type = 'success';
 

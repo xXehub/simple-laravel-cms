@@ -164,12 +164,10 @@ window.PagesDataTable = (function () {
         $('#edit_sort_order').val(page.sort_order || 0);
         $('#edit_is_published').prop('checked', page.is_published);
 
-        // Update form action
+        // Update form action - use correct URL pattern
         const form = $('#editPageForm')[0];
         if (form) {
-            form.action = form.action.includes(':id') ?
-                form.action.replace(':id', page.id) :
-                form.action.replace(/\/\d+$/, '') + '/' + page.id;
+            form.action = `/panel/pages/${page.id}`;
         }
 
         // Show the modal after loading data using jQuery method for compatibility

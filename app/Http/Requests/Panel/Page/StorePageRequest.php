@@ -24,18 +24,10 @@ class StorePageRequest extends BaseRequest
             'slug' => $this->slugRule('pages'),
             'content' => $this->textRule(true, 65535), // for text field
             'template' => $this->textRule(false),
-            'is_published' => $this->booleanRule(),
-            'status' => 'sometimes|in:draft,published,archived',
-            'page_type' => 'sometimes|in:page,post,custom',
-            'excerpt' => $this->textRule(false, 1000),
-            'featured' => $this->booleanRule(),
-            'show_in_menu' => $this->booleanRule(),
+            'is_published' => 'sometimes|boolean',
             'meta_title' => $this->textRule(false),
             'meta_description' => $this->textRule(false, 500),
             'sort_order' => $this->numericRule(false, 0),
-            'parent_id' => 'sometimes|nullable|exists:pages,id',
-            'menu_id' => 'sometimes|nullable|exists:master_menus,id',
-            'published_at' => 'sometimes|nullable|date',
         ];
     }
 
