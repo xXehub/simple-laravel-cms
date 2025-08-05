@@ -86,7 +86,18 @@ class DynamicController extends Controller
      */
     protected function handlePageRoute(Page $page)
     {
-        return view('pages.show', [
+        // Use custom template if specified, otherwise use default
+        $template = 'pages.show'; // Default template
+        
+        if ($page->template) {
+            $customTemplate = "pages.templates.{$page->template}";
+            // Check if custom template exists, fallback to default if not
+            if (view()->exists($customTemplate)) {
+                $template = $customTemplate;
+            }
+        }
+
+        return view($template, [
             'page' => $page,
             'title' => $page->title,
             'description' => $page->meta_description
