@@ -55,8 +55,28 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'g-recaptcha-response' => ['required', 'captcha'],
         ], [
-            'g-recaptcha-response.required' => 'Silakan verifikasi reCAPTCHA.',
-            'g-recaptcha-response.captcha' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            // Name messages
+            'name.required' => config('auth_messages.register.name_required'),
+            'name.max' => config('auth_messages.register.name_max'),
+
+            // Username messages
+            'username.required' => config('auth_messages.register.username_required'),
+            'username.unique' => config('auth_messages.register.username_unique'),
+            'username.regex' => config('auth_messages.register.username_format'),
+
+            // Email messages
+            'email.required' => config('auth_messages.register.email_required'),
+            'email.email' => config('auth_messages.register.email_valid'),
+            'email.unique' => config('auth_messages.register.email_unique'),
+
+            // Password messages
+            'password.required' => config('auth_messages.register.password_required'),
+            'password.min' => config('auth_messages.register.password_min'),
+            'password.confirmed' => config('auth_messages.register.password_confirmed'),
+
+            // reCAPTCHA messages
+            'g-recaptcha-response.required' => config('auth_messages.register.recaptcha_required'),
+            'g-recaptcha-response.captcha' => config('auth_messages.register.recaptcha_failed'),
         ]);
     }
 

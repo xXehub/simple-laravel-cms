@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -30,8 +31,20 @@ class LoginController extends Controller
             'password' => 'required|string',
             'g-recaptcha-response' => 'required|captcha',
         ], [
-            'g-recaptcha-response.required' => 'Silakan verifikasi reCAPTCHA.',
-            'g-recaptcha-response.captcha' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            'email.required' => config('auth_messages.login.email_required'),
+            'password.required' => config('auth_messages.login.password_required'),
+            'g-recaptcha-response.required' => config('auth_messages.login.recaptcha_required'),
+            'g-recaptcha-response.captcha' => config('auth_messages.login.recaptcha_failed'),
+        ]);
+    }
+
+    /**
+     * Override method untuk custom error message saat kredensial salah
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw ValidationException::withMessages([
+            $this->username() => [config('auth_messages.login.invalid_credentials')],
         ]);
     }
 
