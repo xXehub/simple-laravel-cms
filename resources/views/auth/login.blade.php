@@ -9,12 +9,31 @@
                     style="max-width: 60%; height: auto;">
             </div>
 
-
                 {{-- gawe card login --}}
                 <div class="col-lg">
                     <div class="container-tight">
                         <div class="card card-md">
                             <div class="card-body">
+                                @if ($errors->has('email'))
+                                    <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                                        <svg class="icon me-2" width="24" height="24" stroke="currentColor" fill="none">
+                                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div>{{ $errors->first('email') }}</div>
+                                    </div>
+                                @endif
+
+                                @if ($errors->has('g-recaptcha-response'))
+                                    <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                                        <svg class="icon me-2" width="24" height="24" stroke="currentColor" fill="none">
+                                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div>{{ $errors->first('g-recaptcha-response') }}</div>
+                                    </div>
+                                @endif
+
                                 <h2 class="h2 text-center mb-4">Masuk ke Akun</h2>
                                 <form method="POST" action="{{ route('login') }}">
 
@@ -44,7 +63,7 @@
                                                 autocomplete="off" />
                                             <span class="input-group-text">
                                                 <a href="#" class="link-secondary" title="Lihat Kata Sandi"
-                                                    data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler.io/icons/icon/eye -->
+                                                    data-bs-toggle="tooltip">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="none"
                                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -62,6 +81,13 @@
                                             <span class="form-check-label">Ingat Saya</span>
                                         </label>
                                     </div>
+
+                                    {{-- reCAPTCHA Widget --}}
+                                    <div class="mb-3 d-flex justify-content-center">
+                                        {!! NoCaptcha::renderJs() !!}
+                                        {!! NoCaptcha::display() !!}
+                                    </div>
+
                                     <div class="form-footer">
                                         <button type="submit" class="btn btn-primary w-100">Masuk</button>
                                     </div>
@@ -77,6 +103,7 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                         <div class="text-center text-secondary mt-3">Belum punya akun? <a
                                 href="{{ route('register') }}" tabindex="-1">Daftar disini.</a></div>
