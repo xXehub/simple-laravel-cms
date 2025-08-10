@@ -183,6 +183,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Canvas system initialized successfully with Sortable.js');
             this.initSortable();
             this.bindEvents();
+            
+            // Call updateCanvas immediately to check current state
+            this.updateCanvas();
+            
+            // Then load page data (async)
             this.loadPageData();
         },
         
@@ -392,26 +397,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     
                     this.saveToHistory();
+                    this.updateCanvas();
                     console.log('Component added successfully:', componentId);
                 } else {
                     console.error('Failed to render component:', result.message);
-                    placeholderItem.remove(); // Remove placeholder if failed
+                    placeholderItem.remove();
                 }
             } catch (error) {
                 console.error('Error adding component:', error);
-                placeholderItem.remove(); // Remove placeholder if failed
+                placeholderItem.remove();
             }
         },
         
         hideMainDropZone() {
-            if (this.mainDropZone && this.components.length > 0) {
+            // Check if we have any canvas components (excluding main drop zone)
+            const canvasComponents = this.canvas.querySelectorAll('.canvas-component');
+            
+            if (this.mainDropZone && canvasComponents.length > 0) {
                 this.mainDropZone.style.display = 'none';
+                console.log('Main drop zone hidden - components found:', canvasComponents.length);
             }
         },
         
         showMainDropZone() {
-            if (this.mainDropZone && this.components.length === 0) {
+            // Check if we have no canvas components
+            const canvasComponents = this.canvas.querySelectorAll('.canvas-component');
+            
+            if (this.mainDropZone && canvasComponents.length === 0) {
                 this.mainDropZone.style.display = 'block';
+                console.log('Main drop zone shown - no components found');
             }
         },
         
@@ -438,42 +452,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 content.innerHTML = html;
             }
             
-            // Save default properties to data attributes
-            this.saveDefaultPropertiesToElement(componentDiv, componentId);
-            
             // Bind component controls
             this.bindComponentControls(componentDiv);
             
             return componentDiv;
-        },
-        
-        async saveDefaultPropertiesToElement(element, componentId) {
-            try {
-                // Get component info to retrieve default properties
-                const response = await fetch(`/api/builder/components/${componentId}/info`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': window.csrfToken
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.data.defaults) {
-                    // Save default properties as data attributes
-                    Object.entries(result.data.defaults).forEach(([key, value]) => {
-                        if (value !== null && value !== undefined && value !== '') {
-                            const attributeValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                            element.setAttribute(`data-prop-${key}`, attributeValue);
-                        }
-                    });
-                    
-                    console.log('Default properties saved for component:', componentId, result.data.defaults);
-                }
-            } catch (error) {
-                console.error('Error saving default properties:', error);
-            }
         },
         
         bindComponentControls(componentElement) {
@@ -557,6 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             this.saveToHistory();
+            this.updateCanvas();
         },
         
         deleteComponent(element) {
@@ -570,12 +553,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     comp.element !== element
                 );
                 
-                // Show main drop zone if no components left
-                if (this.components.length === 0) {
-                    this.showMainDropZone();
-                }
-                
                 this.saveToHistory();
+                // Update canvas to show/hide drop zone properly
+                this.updateCanvas();
             }
         },
         
@@ -696,7 +676,6 @@ document.addEventListener('DOMContentLoaded', function() {
         handleAddComponent(e) {
             const { componentId, component } = e.detail;
             this.addComponent(componentId, component);
-            this.hideMainDropZone();
         },
         
         async addComponent(componentId, componentData, targetElement = null) {
@@ -743,119 +722,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         
-        bindComponentControls(componentElement) {
-            const editBtn = componentElement.querySelector('.component-edit');
-            const moveBtn = componentElement.querySelector('.component-move');
-            const duplicateBtn = componentElement.querySelector('.component-duplicate');
-            const deleteBtn = componentElement.querySelector('.component-delete');
-            
-            editBtn.addEventListener('click', () => {
-                this.editComponent(componentElement);
-            });
-            
-            duplicateBtn.addEventListener('click', () => {
-                this.duplicateComponent(componentElement);
-            });
-            
-            deleteBtn.addEventListener('click', () => {
-                this.deleteComponent(componentElement);
-            });
-            
-            // Make component selectable
-            componentElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.selectComponent(componentElement);
-            });
-        },
-        
-        selectComponent(element) {
-            // Remove previous selection
-            document.querySelectorAll('.canvas-component.selected').forEach(el => {
-                el.classList.remove('selected');
-            });
-            
-            // Select new component
-            element.classList.add('selected');
-            this.selectedComponent = element;
-            
-            // Emit event for property editor
-            const event = new CustomEvent('component-selected', {
-                detail: {
-                    componentId: element.dataset.componentId,
-                    instanceId: element.dataset.instanceId,
-                    element: element
-                }
-            });
-            document.dispatchEvent(event);
-        },
-        
+        // Remove duplicate bindComponentControls and other functions
         editComponent(element) {
             this.selectComponent(element);
-            // Property editor will handle the editing
         },
         
         duplicateComponent(element) {
             const clone = element.cloneNode(true);
             clone.dataset.instanceId = this.generateId();
-            
-            // Re-bind events for the clone
             this.bindComponentControls(clone);
-            
-            // Insert after the original
             element.parentNode.insertBefore(clone, element.nextSibling);
-            
             this.saveToHistory();
+            this.updateCanvas();
         },
         
         deleteComponent(element) {
             if (confirm('Are you sure you want to delete this component?')) {
                 element.remove();
-                
-                // Remove from components array
-                this.components = this.components.filter(comp => 
-                    comp.element !== element
-                );
-                
+                this.components = this.components.filter(comp => comp.element !== element);
                 this.saveToHistory();
                 this.updateCanvas();
             }
         },
         
-        insertComponentAtDropZone(componentElement, dropZone) {
-            const position = dropZone.dataset.position;
-            const parentComponent = dropZone.closest('.canvas-component');
-            
-            if (position === 'before') {
-                parentComponent.parentNode.insertBefore(componentElement, parentComponent);
-            } else if (position === 'after') {
-                parentComponent.parentNode.insertBefore(componentElement, parentComponent.nextSibling);
-            }
-        },
-        
-        hideMainDropZone() {
-            if (this.components.length > 0) {
-                this.mainDropZone.style.display = 'none';
-            }
-        },
-        
-        showMainDropZone() {
-            if (this.components.length === 0) {
-                this.mainDropZone.style.display = 'block';
-            }
-        },
-        
+        // Remove duplicate hideMainDropZone and showMainDropZone
         updateCanvas() {
-            // Update drop zones, component order, etc.
-            this.hideMainDropZone();
-            this.updateDropZones();
-        },
-        
-        updateDropZones() {
-            // Add drop zones between components
-            const components = this.canvas.querySelectorAll('.canvas-component');
-            components.forEach((comp, index) => {
-                // Logic for dynamic drop zones can be added here
-            });
+            const canvasComponents = this.canvas.querySelectorAll('.canvas-component');
+            
+            if (canvasComponents.length > 0) {
+                this.hideMainDropZone();
+            } else {
+                this.showMainDropZone();
+            }
         },
         
         handleCanvasClick(e) {
@@ -1108,15 +1006,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         // No components to load, just save empty state
                         this.saveToHistory();
+                        // Make sure drop zone is visible when no components
+                        this.updateCanvas();
                     }
                 } catch (error) {
                     console.error('Error loading page data:', error);
                     // Save empty state even if loading fails
                     this.saveToHistory();
+                    // Make sure drop zone is visible on error
+                    this.updateCanvas();
                 }
             } else {
                 // No page data, save empty state
                 this.saveToHistory();
+                // Make sure drop zone is visible when no page data
+                this.updateCanvas();
             }
         },
         
@@ -1129,59 +1033,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Load each component
-            for (const componentData of components) {
-                try {
-                    await this.loadSingleComponent(componentData);
-                } catch (error) {
-                    console.error('Error loading component:', componentData, error);
-                }
-            }
+            // Reset components array
+            this.components = [];
             
-            // Hide main drop zone if we have components
-            if (components.length > 0) {
-                this.hideMainDropZone();
-            }
+            // Load components in parallel for better performance
+            const componentPromises = components.map(componentData => 
+                this.loadSingleComponent(componentData)
+            );
+            
+            await Promise.allSettled(componentPromises);
+            
+            // Update canvas state after loading all components
+            this.updateCanvas();
         },
         
         async loadSingleComponent(componentData) {
-            const response = await fetch('/api/builder/components/render', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': window.csrfToken
-                },
-                body: JSON.stringify({
-                    component_id: componentData.component_id,
-                    properties: componentData.properties || {}
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success && result.data && result.data.html) {
-                // Create component element
-                const componentElement = this.createComponentElement(componentData.component_id, result.data.html);
+            try {
+                const response = await fetch('/api/builder/components/render', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': window.csrfToken
+                    },
+                    body: JSON.stringify({
+                        component_id: componentData.component_id,
+                        properties: componentData.properties || {}
+                    })
+                });
                 
-                if (componentElement) {
-                    // Restore instance ID
-                    componentElement.dataset.instanceId = componentData.id;
+                const result = await response.json();
+                
+                if (result.success && result.data?.html) {
+                    // Create component element
+                    const componentElement = this.createComponentElement(componentData.component_id, result.data.html);
                     
-                    // Save loaded properties to data attributes
-                    if (componentData.properties) {
-                        Object.entries(componentData.properties).forEach(([key, value]) => {
-                            if (value !== null && value !== undefined && value !== '') {
-                                const attributeValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                                componentElement.setAttribute(`data-prop-${key}`, attributeValue);
-                            }
+                    if (componentElement) {
+                        // Restore instance ID and properties
+                        componentElement.dataset.instanceId = componentData.id;
+                        
+                        if (componentData.properties) {
+                            Object.entries(componentData.properties).forEach(([key, value]) => {
+                                if (value !== null && value !== undefined && value !== '') {
+                                    const attributeValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                                    componentElement.setAttribute(`data-prop-${key}`, attributeValue);
+                                }
+                            });
+                        }
+                        
+                        // Add to canvas and components array
+                        this.canvas.appendChild(componentElement);
+                        this.components.push({
+                            id: componentData.id,
+                            componentId: componentData.component_id,
+                            element: componentElement,
+                            instanceId: componentData.id
                         });
                     }
-                    
-                    // Add to canvas
-                    this.canvas.appendChild(componentElement);
-                    
-                    console.log('Loaded component with properties:', componentData.component_id, componentData.properties);
                 }
+            } catch (error) {
+                console.error('Error loading component:', componentData, error);
             }
         },
         
