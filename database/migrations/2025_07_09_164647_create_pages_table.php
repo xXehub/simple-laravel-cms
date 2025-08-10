@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,6 +15,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->longText('content');
+            $table->longText('builder_data')->nullable();
             $table->string('template')->nullable();
             $table->boolean('is_published')->default(true);
             $table->string('meta_title')->nullable();

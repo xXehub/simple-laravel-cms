@@ -27,6 +27,7 @@ return new class extends Migration
             $table->json('middleware_list')->nullable();
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
+             $table->integer('visit_count')->default(0);
             $table->timestamps();
 
             // Foreign keys
