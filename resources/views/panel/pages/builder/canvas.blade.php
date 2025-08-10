@@ -36,19 +36,17 @@ Uses Sortable.js for drag & drop functionality
             </div>
             
             <div class="navbar-nav">
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Actions
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#" id="canvas-undo">
-                            <i class="ti ti-arrow-back-up me-2"></i>
-                            Undo
-                        </a>
-                        <a class="dropdown-item" href="#" id="canvas-redo">
-                            <i class="ti ti-arrow-forward-up me-2"></i>
-                            Redo
-                        </a>
+                <div class="nav-item">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm" id="canvas-undo" title="Undo (Ctrl+Z)">
+                            <i class="ti ti-arrow-back-up"></i> undo
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="canvas-redo" title="Redo (Ctrl+Y)">
+                            <i class="ti ti-arrow-forward-up"></i> redo
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" id="canvas-clear-all" title="Clear All Components">
+                            <i class="ti ti-trash"></i> clear all 
+                        </button>
                     </div>
                 </div>
             </div>
@@ -321,6 +319,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.redo();
             });
             
+            // Clear All
+            document.getElementById('canvas-clear-all').addEventListener('click', (e) => {
+                e.preventDefault();
+                this.clearAllComponents();
+            });
+            
             // Keyboard shortcuts
             document.addEventListener('keydown', this.handleKeyboard.bind(this));
         },
@@ -559,6 +563,35 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         
+        clearAllComponents() {
+            if (this.components.length === 0) {
+                this.showNotification('No components to clear', 'warning');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all components? This action cannot be undone.')) {
+                // Remove all canvas components
+                this.canvas.querySelectorAll('.canvas-component').forEach(element => {
+                    element.remove();
+                });
+                
+                // Clear components array
+                this.components = [];
+                
+                // Deselect any selected component
+                this.selectedComponent = null;
+                
+                // Show main drop zone
+                this.showMainDropZone();
+                
+                // Save to history
+                this.saveToHistory();
+                
+                this.showNotification('All components cleared', 'success');
+                console.log('All components cleared from canvas');
+            }
+        },
+        
         updateComponentOrder() {
             // Update the internal components array based on DOM order
             const canvasComponents = this.canvas.querySelectorAll('.canvas-component');
@@ -616,8 +649,11 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         saveToHistory() {
+            // Get clean HTML without main drop zone for history
+            const cleanHTML = this.getCleanCanvasHTML();
+            
             const state = {
-                html: this.canvas.innerHTML,
+                html: cleanHTML,
                 components: this.getCanvasState().components,
                 timestamp: Date.now()
             };
@@ -634,6 +670,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             console.log('Saved to history. Index:', this.historyIndex, 'Total:', this.history.length);
+        },
+        
+        getCleanCanvasHTML() {
+            // Create a temporary clone of canvas content
+            const tempCanvas = this.canvas.cloneNode(true);
+            
+            // Remove the main drop zone from the clone
+            const mainDropZone = tempCanvas.querySelector('#main-drop-zone');
+            if (mainDropZone) {
+                mainDropZone.remove();
+            }
+            
+            return tempCanvas.innerHTML;
         },
         
         undo() {
@@ -653,18 +702,34 @@ document.addEventListener('DOMContentLoaded', function() {
         restoreFromHistory() {
             const state = this.history[this.historyIndex];
             if (state) {
-                // Store current HTML and components
-                const currentHTML = this.canvas.innerHTML;
-                const currentComponents = this.getCanvasState().components;
+                console.log('Restoring state with components:', state.components?.length || 0);
                 
-                // Restore canvas HTML
-                this.canvas.innerHTML = state.html || '';
+                // Clear only component elements, keep main drop zone
+                this.canvas.querySelectorAll('.canvas-component').forEach(element => {
+                    element.remove();
+                });
+                
+                // Restore components from clean HTML
+                if (state.html && state.html.trim()) {
+                    // Create temporary container to parse the clean HTML
+                    const tempContainer = document.createElement('div');
+                    tempContainer.innerHTML = state.html;
+                    
+                    // Move all elements from temp container to canvas (before drop zone)
+                    const elementsToRestore = Array.from(tempContainer.children);
+                    elementsToRestore.forEach(element => {
+                        this.canvas.insertBefore(element, this.mainDropZone);
+                    });
+                }
                 
                 // Re-bind all events after restoring HTML
                 this.rebindEvents();
                 
                 // Update components array
                 this.components = state.components || [];
+                
+                // Update canvas to show/hide drop zone properly
+                this.updateCanvas();
                 
                 // Show notification
                 this.showNotification(`State restored (${this.historyIndex + 1}/${this.history.length})`, 'info');
@@ -748,10 +813,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove duplicate hideMainDropZone and showMainDropZone
         updateCanvas() {
             const canvasComponents = this.canvas.querySelectorAll('.canvas-component');
+            const dropZoneVisible = this.mainDropZone && this.mainDropZone.style.display !== 'none';
+            
+            console.log('UpdateCanvas: Found', canvasComponents.length, 'components, Drop zone visible:', dropZoneVisible);
             
             if (canvasComponents.length > 0) {
+                console.log('Components found, hiding drop zone');
                 this.hideMainDropZone();
             } else {
+                console.log('No components found, showing drop zone');
                 this.showMainDropZone();
             }
         },
