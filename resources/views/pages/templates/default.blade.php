@@ -36,7 +36,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="prose prose-lg max-w-none">
-                                    {!! nl2br(e($page->content)) !!}
+                                    {!! $page->content !!}
                                 </div>
                             </div>
                             

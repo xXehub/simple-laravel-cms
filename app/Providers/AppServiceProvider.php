@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\View;
 use App\View\Components\Sidebar;
 use App\View\Components\SidebarMenu;
 use App\Services\MenuService;
+use App\Services\ComponentRegistry;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register VisitTrackingService as singleton
         $this->app->singleton(\App\Services\VisitTrackingService::class);
+        
+        // Register ComponentRegistry as singleton
+        $this->app->singleton(ComponentRegistry::class);
+        $this->app->alias(ComponentRegistry::class, 'component-registry');
     }
 
     /**

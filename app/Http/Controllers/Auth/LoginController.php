@@ -26,16 +26,24 @@ class LoginController extends Controller
 
     protected function validateLogin(Request $request)
     {
-        $request->validate([
+        $rules = [
             'email' => 'required|string',
             'password' => 'required|string',
-            'g-recaptcha-response' => 'required|captcha',
-        ], [
+        ];
+
+        $messages = [
             'email.required' => config('auth_messages.login.email_required'),
             'password.required' => config('auth_messages.login.password_required'),
-            'g-recaptcha-response.required' => config('auth_messages.login.recaptcha_required'),
-            'g-recaptcha-response.captcha' => config('auth_messages.login.recaptcha_failed'),
-        ]);
+        ];
+
+        // Add captcha validation only if captcha is enabled
+        if (config('captcha.enabled')) {
+            $rules['g-recaptcha-response'] = 'required|captcha';
+            $messages['g-recaptcha-response.required'] = config('auth_messages.login.recaptcha_required');
+            $messages['g-recaptcha-response.captcha'] = config('auth_messages.login.recaptcha_failed');
+        }
+
+        $request->validate($rules, $messages);
     }
 
     /**

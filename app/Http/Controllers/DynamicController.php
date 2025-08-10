@@ -86,21 +86,50 @@ class DynamicController extends Controller
      */
     protected function handlePageRoute(Page $page)
     {
-        // Use custom template if specified, otherwise use default
-        $template = 'pages.show'; // Default template
+        // Use builder template as default for pages with content
+        $template = 'pages.templates.builder'; // Default to builder template
         
-        if ($page->template) {
+        if ($page->template && $page->template !== 'builder') {
             $customTemplate = "pages.templates.{$page->template}";
-            // Check if custom template exists, fallback to default if not
+            // Check if custom template exists, fallback to builder if not
             if (view()->exists($customTemplate)) {
                 $template = $customTemplate;
+            }
+        }
+
+        // Process page builder content SAFELY in controller instead of template
+        $renderedContent = '';
+        if ($page->content) {
+            try {
+                // Check if content is JSON (page builder data)
+                $contentData = json_decode($page->content, true);
+                
+                if (json_last_error() === JSON_ERROR_NONE && isset($contentData['components'])) {
+                    // It's page builder JSON data - render using PageBuilderService
+                    $pageBuilderService = app(\App\Services\PageBuilderService::class);
+                    $renderedContent = $pageBuilderService->renderPage($page->id);
+                } else {
+                    // It's regular HTML content
+                    $renderedContent = $page->content;
+                }
+            } catch (\Exception $e) {
+                // Log error and show user-friendly message
+                Log::error("Page rendering error for page {$page->id}: " . $e->getMessage(), [
+                    'page_slug' => $page->slug,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                // Fallback to empty state
+                $renderedContent = '';
             }
         }
 
         return view($template, [
             'page' => $page,
             'title' => $page->title,
-            'description' => $page->meta_description
+            'description' => $page->meta_description,
+            'renderedContent' => $renderedContent
         ]);
     }
 

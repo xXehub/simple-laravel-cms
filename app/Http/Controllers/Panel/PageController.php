@@ -77,50 +77,10 @@ class PageController extends Controller
      */
     public function store(StorePageRequest $request)
     {
-        $data = $request->validated();
-        
-        // Handle boolean fields that exist in database
-        // For checkboxes, they're only sent when checked
-        $data['is_published'] = $request->has('is_published') ? true : false;
-        
-        // Set defaults for existing fields only
-        $data['sort_order'] = $data['sort_order'] ?? 0;
-        
-        // Ensure content is never null - set default based on page type
-        if (empty($data['content'])) {
-            if ($request->has('builder_data') && !empty($request->input('builder_data'))) {
-                // For builder pages, set minimal content
-                $data['content'] = '<p>This page uses the page builder.</p>';
-            } else {
-                // For template pages, set default content
-                $data['content'] = '<p>Welcome to our new page!</p>';
-            }
-        }
-        
-        // Handle builder data if present
-        if ($request->has('builder_data')) {
-            $data['builder_data'] = $request->input('builder_data');
-        }
-
+        $data = $this->preparePageData($request);
         $page = Page::create($data);
 
-        // If this is an AJAX request, return JSON
-        if ($request->expectsJson() || $request->ajax()) {
-            $response = [
-                'success' => true,
-                'message' => 'Page created successfully',
-                'page' => $page
-            ];
-            
-            // If user wants to open builder after creation
-            if ($request->has('open_after_create') && $request->open_after_create) {
-                $response['redirect_url'] = url("panel/pages/{$page->id}/builder");
-            }
-            
-            return response()->json($response);
-        }
-
-        return ResponseHelper::redirect('panel.pages', 'Page created successfully');
+        return $this->handleResponse($request, 'Page created successfully', $page);
     }
 
     /**
@@ -161,41 +121,12 @@ class PageController extends Controller
     {
         try {
             $page = Page::findOrFail($id);
-
-            $data = $request->validated();
-            
-            // Handle boolean fields that exist in database
-            // For checkboxes, they're only sent when checked
-            $data['is_published'] = $request->has('is_published') ? true : false;
-            
-            // Set defaults for existing fields only
-            $data['sort_order'] = $data['sort_order'] ?? 0;
-            
-            // Handle builder data if present
-            if ($request->has('builder_data')) {
-                $data['builder_data'] = $request->input('builder_data');
-            }
-
+            $data = $this->preparePageData($request);
             $page->update($data);
 
-            // If this is an AJAX request (from modal), return JSON
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Page updated successfully'
-                ]);
-            }
-
-            return ResponseHelper::redirect('panel.pages', 'Page updated successfully');
+            return $this->handleResponse($request, 'Page updated successfully');
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error updating page: ' . $e->getMessage()
-                ], 500);
-            }
-            
-            return ResponseHelper::redirect('panel.pages', 'Error updating page: ' . $e->getMessage(), 'error');
+            return $this->handleError($request, 'Error updating page: ' . $e->getMessage());
         }
     }
 
@@ -208,24 +139,9 @@ class PageController extends Controller
             $page = Page::findOrFail($id);
             $page->delete();
             
-            // Return JSON for AJAX requests
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Page deleted successfully'
-                ]);
-            }
-            
-            return ResponseHelper::redirect('panel.pages', 'Page deleted successfully');
+            return $this->handleResponse($request, 'Page deleted successfully');
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error deleting page: ' . $e->getMessage()
-                ], 500);
-            }
-            
-            return ResponseHelper::redirect('panel.pages', 'Error deleting page: ' . $e->getMessage(), 'error');
+            return $this->handleError($request, 'Error deleting page: ' . $e->getMessage());
         }
     }
 
@@ -236,32 +152,11 @@ class PageController extends Controller
     {
         try {
             $originalPage = Page::findOrFail($id);
+            $newPage = $this->createDuplicatePage($originalPage);
             
-            // Create new page with copied data
-            $newPage = $originalPage->replicate();
-            $newPage->title = $originalPage->title . ' (Copy)';
-            $newPage->slug = $originalPage->slug . '-copy-' . time();
-            $newPage->is_published = false; // Set as draft by default
-            $newPage->save();
-            
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Page duplicated successfully',
-                    'page' => $newPage
-                ]);
-            }
-            
-            return ResponseHelper::redirect('panel.pages', 'Page duplicated successfully');
+            return $this->handleResponse($request, 'Page duplicated successfully', $newPage);
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error duplicating page: ' . $e->getMessage()
-                ], 500);
-            }
-            
-            return ResponseHelper::redirect('panel.pages', 'Error duplicating page: ' . $e->getMessage(), 'error');
+            return $this->handleError($request, 'Error duplicating page: ' . $e->getMessage());
         }
     }
 
@@ -312,10 +207,11 @@ class PageController extends Controller
                 return '<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select page" value="' . $page->id . '"/>';
             })
             ->addColumn('page_type', function ($page) {
-                $isBuilder = !empty($page->builder_data) && $page->builder_data !== '[]';
+                $isBuilder = $this->isBuilderPage($page);
                 $type = $isBuilder ? 'Builder' : 'Template';
                 $class = $isBuilder ? 'info' : 'secondary';
                 $icon = $isBuilder ? 'ti ti-puzzle' : 'ti ti-template';
+                
                 return '<span class="badge bg-' . $class . '"><i class="' . $icon . ' me-1"></i>' . $type . '</span>';
             })
             ->addColumn('status_badge', function ($page) {
@@ -330,15 +226,8 @@ class PageController extends Controller
                 return '<small class="text-muted">No template</small>';
             })
             ->addColumn('action', function ($page) {
-                // Render action buttons using the component
                 return view('components.modals.pages.action', [
-                    'page' => [
-                        'id' => $page->id,
-                        'title' => $page->title,
-                        'slug' => $page->slug,
-                        'is_published' => $page->is_published,
-                        'builder_data' => $page->builder_data
-                    ]
+                    'page' => $this->formatPageForAction($page)
                 ])->render();
             })
             ->editColumn('created_at', function ($page) {
@@ -547,11 +436,7 @@ class PageController extends Controller
     public function builder(Request $request, $id)
     {
         $page = Page::findOrFail($id);
-        
-        // Get available templates for settings modal
-        $templates = $this->getAvailableTemplates();
-        
-        return view('panel.pages.builder-new', compact('page', 'templates'));
+        return view('panel.pages.builder-modular', compact('page'));
     }
 
     /**
@@ -569,34 +454,10 @@ class PageController extends Controller
             'is_published' => 'boolean'
         ]);
 
-        $data = $request->all();
-        
-        // Generate slug if not provided
-        if (empty($data['slug'])) {
-            $data['slug'] = \Str::slug($data['title']);
-        }
-        
-        // Ensure content is not null
-        if (empty($data['content'])) {
-            $data['content'] = '<p>Welcome to our new page!</p>';
-        }
-        
-        // Set defaults
-        $data['is_published'] = $request->boolean('is_published', false);
-        $data['sort_order'] = 0;
-        $data['builder_data'] = null; // Template-based pages don't use builder data
-
+        $data = $this->prepareTemplatePageData($request);
         $page = Page::create($data);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Template-based page created successfully!',
-                'page' => $page
-            ]);
-        }
-
-        return redirect()->route('panel.pages')->with('success', 'Template-based page created successfully!');
+        return $this->handleResponse($request, 'Template-based page created successfully!', $page);
     }
 
     /**
@@ -612,38 +473,174 @@ class PageController extends Controller
             'is_published' => 'boolean'
         ]);
 
-        $data = $request->all();
+        $data = $this->prepareBuilderPageData($request);
+        $page = Page::create($data);
+
+        return $this->handleBuilderResponse($request, $page);
+    }
+
+    /**
+     * Helper Methods
+     */
+
+    /**
+     * Prepare page data from request
+     */
+    private function preparePageData(Request $request)
+    {
+        $data = $request->validated();
         
-        // Generate slug if not provided
-        if (empty($data['slug'])) {
-            $data['slug'] = \Str::slug($data['title']);
+        // Set default values
+        $data['is_published'] = $request->boolean('is_published', false);
+        $data['sort_order'] = $data['sort_order'] ?? 0;
+        
+        // Handle content
+        if (empty($data['content'])) {
+            $data['content'] = $this->hasBuilderData($request) 
+                ? '<p>This page uses the page builder.</p>' 
+                : '<p>Welcome to our new page!</p>';
         }
         
-        // Set defaults for builder pages
-        $data['content'] = '<p>This page uses the page builder.</p>';
+        // Handle builder data
+        $data['builder_data'] = $this->hasBuilderData($request) 
+            ? $request->input('builder_data') 
+            : null;
+
+        return $data;
+    }
+
+    /**
+     * Prepare template page data
+     */
+    private function prepareTemplatePageData(Request $request)
+    {
+        $data = $request->all();
+        
+        $data['slug'] = $data['slug'] ?: \Str::slug($data['title']);
+        $data['content'] = $data['content'] ?: '<p>Welcome to our new page!</p>';
+        $data['is_published'] = $request->boolean('is_published', false);
+        $data['sort_order'] = 0;
+        $data['builder_data'] = null; // Template pages don't use builder
+        
+        return $data;
+    }
+
+    /**
+     * Prepare builder page data
+     */
+    private function prepareBuilderPageData(Request $request)
+    {
+        $data = $request->all();
+        
+        $data['slug'] = $data['slug'] ?: \Str::slug($data['title']);
+        $data['content'] = ''; // Empty content for builder pages
         $data['template'] = null; // Builder pages don't use templates
         $data['is_published'] = $request->boolean('is_published', false);
         $data['sort_order'] = 0;
-        $data['builder_data'] = '[]'; // Initialize empty builder data
+        $data['builder_data'] = json_encode([
+            'type' => 'builder',
+            'components' => [],
+            'created_at' => now()->toISOString()
+        ]);
+        
+        return $data;
+    }
 
-        $page = Page::create($data);
+    /**
+     * Create duplicate page
+     */
+    private function createDuplicatePage($originalPage)
+    {
+        $newPage = $originalPage->replicate();
+        $newPage->title = $originalPage->title . ' (Copy)';
+        $newPage->slug = $originalPage->slug . '-copy-' . time();
+        $newPage->is_published = false; // Set as draft by default
+        $newPage->save();
+        
+        return $newPage;
+    }
 
-        if ($request->expectsJson() || $request->ajax()) {
-            $response = [
-                'success' => true,
-                'message' => 'Builder page created successfully!',
-                'page' => $page
-            ];
-            
-            // Redirect to builder if requested
-            if ($request->boolean('open_builder', true)) {
-                $response['redirect_url'] = url("panel/pages/{$page->id}/builder");
+    /**
+     * Cek apakah page menggunakan builder
+     */
+    private function isBuilderPage($page)
+    {
+        return !empty($page->builder_data) && 
+               $page->builder_data !== '[]' && 
+               $page->builder_data !== 'null';
+    }
+
+    /**
+     * Format page data for action component
+     */
+    private function formatPageForAction($page)
+    {
+        return [
+            'id' => $page->id,
+            'title' => $page->title,
+            'slug' => $page->slug,
+            'is_published' => $page->is_published,
+            'builder_data' => $page->builder_data
+        ];
+    }
+
+    /**
+     * Check if request has builder data
+     */
+    private function hasBuilderData(Request $request)
+    {
+        return $request->has('builder_data') && !empty($request->input('builder_data'));
+    }
+
+    /**
+     * Handle success response
+     */
+    private function handleResponse(Request $request, string $message, $data = null)
+    {
+        if ($request->expectsJson()) {
+            $response = ['success' => true, 'message' => $message];
+            if ($data) $response['page'] = $data;
+            if ($request->boolean('open_after_create') && $data) {
+                $response['redirect_url'] = $this->getBuilderUrl($data->id);
             }
-            
             return response()->json($response);
         }
+        return ResponseHelper::redirect('panel.pages', $message);
+    }
 
+    /**
+     * Handle builder response
+     */
+    private function handleBuilderResponse(Request $request, $page)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Builder page created successfully!',
+                'page' => $page,
+                'redirect_url' => $this->getBuilderUrl($page->id)
+            ]);
+        }
         return redirect()->route('panel.pages')->with('success', 'Builder page created successfully!');
+    }
+
+    /**
+     * Generate builder URL
+     */
+    private function getBuilderUrl($pageId)
+    {
+        return route('panel.pages.builder', $pageId);
+    }
+
+    /**
+     * Handle error response
+     */
+    private function handleError(Request $request, string $message)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['success' => false, 'message' => $message], 500);
+        }
+        return ResponseHelper::redirect('panel.pages', $message, 'error');
     }
 
     /**

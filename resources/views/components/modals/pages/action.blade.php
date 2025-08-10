@@ -4,11 +4,29 @@
     {{-- Edit/Builder Button - Show builder for builder pages, edit for template pages --}}
     @can('update-pages')
         @php
-            $isBuilder = !empty($page['builder_data']) && $page['builder_data'] !== '[]';
+            // More robust check for builder pages
+            $isBuilder = false;
+            if (!empty($page['builder_data'])) {
+                if (is_string($page['builder_data'])) {
+                    $builderData = json_decode($page['builder_data'], true);
+                    $isBuilder = $builderData !== null && 
+                               ($page['builder_data'] !== '[]' && $page['builder_data'] !== 'null');
+                } else {
+                    $isBuilder = !empty($page['builder_data']);
+                }
+            }
         @endphp
         
         @if($isBuilder)
-            <a href="{{ url('panel/pages/' . $page['id'] . '/builder') }}" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 12px;" title="Open Page Builder">
+            @php
+                // Generate builder URL using the same pattern as the controller
+                $pagesMenu = App\Models\MasterMenu::where('controller_class', 'App\\Http\\Controllers\\Panel\\PageController')
+                                                  ->where('is_active', true)
+                                                  ->whereNotNull('slug')
+                                                  ->first();
+                $builderUrl = $pagesMenu ? rtrim($pagesMenu->getUrl(), '/') . '/' . $page['id'] . '/builder' : '#';
+            @endphp
+            <a href="{{ $builderUrl }}" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 12px;" title="Open Page Builder">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="4" y="4" width="16" height="4" rx="1"/>
                     <rect x="4" y="12" width="6" height="8" rx="1"/>

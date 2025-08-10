@@ -111,6 +111,15 @@ class SimpleControllerScanner
             'uploadAvatar' => 'POST',
             'deleteAvatar' => 'DELETE',
             'moveOrder' => 'POST',
+            'render' => 'POST',
+            'renderComponent' => 'POST',
+            'components' => 'GET',
+            'getComponentInfo' => 'GET',
+            'save' => 'POST',
+            'load' => 'POST',
+            'preview' => 'POST',
+            'stats' => 'GET',
+            'export' => 'GET',
         ];
 
         return $httpMethods[$methodName] ?? 'GET';
@@ -139,6 +148,15 @@ class SimpleControllerScanner
             'bulkDestroy' => '/bulk-delete',
             'datatable' => '/datatable',
             'uploadAvatar' => '/{id}/upload-avatar',
+            'render' => '/render',
+            'renderComponent' => '/render-component',
+            'components' => '',
+            'getComponentInfo' => '/{id}/info',
+            'save' => '/save',
+            'load' => '/load',
+            'preview' => '/preview',
+            'stats' => '/stats',
+            'export' => '/export',
             // 'deleteAvatar' => '/{id}/delete-avatar',
         ];
 
