@@ -23,6 +23,7 @@ class MasterMenuSeeder extends Seeder
             'icon' => 'fa-solid fa-plane-departure',
             'urutan' => 1,
             'is_active' => 1,
+            'is_beranda' => true,
             'route_type' => 'public',
             'controller_class' => 'App\\Http\\Controllers\\BerandaController',
             'view_path' => 'beranda',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterMenu;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +42,15 @@ class RegisterController extends Controller
     }
 
     /**
+     * Get the post-registration redirect path.
+     */
+    public function redirectTo()
+    {
+        $beranda = MasterMenu::getBeranda();
+        return $beranda ? $beranda->slug : '/beranda';
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -48,13 +58,14 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'g-recaptcha-response' => ['required', 'captcha'],
-        ], [
+        ];
+
+        $messages = [
             // Name messages
             'name.required' => config('auth_messages.register.name_required'),
             'name.max' => config('auth_messages.register.name_max'),
@@ -73,11 +84,16 @@ class RegisterController extends Controller
             'password.required' => config('auth_messages.register.password_required'),
             'password.min' => config('auth_messages.register.password_min'),
             'password.confirmed' => config('auth_messages.register.password_confirmed'),
+        ];
 
-            // reCAPTCHA messages
-            'g-recaptcha-response.required' => config('auth_messages.register.recaptcha_required'),
-            'g-recaptcha-response.captcha' => config('auth_messages.register.recaptcha_failed'),
-        ]);
+        // Add captcha validation only if captcha is enabled
+        if (config('captcha.enabled')) {
+            $rules['g-recaptcha-response'] = ['required', 'captcha'];
+            $messages['g-recaptcha-response.required'] = config('auth_messages.register.recaptcha_required');
+            $messages['g-recaptcha-response.captcha'] = config('auth_messages.register.recaptcha_failed');
+        }
+
+        return Validator::make($data, $rules, $messages);
     }
 
     /**

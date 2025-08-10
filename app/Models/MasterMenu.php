@@ -20,6 +20,7 @@ class MasterMenu extends Model
         'icon',
         'urutan',
         'is_active',
+        'is_beranda',
         'route_type',
         'controller_class',
         'view_path',
@@ -31,6 +32,7 @@ class MasterMenu extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_beranda' => 'boolean',
         'middleware_list' => 'array',
     ];
 
@@ -97,6 +99,14 @@ class MasterMenu extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Get menu beranda (simple method)
+     */
+    public static function getBeranda()
+    {
+        return static::where('is_beranda', true)->where('is_active', true)->first();
     }
 
     /**

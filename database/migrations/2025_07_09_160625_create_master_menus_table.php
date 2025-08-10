@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('icon')->nullable();
             $table->integer('urutan')->default(0);
             $table->tinyInteger('is_active')->default(1);
+            $table->boolean('is_beranda')->default(false);
             $table->enum('route_type', ['admin', 'public', 'api'])->default('public');
             $table->string('controller_class')->nullable();
             $table->string('view_path')->nullable();

@@ -76,11 +76,13 @@
                                     </div>
                                 </div>
 
-                                {{-- reCAPTCHA Widget --}}
-                                <div class="mb-3 d-flex justify-content-center">
-                                    {!! NoCaptcha::renderJs() !!}
-                                    {!! NoCaptcha::display() !!}
-                                </div>
+                                @if(config('captcha.enabled'))
+                                    {{-- reCAPTCHA Widget --}}
+                                    <div class="mb-3 d-flex justify-content-center">
+                                        {!! NoCaptcha::renderJs() !!}
+                                        {!! NoCaptcha::display() !!}
+                                    </div>
+                                @endif
 
                                 <div class="form-footer">
                                     <button type="submit" class="btn btn-primary w-100">Daftar</button>

@@ -14,6 +14,12 @@ class DynamicController extends Controller
      */
     public function handleWelcome()
     {
+        // Jika user sudah login, redirect ke beranda
+        if (auth()->check()) {
+            $beranda = MasterMenu::getBeranda();
+            return redirect($beranda ? $beranda->slug : '/beranda');
+        }
+        
         return view('landing');
     }
 
