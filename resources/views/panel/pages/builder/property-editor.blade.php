@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.showLoading();
                 
                 // Get component info
-                const response = await fetch(`/panel/builder/components/${componentId}/info`);
+                const response = await fetch(`/api/builder/components/${componentId}/info`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.validateAllProperties()) {
                 try {
                     // Re-render component with new properties
-                    const response = await fetch('/panel/builder/components/render', {
+                    const response = await fetch('/api/builder/components/render', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

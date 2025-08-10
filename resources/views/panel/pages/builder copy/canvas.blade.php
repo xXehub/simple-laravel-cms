@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
         async replaceWithRealComponent(placeholderItem, componentId) {
             try {
                 // Get component HTML from server
-                const response = await fetch('/panel/builder/components/render', {
+                const response = await fetch('/api/builder/components/render', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
         async saveDefaultPropertiesToElement(element, componentId) {
             try {
                 // Get component info to retrieve default properties
-                const response = await fetch(`/panel/builder/components/${componentId}/info`, {
+                const response = await fetch(`/api/builder/components/${componentId}/info`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         async addComponent(componentId, componentData, targetElement = null) {
             try {
                 // Get component HTML
-                const response = await fetch('/panel/builder/components/render', {
+                const response = await fetch('/api/builder/components/render', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1137,7 +1137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         async loadSingleComponent(componentData) {
-            const response = await fetch('/panel/builder/components/render', {
+            const response = await fetch('/api/builder/components/render', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

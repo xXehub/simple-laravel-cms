@@ -8,8 +8,27 @@ use App\Models\MasterMenu;
 class MasterMenuSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
-     */
+     * Run the datab        });
+
+        // Page Builder (hanya menu utama, API dijadikan static di routes/api.php)
+        $pageBuilder = MasterMenu::create([
+            'nama_menu' => 'Page Builder',
+            'slug' => 'panel/builder',
+            'parent_id' => $panelManagementId,
+            'route_name' => 'panel.builder.index',
+            'icon' => 'ti ti-layout-grid',
+            'urutan' => 10,
+            'is_active' => 1,
+            'route_type' => 'admin',
+            'controller_class' => 'App\\Http\\Controllers\\Panel\\PageBuilderController',
+            'view_path' => null,
+            'middleware_list' => ["web", "auth", "permission:view-pages"],
+            'meta_title' => 'Page Builder',
+            'meta_description' => 'Build and design pages with drag & drop components',
+        ]);
+
+        $about = MasterMenu::create([
+ */
     public function run(): void
     {
         // --------------------
@@ -176,36 +195,6 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "auth", "permission:view-pages"],
             'meta_title' => 'Page Builder',
             'meta_description' => 'Build and design pages with drag & drop components',
-        ]);
-        $pageBuilderApi = MasterMenu::create([
-            'nama_menu' => 'Builder Components API',
-            'slug' => 'panel/builder/components',
-            'parent_id' => $pageBuilder->id,
-            'route_name' => 'panel.builder.components',
-            'icon' => 'ti ti-api',
-            'urutan' => 1,
-            'is_active' => 1,
-            'route_type' => 'api',
-            'controller_class' => 'App\\Http\\Controllers\\Panel\\ComponentController',
-            'view_path' => null,
-            'middleware_list' => ["web", "auth", "permission:view-pages"],
-            'meta_title' => 'Components API',
-            'meta_description' => 'API endpoint for builder components',
-        ]);
-        $renderApi = MasterMenu::create([
-            'nama_menu' => 'Render Component API',
-            'slug' => 'panel/builder/components/render',
-            'parent_id' => $pageBuilder->id,
-            'route_name' => 'panel.builder.render',
-            'icon' => 'ti ti-play',
-            'urutan' => 2,
-            'is_active' => 1,
-            'route_type' => 'api',
-            'controller_class' => 'App\\Http\\Controllers\\Panel\\ComponentController',
-            'view_path' => null,
-            'middleware_list' => ["web", "auth", "permission:view-pages"],
-            'meta_title' => 'Render Component',
-            'meta_description' => 'API endpoint for rendering components',
         ]);
 
         $about = MasterMenu::create([

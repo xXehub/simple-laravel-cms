@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 this.showLoading();
                 
-                const response = await fetch('/panel/builder/components', {
+                const response = await fetch('/api/builder/components', {
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
