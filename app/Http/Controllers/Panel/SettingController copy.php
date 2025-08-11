@@ -1,0 +1,236 @@
+<?php
+
+namespace App\Http\Controllers\Panel;
+
+use App\Http\Controllers\Controller;
+use App\Models\Setting;
+use App\Models\MasterMenu;
+use Illuminate\Http\Request;
+use App\Helpers\ResponseHelper;
+use Yajra\DataTables\Facades\DataTables;
+use App\Http\Requests\Panel\Setting\UpdateSettingsRequest;
+
+class SettingController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+        $this->middleware('permission:view-settings')->only(['index', 'datatable']);
+        $this->middleware('permission:update-settings')->only(['store', 'update', 'destroy']);
+    }
+
+    /**
+     * Display settings page with DataTable
+     */
+    public function index(Request $request)
+    {
+        // Get current menu from request for dynamic view resolution
+        $currentSlug = $request->route()->uri ?? 'panel/settings';
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Get dynamic view path from database
+        $viewPath = $menu?->getDynamicViewPath() ?? 'panel.settings.index';
+
+        return view($viewPath, compact('menu'));
+    }
+
+    /**
+     * DataTable endpoint for settings
+     */
+    public function datatable(Request $request)
+    {
+        $query = Setting::query();
+
+        // Add search if provided  
+        if ($search = $request->get('search')['value'] ?? null) {
+            $query->where(function ($q) use ($search) {
+                $q->where('key', 'LIKE', "%{$search}%")
+                    ->orWhere('value', 'LIKE', "%{$search}%")
+                    ->orWhere('type', 'LIKE', "%{$search}%")
+                    ->orWhere('group', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return DataTables::of($query)
+            ->addColumn('checkbox', function ($setting) {
+                return '<input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select setting" value="' . $setting->id . '"/>';
+            })
+            ->addColumn('type_badge', function ($setting) {
+                // Send raw data to be processed in JavaScript
+                return $setting->type;
+            })
+            ->addColumn('group_badge', function ($setting) {
+                // Send raw data to be processed in JavaScript
+                return $setting->group;
+            })
+            ->addColumn('value_preview', function ($setting) {
+                $value = $setting->value;
+                
+                if ($setting->type === Setting::TYPE_BOOLEAN) {
+                    return $value ? 'true' : 'false';
+                } elseif ($setting->type === Setting::TYPE_IMAGE && $value) {
+                    return '<img src="' . asset('storage/' . $value) . '" alt="Image" class="img-thumbnail" style="max-width: 50px; max-height: 50px;">';
+                } elseif (strlen($value) > 50) {
+                    return '<span title="' . htmlspecialchars($value) . '">' . substr($value, 0, 50) . '...</span>';
+                }
+                
+                return $value ?: '<span class="text-muted">Empty</span>';
+            })
+            ->addColumn('action', function ($setting) {
+                $editButton = '<button type="button" class="btn btn-sm btn-outline-primary me-1" 
+                                onclick="editSetting(' . htmlspecialchars(json_encode($setting)) . ')" 
+                                title="Edit Setting">
+                                <i class="ti ti-edit"></i>
+                               </button>';
+                
+                $deleteButton = '<button type="button" class="btn btn-sm btn-outline-danger" 
+                                 onclick="deleteSetting(' . $setting->id . ', \'' . addslashes($setting->key) . '\')" 
+                                 title="Delete Setting">
+                                 <i class="ti ti-trash"></i>
+                                 </button>';
+                
+                return '<div class="btn-group" role="group">' . $editButton . $deleteButton . '</div>';
+            })
+            ->editColumn('created_at', function ($setting) {
+                return $setting->created_at->format('Y-m-d H:i:s');
+            })
+            ->rawColumns(['checkbox', 'value_preview', 'action'])
+            ->make(true);
+    }
+
+    /**
+     * Store a new setting
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'key' => 'required|string|unique:settings,key',
+            'value' => 'nullable|string',
+            'type' => 'required|string',
+            'group' => 'required|string',
+            'description' => 'nullable|string'
+        ]);
+
+        try {
+            Setting::create($request->only(['key', 'value', 'type', 'group', 'description']));
+
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Setting created successfully!',
+                null,
+                'success'
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Error creating setting: ' . $e->getMessage(),
+                null,
+                'error'
+            );
+        }
+    }
+
+    /**
+     * Update a setting
+     */
+    public function update(Request $request, $id)
+    {
+        $setting = Setting::findOrFail($id);
+
+        $request->validate([
+            'key' => 'required|string|unique:settings,key,' . $id,
+            'value' => 'nullable|string',
+            'type' => 'required|string',
+            'group' => 'required|string',
+            'description' => 'nullable|string'
+        ]);
+
+        try {
+            $setting->update($request->only(['key', 'value', 'type', 'group', 'description']));
+
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Setting updated successfully!',
+                null,
+                'success'
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Error updating setting: ' . $e->getMessage(),
+                null,
+                'error'
+            );
+        }
+    }
+
+    /**
+     * Delete a setting
+     */
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $setting = Setting::findOrFail($id);
+            $setting->delete();
+
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Setting deleted successfully!',
+                null,
+                'success'
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Error deleting setting: ' . $e->getMessage(),
+                null,
+                'error'
+            );
+        }
+    }
+
+    /**
+     * Bulk delete settings
+     */
+    public function bulkDestroy(Request $request)
+    {
+        try {
+            $ids = $request->input('ids', []);
+            
+            if (empty($ids)) {
+                return ResponseHelper::handle(
+                    $request,
+                    'panel.settings',
+                    'No settings selected',
+                    null,
+                    'error'
+                );
+            }
+
+            Setting::whereIn('id', $ids)->delete();
+
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                count($ids) . ' settings deleted successfully!',
+                null,
+                'success'
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::handle(
+                $request,
+                'panel.settings',
+                'Error deleting settings: ' . $e->getMessage(),
+                null,
+                'error'
+            );
+        }
+    }
+}

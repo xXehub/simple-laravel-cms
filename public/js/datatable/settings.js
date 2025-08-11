@@ -293,17 +293,38 @@ window.SettingsDataTable = (function () {
         // Populate basic fields dengan safety checks
         const settingIdField = document.getElementById("edit_setting_id");
         const keyField = document.getElementById("edit_key");
-        const typeField = document.getElementById("edit_type");
-        const groupField = document.getElementById("edit_group");
-        const descriptionField = document.getElementById("edit_description");
-        const valueField = document.getElementById("edit_value");
 
         if (settingIdField) settingIdField.value = setting.id;
         if (keyField) keyField.value = setting.key || "";
-        if (typeField) typeField.value = setting.type || "";
-        if (groupField) groupField.value = setting.group || "";
+
+        // Handle TomSelect for type field
+        if (window.editTypeTomSelect) {
+            window.editTypeTomSelect.setValue(setting.type || '');
+        } else {
+            const typeField = document.getElementById("edit_type");
+            if (typeField) typeField.value = setting.type || "";
+        }
+
+        // Handle TomSelect for group field
+        if (window.editGroupTomSelect) {
+            window.editGroupTomSelect.setValue(setting.group || '');
+        } else {
+            const groupField = document.getElementById("edit_group");
+            if (groupField) groupField.value = setting.group || "";
+        }
+
+        // Handle description field
+        const descriptionField = document.getElementById("edit_description");
         if (descriptionField) descriptionField.value = setting.description || "";
-        if (valueField) valueField.value = setting.value || "";
+
+        // Update value field berdasarkan type dan nilai
+        if (typeof window.updateEditValueField === 'function') {
+            window.updateEditValueField(setting.type || 'text', setting.value || '');
+        } else {
+            // Fallback jika function belum ready
+            const valueField = document.getElementById("edit_value");
+            if (valueField) valueField.value = setting.value || "";
+        }
     }
 
     // --- ini untuk delete setting ---
