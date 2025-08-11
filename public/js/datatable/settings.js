@@ -36,23 +36,85 @@ window.SettingsDataTable = (function () {
                                type="checkbox" value="${row.id}"/>`;
                     },
                 },
-                { data: "id", name: "id" },
+                { 
+                    data: "id", 
+                    name: "id",
+                    className: "text-muted"
+                },
                 {
                     data: "key",
                     name: "key",
-                    render: (data) => `<strong>${data}</strong>`,
+                    render: (data) => `<div class="font-weight-medium text-dark">${data}</div>`,
                 },
-                { data: "type", name: "type" },
-                { data: "group", name: "group" },
-                { data: "description", name: "description" },
+                {
+                    data: "type",
+                    name: "type",
+                    render: (data) => {
+                        const typeColors = {
+                            'string': 'blue',
+                            'text': 'green',
+                            'number': 'yellow',
+                            'boolean': 'purple',
+                            'json': 'orange',
+                            'file': 'red',
+                            'image': 'pink'
+                        };
+                        const color = typeColors[data?.toLowerCase()] || 'secondary';
+                        return `<span class="badge bg-${color}-lt">${data || 'string'}</span>`;
+                    }
+                },
+                {
+                    data: "group",
+                    name: "group",
+                    render: (data) => {
+                        if (!data) return '<span class="text-muted">—</span>';
+                        const groupColors = {
+                            'app': 'blue',
+                            'system': 'red',
+                            'ui': 'green',
+                            'mail': 'yellow',
+                            'social': 'purple',
+                            'seo': 'orange',
+                            'general': 'secondary'
+                        };
+                        const color = groupColors[data?.toLowerCase()] || 'secondary';
+                        return `<span class="badge bg-${color}">${data}</span>`;
+                    }
+                },
+                {
+                    data: "description",
+                    name: "description",
+                    render: (data) => {
+                        if (!data) return '<span class="text-muted">—</span>';
+                        if (data.length > 60) {
+                            return `<span class="text-secondary" title="${data}">${data.substring(0, 60)}...</span>`;
+                        }
+                        return `<span class="text-secondary">${data}</span>`;
+                    }
+                },
                 {
                     data: "value",
                     name: "value",
                     render: (data, type, row) => {
-                        if (data && data.length > 50) {
-                            return data.substring(0, 50) + "...";
+                        if (!data) return '<span class="text-muted">—</span>';
+                        
+                        // Handle different value types
+                        if (row.type === 'boolean') {
+                            const isTrue = data === '1' || data === 'true' || data === true;
+                            return isTrue 
+                                ? '<span class="badge bg-success">Enabled</span>'
+                                : '<span class="badge bg-danger">Disabled</span>';
                         }
-                        return data || "";
+                        
+                        if (row.type === 'file' || row.type === 'image') {
+                            return `<span class="badge bg-info-lt"><i class="ti ti-file me-1"></i>File</span>`;
+                        }
+                        
+                        if (data.length > 40) {
+                            return `<span class="text-truncate d-inline-block" style="max-width: 200px;" title="${data}">${data}</span>`;
+                        }
+                        
+                        return `<code class="text-dark">${data}</code>`;
                     }
                 },
                 {

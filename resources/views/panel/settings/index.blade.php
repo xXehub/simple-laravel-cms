@@ -49,13 +49,13 @@
                                                         <input class="form-check-input m-0 align-middle" type="checkbox"
                                                             aria-label="Select all settings" id="select-all" />
                                                     </th>
-                                                    <th>ID</th>
-                                                    <th>Key</th>
-                                                    <th>Type</th>
-                                                    <th>Group</th>
-                                                    <th>Description</th>
-                                                    <th>Value</th>
-                                                    <th class="w-3"></th>
+                                                    <th class="text-muted" style="width: 60px;">ID</th>
+                                                    <th>Setting Key</th>
+                                                    <th class="text-center" style="width: 100px;">Type</th>
+                                                    <th class="text-center" style="width: 100px;">Group</th>
+                                                    <th style="width: 200px;">Description</th>
+                                                    <th style="width: 250px;">Value</th>
+                                                    <th class="w-3 text-center">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="table-tbody">
