@@ -61,8 +61,8 @@ class PermissionSeeder extends Seeder
             // System & Settings
             ['name' => 'view-settings', 'group' => 'settings'],
             ['name' => 'update-settings', 'group' => 'settings'],
-            ['name' => 'view-system', 'group' => 'system'],
-            ['name' => 'update-system', 'group' => 'system'],
+            ['name' => 'create-settings', 'group' => 'settings'],
+            ['name' => 'delete-settings', 'group' => 'settings'],
 
             // Profile
             ['name' => 'view-profile', 'group' => 'profile'],

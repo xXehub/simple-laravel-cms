@@ -54,11 +54,10 @@
                                     <option value="textarea">Textarea</option>
                                     <option value="number">Number</option>
                                     <option value="boolean">Boolean</option>
-                                    <option value="json">JSON</option>
-                                    <option value="file">File</option>
-                                    <option value="image">Image</option>
-                                    <option value="url">URL</option>
                                     <option value="email">Email</option>
+                                    <option value="url">URL</option>
+                                    <option value="image">Image</option>
+                                    <option value="color">Color</option>
                                 </select>
                                 <small class="form-text text-muted">Data type for this setting</small>
                             </div>
@@ -66,13 +65,12 @@
                                 <label for="edit_group" class="form-label fw-medium">Group</label>
                                 <select class="form-select" id="edit_group" name="group">
                                     <option value="">Select or type group...</option>
-                                    <option value="app">App</option>
-                                    <option value="system">System</option>
-                                    <option value="ui">UI</option>
-                                    <option value="mail">Mail</option>
-                                    <option value="social">Social</option>
-                                    <option value="seo">SEO</option>
                                     <option value="general">General</option>
+                                    <option value="branding">Branding</option>
+                                    <option value="seo">SEO</option>
+                                    <option value="contact">Contact</option>
+                                    <option value="social">Social</option>
+                                    <option value="feature">Feature</option>
                                 </select>
                                 <small class="form-text text-muted">Optional: Organize settings by category</small>
                             </div>
@@ -203,17 +201,13 @@
                         `;
                         helpText = 'Select true or false';
                         break;
-                    case 'json':
-                        inputHtml = `<textarea class="form-control" id="edit_value" name="value" rows="4" required placeholder='{"key": "value"}'>${currentValue}</textarea>`;
-                        helpText = 'Enter valid JSON format';
+                    case 'email':
+                        inputHtml = `<input type="email" class="form-control" id="edit_value" name="value" required placeholder="user@example.com" value="${currentValue}">`;
+                        helpText = 'Enter a valid email address';
                         break;
-                    case 'file':
-                        inputHtml = `
-                            <input type="file" class="form-control mb-2" id="edit_value_file" accept="*/*">
-                            <input type="text" class="form-control" id="edit_value" name="value" placeholder="Current file path" value="${currentValue}" readonly>
-                            <small class="text-muted">Upload new file to replace current one</small>
-                        `;
-                        helpText = 'Upload a file (will be stored as path)';
+                    case 'url':
+                        inputHtml = `<input type="url" class="form-control" id="edit_value" name="value" required placeholder="https://example.com" value="${currentValue}">`;
+                        helpText = 'Enter a valid URL';
                         break;
                     case 'image':
                         inputHtml = `
@@ -223,13 +217,9 @@
                         `;
                         helpText = 'Upload an image file';
                         break;
-                    case 'url':
-                        inputHtml = `<input type="url" class="form-control" id="edit_value" name="value" required placeholder="https://example.com" value="${currentValue}">`;
-                        helpText = 'Enter a valid URL';
-                        break;
-                    case 'email':
-                        inputHtml = `<input type="email" class="form-control" id="edit_value" name="value" required placeholder="user@example.com" value="${currentValue}">`;
-                        helpText = 'Enter a valid email address';
+                    case 'color':
+                        inputHtml = `<input type="color" class="form-control form-control-color" id="edit_value" name="value" required value="${currentValue || '#206bc4'}">`;
+                        helpText = 'Select a color value';
                         break;
                     default:
                         inputHtml = `<input type="text" class="form-control" id="edit_value" name="value" required value="${currentValue}">`;

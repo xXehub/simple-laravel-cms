@@ -53,11 +53,13 @@ window.SettingsDataTable = (function () {
                         const typeColors = {
                             'string': 'blue',
                             'text': 'green',
+                            'textarea': 'cyan',
                             'number': 'yellow',
                             'boolean': 'purple',
-                            'json': 'orange',
-                            'file': 'red',
-                            'image': 'pink'
+                            'email': 'orange',
+                            'url': 'indigo',
+                            'image': 'pink',
+                            'color': 'red'
                         };
                         const color = typeColors[data?.toLowerCase()] || 'secondary';
                         return `<span class="badge bg-${color}-lt">${data || 'string'}</span>`;
@@ -69,15 +71,14 @@ window.SettingsDataTable = (function () {
                     render: (data) => {
                         if (!data) return '<span class="text-muted">—</span>';
                         const groupColors = {
-                            'app': 'blue',
-                            'system': 'red',
-                            'ui': 'green',
-                            'mail': 'yellow',
-                            'social': 'purple',
-                            'seo': 'orange',
-                            'general': 'secondary'
+                            'general': 'blue-lt',
+                            'branding': 'purple-lt',
+                            'seo': 'green-lt',
+                            'contact': 'yellow-lt',
+                            'social': 'orange-lt',
+                            'feature': 'red-lt'
                         };
-                        const color = groupColors[data?.toLowerCase()] || 'secondary';
+                        const color = groupColors[data?.toLowerCase()] || 'secondary-lt';
                         return `<span class="badge bg-${color}">${data}</span>`;
                     }
                 },
