@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'track_visit' => \App\Http\Middleware\TrackMenuVisit::class,
+            'maintenance.mode' => \App\Http\Middleware\MaintenanceMode::class,
+        ]);
+        
+        // Apply maintenance mode middleware after session and auth
+        $middleware->web(prepend: [
+            \App\Http\Middleware\MaintenanceMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

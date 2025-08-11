@@ -21,6 +21,11 @@ Auth::routes([
     'verify' => false,
 ]);
 
+/* Route maintenance page */
+Route::get('/maintenance', function () {
+    return view('maintenance');
+})->name('maintenance');
+
 /* Route untuk Visit Tracking Management */
 Route::middleware(['auth', 'permission:access-panel'])->prefix('panel')->name('panel.')->group(function () {
     Route::prefix('visit-tracking')->name('visit-tracking.')->group(function () {

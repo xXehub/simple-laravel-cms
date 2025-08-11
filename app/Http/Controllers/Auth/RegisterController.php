@@ -42,6 +42,51 @@ class RegisterController extends Controller
     }
 
     /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showRegistrationForm()
+    {
+        // Check if user registration is enabled
+        if (!setting('user_registration', true)) {
+            return redirect()->route('login')
+                ->with('error', 'Pendaftaran user baru saat ini tidak diizinkan.');
+        }
+
+        return view('auth.register');
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function register(\Illuminate\Http\Request $request)
+    {
+        // Check if user registration is enabled
+        if (!setting('user_registration', true)) {
+            return redirect()->route('login')
+                ->with('error', 'Pendaftaran user baru saat ini tidak diizinkan.');
+        }
+
+        $this->validator($request->all())->validate();
+
+        event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        if ($response = $this->registered($request, $user)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+                    ? new \Illuminate\Http\JsonResponse([], 201)
+                    : redirect($this->redirectPath());
+    }
+
+    /**
      * Get the post-registration redirect path.
      */
     public function redirectTo()
