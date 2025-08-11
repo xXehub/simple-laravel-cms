@@ -17,15 +17,15 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? setting('app_name', 'KantorKu SuperApp') }} - {{ setting('app_name', 'Pemerintah Kota Surabaya') }}</title>
+    <title>{{ $title ?? 'KantorKu SuperApp' }} - Pemerintah Kota Surabaya</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ setting('favicon') ? asset('storage/' . setting('favicon')) : asset('favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="{{ setting('meta_description', 'Sistem Informasi Terintegrasi Pemerintah Kota Surabaya') }}">
-    <meta name="keywords" content="{{ setting('meta_keywords', 'KantorKu, SuperApp, Surabaya, Pemerintah, Sistem Informasi') }}">
-    <meta name="author" content="{{ setting('app_name', 'Pemerintah Kota Surabaya') }}">
+    <meta name="description" content="Sistem Informasi Terintegrasi Pemerintah Kota Surabaya">
+    <meta name="keywords" content="KantorKu, SuperApp, Surabaya, Pemerintah, Sistem Informasi">
+    <meta name="author" content="Pemerintah Kota Surabaya">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
@@ -60,35 +60,6 @@
     <!-- Custom Font -->
     <style>
         @import url("https://rsms.me/inter/inter.css");
-        
-        /* Custom CSS Variables from Settings */
-        :root {
-            --tblr-primary: {{ setting('primary_color', '#3b82f6') }};
-            --tblr-secondary: {{ setting('secondary_color', '#64748b') }};
-        }
-        
-        /* Override Tabler colors */
-        .btn-primary {
-            background-color: var(--tblr-primary);
-            border-color: var(--tblr-primary);
-        }
-        
-        .btn-primary:hover {
-            background-color: color-mix(in srgb, var(--tblr-primary) 85%, black);
-            border-color: color-mix(in srgb, var(--tblr-primary) 85%, black);
-        }
-        
-        .text-primary {
-            color: var(--tblr-primary) !important;
-        }
-        
-        .bg-primary {
-            background-color: var(--tblr-primary) !important;
-        }
-        
-        .border-primary {
-            border-color: var(--tblr-primary) !important;
-        }
     </style>
 
     <!-- Laravel Mix Assets -->

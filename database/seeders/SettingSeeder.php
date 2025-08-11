@@ -81,18 +81,7 @@ class SettingSeeder extends Seeder
                 'group' => 'branding',
                 'description' => 'Icon favorit website'
             ],
-            'primary_color' => [
-                'value' => '#206bc4',
-                'type' => 'color',
-                'group' => 'branding',
-                'description' => 'Warna utama aplikasi'
-            ],
-            'secondary_color' => [
-                'value' => '#6c757d',
-                'type' => 'color',
-                'group' => 'branding',
-                'description' => 'Warna sekunder aplikasi'
-            ],
+           
             
             // ========================================
             // SEO SETTINGS
