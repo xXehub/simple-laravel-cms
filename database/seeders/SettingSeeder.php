@@ -140,6 +140,18 @@ class SettingSeeder extends Seeder
                 'group' => 'general',
                 'description' => 'Deskripsi footer aplikasi'
             ],
+            'welcome_image' => [
+                'value' => 'https://via.placeholder.com/300x200/3b82f6/ffffff?text=SuperApp',
+                'type' => 'url',
+                'group' => 'general',
+                'description' => 'Gambar welcome di halaman beranda'
+            ],
+            'pagination_per_page' => [
+                'value' => '12',
+                'type' => 'number',
+                'group' => 'general',
+                'description' => 'Jumlah item per halaman di beranda'
+            ],
             
             // ========================================
             // SOCIAL MEDIA SETTINGS
@@ -210,7 +222,7 @@ class SettingSeeder extends Seeder
             ],
             
             // ========================================
-            // LANDING PAGE SETTINGS
+            // SOCIAL MEDIA SETTINGS
             // ========================================
             'landing_hero_subheader' => [
                 'value' => 'Selamat Datang di',

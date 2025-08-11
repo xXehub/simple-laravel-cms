@@ -1,4 +1,4 @@
-<x-layout.app title="{{ setting('welcome_title', 'Laravel Superapp CMS') }}" :pakai-sidebar="false" :pakaiFluid="false"
+<x-layout.app title="{{ setting('app_name', 'Laravel Superapp CMS') }}" :pakai-sidebar="false" :pakaiFluid="false"
     :pakaiTopBar="true">
     <div class="page-body">
         <div class="container-xl">
@@ -10,23 +10,22 @@
                             <div class="col-3 order-md-last">
                                 <!-- Photo -->
                                 <div class="card-body">
-                                    <img src="https://via.placeholder.com/300x200/3b82f6/ffffff?text=SuperApp"
+                                    <img src="{{ setting_image('welcome_image', 'https://via.placeholder.com/300x200/3b82f6/ffffff?text=SuperApp') }}"
                                         class="w-60 h-100 object-cover card-img-end">
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card-body">
-
-                                    <h3 class="h2">{{ setting('welcome_title', '') }}</h3>
-                                    <p class="text-muted">{{ setting('welcome_subtitle', '') }}</p>
+                                    <h3 class="h2">Selamat Datang di {{ setting('app_name', 'KantorKu SuperApp') }}</h3>
+                                    <p class="text-muted">{{ setting('app_description', 'Portal layanan terintegrasi untuk mengakses seluruh aplikasi dan informasi dari dinas dan OPD di lingkungan pemerintahan daerah.') }}</p>
 
                                     <div class="row g-5 mt-10">
                                         <div class="col-auto">
                                             <div class="d-flex align-items-baseline">
                                                 <!-- Dummy authenticated state - showing logged in user -->
-                                                <button class="btn btn-primary">
+                                                <a href="#" class="btn btn-primary">
                                                     Panduan Pengguna
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -44,34 +43,26 @@
                             <input type="radio" name="icons" value="tampilkan semua" class="form-selectgroup-input"
                                 checked />
                             <span class="form-selectgroup-label">
-                                Tampilkan Semua
+                                {{ setting('beranda_filter_show_all', 'Tampilkan Semua') }}
                             </span>
                         </label>
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="icons" value="kesehatan" class="form-selectgroup-input" />
-                            <span class="form-selectgroup-label">
-                                Kesehatan
-                            </span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="icons" value="pendidikan" class="form-selectgroup-input" />
-                            <span class="form-selectgroup-label">
-                                Pendidikan
-                            </span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="icons" value="pariwisata" class="form-selectgroup-input" />
-                            <span class="form-selectgroup-label">
-                                Pariwisata
-                            </span>
-                        </label>
+                        @foreach([1, 2, 3] as $i)
+                            @if(setting("beranda_filter_{$i}_name"))
+                                <label class="form-selectgroup-item">
+                                    <input type="radio" name="icons" value="{{ strtolower(setting("beranda_filter_{$i}_name")) }}" class="form-selectgroup-input" />
+                                    <span class="form-selectgroup-label">
+                                        {{ setting("beranda_filter_{$i}_name") }}
+                                    </span>
+                                </label>
+                            @endif
+                        @endforeach
                     </div>
 
                     <!-- Search bar -->
                     <div class="input-icon mb-2">
                         <form method="GET" action="{{ route('beranda') }}">
                             <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control"
-                                placeholder="Search…" />
+                                placeholder="{{ setting('beranda_search_placeholder', 'Cari layanan...') }}" />
                             <span class="input-icon-addon">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
