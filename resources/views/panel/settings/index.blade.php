@@ -1,172 +1,125 @@
-<x-layout.app title="Menus Management - Panel Admin" :pakaiSidebar="true" :pakaiTopBar="false">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">
-            <i class="fas fa-cog me-2"></i>Settings Management
-        </h1>
-    </div>
-
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Application Settings</h5>
-                </div>
-                <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+<x-layout.app title="Settings Management - Panel Admin" :pakai-sidebar="true" :pakaiTopBar="false">
+    <div class="page-wrapper">
+        <div class="page-header d-print-none" aria-label="Page header">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <!-- Page pre-title -->
+                        <div class="page-pretitle">Panel/Settings</div>
+                        <h2 class="page-title">Settings Management</h2>
+                    </div>
+                    <!-- Page title actions -->
+                    <div class="col-auto ms-auto d-print-none">
+                        <div class="btn-list">
+                            @can('create-settings')
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#createSettingModal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add Setting
+                                </button>
+                            @endcan
                         </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('panel.settings.update') }}">
-                        @csrf
-
-                        <!-- Welcome Page Settings -->
-                        <h6 class="border-bottom pb-2 mb-3">Welcome Page Settings</h6>
-
-                        <div class="mb-3">
-                            <label for="welcome_title" class="form-label">Welcome Title</label>
-                            <input type="text" class="form-control" name="settings[welcome_title]"
-                                value="{{ $settings['welcome_title']->value ?? 'Laravel Superapp CMS' }}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="welcome_subtitle" class="form-label">Welcome Subtitle</label>
-                            <textarea class="form-control" name="settings[welcome_subtitle]" rows="2">{{ $settings['welcome_subtitle']->value ?? 'A powerful content management system built with Laravel 12.' }}</textarea>
-                        </div>
-
-                        <!-- Feature Settings -->
-                        <h6 class="border-bottom pb-2 mb-3 mt-4">Feature Settings</h6>
-
-                        @php
-                            $features = [
-                                1 => [
-                                    'title' => 'Feature 1',
-                                    'default_title' => 'Role-Based Access',
-                                    'default_icon' => 'fas fa-shield-alt',
-                                ],
-                                2 => [
-                                    'title' => 'Feature 2',
-                                    'default_title' => 'Dynamic Menus',
-                                    'default_icon' => 'fas fa-bars',
-                                ],
-                                3 => [
-                                    'title' => 'Feature 3',
-                                    'default_title' => 'Dynamic Pages',
-                                    'default_icon' => 'fas fa-file-alt',
-                                ],
-                                4 => [
-                                    'title' => 'Feature 4',
-                                    'default_title' => 'Clean Code',
-                                    'default_icon' => 'fas fa-code',
-                                ],
-                            ];
-                        @endphp
-
-                        @foreach ($features as $num => $feature)
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">{{ $feature['title'] }} Title</label>
-                                    <input type="text" class="form-control"
-                                        name="settings[feature_{{ $num }}_title]"
-                                        value="{{ $settings['feature_' . $num . '_title']->value ?? $feature['default_title'] }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">{{ $feature['title'] }} Icon</label>
-                                    <input type="text" class="form-control"
-                                        name="settings[feature_{{ $num }}_icon]"
-                                        value="{{ $settings['feature_' . $num . '_icon']->value ?? $feature['default_icon'] }}"
-                                        placeholder="e.g., fas fa-shield-alt">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">{{ $feature['title'] }} Description</label>
-                                <textarea class="form-control" name="settings[feature_{{ $num }}_description]" rows="2">{{ $settings['feature_' . $num . '_description']->value ?? '' }}</textarea>
-                            </div>
-                        @endforeach
-
-                        <!-- General Site Settings -->
-                        <h6 class="border-bottom pb-2 mb-3 mt-4">General Site Settings</h6>
-
-                        <div class="mb-3">
-                            <label for="site_title" class="form-label">Site Title</label>
-                            <input type="text" class="form-control" name="settings[site_title]"
-                                value="{{ $settings['site_title']->value ?? config('app.name') }}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="site_description" class="form-label">Site Description</label>
-                            <textarea class="form-control" name="settings[site_description]" rows="2">{{ $settings['site_description']->value ?? 'Laravel-based Content Management System' }}</textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="sample_pages_title" class="form-label">Sample Pages Section Title</label>
-                            <input type="text" class="form-control" name="settings[sample_pages_title]"
-                                value="{{ $settings['sample_pages_title']->value ?? 'Explore Sample Pages' }}">
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Save Settings
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Informasi Sistem</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Laravel Version</strong></td>
-                            <td>{{ app()->version() }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>PHP Version</strong></td>
-                            <td>{{ PHP_VERSION }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Environment</strong></td>
-                            <td>
-                                <span
-                                    class="badge bg-{{ app()->environment() === 'production' ? 'success' : 'warning' }}">
-                                    {{ ucfirst(app()->environment()) }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Debug Mode</strong></td>
-                            <td>
-                                <span class="badge bg-{{ config('app.debug') ? 'danger' : 'success' }}">
-                                    {{ config('app.debug') ? 'Enabled' : 'Disabled' }}
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Cache Management</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-broom me-2"></i>Clear All Cache
-                        </button>
-                        <button class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-sync me-2"></i>Reload Configuration
-                        </button>
-                        <button class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-database me-2"></i>Optimize Database
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row row-cards">
+                    <x-alert.modal-alert />
+                    <!-- Main Table Card -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-table">
+                                <x-form.datatable-header searchPlaceholder="Search settings..." :showBulkDelete="true"
+                                    bulkDeletePermission="delete-settings" />
+
+                                <div id="advanced-table">
+                                    <div class="table-responsive">
+                                        <table id="settingsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="w-1">
+                                                        <input class="form-check-input m-0 align-middle" type="checkbox"
+                                                            aria-label="Select all settings" id="select-all" />
+                                                    </th>
+                                                    <th>ID</th>
+                                                    <th>Key</th>
+                                                    <th>Type</th>
+                                                    <th>Group</th>
+                                                    <th>Description</th>
+                                                    <th>Value</th>
+                                                    <th class="w-3"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="table-tbody">
+                                                <!-- Data will be loaded via DataTables AJAX -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center">
+                                        <div class="col-auto d-flex align-items-center">
+                                            <p class="m-0 text-secondary" id="record-info">Showing <strong>0 to
+                                                    0</strong>
+                                                of <strong>0 entries</strong></p>
+                                        </div>
+                                        <ul class="pagination m-0 ms-auto" id="datatable-pagination">
+                                            <!-- Pagination will be filled by DataTables -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
+
+     <!-- load komponen modal disini -->
+    <x-modals.settings.create />
+    <x-modals.settings.edit />
+    @push('scripts')
+        <!-- Settings DataTable Module -->
+        <script src="{{ asset('js/datatable/settings.js') }}"></script>
+        <script>
+            let settingsTable;
+
+            // Set global edit route for fallback
+            window.settingEditRoute = '{{ route('panel.settings.edit', ':id') }}';
+            window.settingDeleteRoute = '{{ route('panel.settings.destroy', ':id') }}';
+            window.settingUpdateRoute = '{{ route('panel.settings.update', ':id') }}';
+
+            // Initialize Settings DataTable
+            SettingsDataTable.initialize('{{ route('panel.settings.datatable') }}')
+                .then(table => {
+                    settingsTable = table;
+                    SettingsDataTable.setupModalHandlers();
+                    SettingsDataTable.setBulkDeleteRoute('{{ route('panel.settings.bulkDestroy') }}');
+                })
+                .catch(error => {
+                    console.error('Failed to initialize Settings DataTable:', error);
+                });
+
+            // Auto-refresh on success
+            @if (session('success'))
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(() => {
+                        SettingsDataTable.refreshDataTable();
+                    }, 1000);
+                });
+            @endif
+
+            // Backward compatibility (optional, can be removed if not used elsewhere)
+            window.editSetting = (settingId) => SettingsDataTable.editSetting(settingId, '{{ route('panel.settings.edit', ':id') }}');
+            window.deleteSetting = (settingId, settingKey) => confirmDeleteSetting(settingId, settingKey);
+        </script>
+    @endpush
 </x-layout.app>

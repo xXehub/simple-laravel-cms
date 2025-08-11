@@ -14,40 +14,208 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            // Welcome page settings
-            'welcome_title' => 'Judul Dinamis',
-            'welcome_subtitle' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            // ========================================
+            // GENERAL SETTINGS
+            // ========================================
+            'app_name' => [
+                'value' => 'KantorKu SuperApp',
+                'type' => 'text',
+                'group' => 'general',
+                'description' => 'Nama aplikasi yang akan ditampilkan di seluruh aplikasi'
+            ],
+            'app_description' => [
+                'value' => 'Sistem Informasi Terintegrasi Pemerintah Kota Surabaya',
+                'type' => 'textarea',
+                'group' => 'general',
+                'description' => 'Deskripsi singkat aplikasi'
+            ],
+            'app_version' => [
+                'value' => '1.0.0',
+                'type' => 'text',
+                'group' => 'general',
+                'description' => 'Versi aplikasi saat ini'
+            ],
+            'timezone' => [
+                'value' => 'Asia/Jakarta',
+                'type' => 'text',
+                'group' => 'general',
+                'description' => 'Zona waktu default aplikasi'
+            ],
+            'locale' => [
+                'value' => 'id',
+                'type' => 'text',
+                'group' => 'general',
+                'description' => 'Bahasa default aplikasi'
+            ],
+            'welcome_title' => [
+                'value' => 'Super App Dinkominfo',
+                'type' => 'text',
+                'group' => 'general',
+                'description' => 'Judul halaman welcome'
+            ],
+            'welcome_subtitle' => [
+                'value' => 'Sistem Informasi Terintegrasi untuk melayani masyarakat dengan lebih baik',
+                'type' => 'textarea',
+                'group' => 'general',
+                'description' => 'Subtitle halaman welcome'
+            ],
             
-            // Feature settings
-            'feature_1_icon' => 'fas fa-shield-alt',
-            'feature_1_title' => 'Role-Based Access',
-            'feature_1_description' => 'Spatie Laravel Permission for granular access control with roles and permissions.',
+            // ========================================
+            // BRANDING SETTINGS
+            // ========================================
+            'logo_light' => [
+                'value' => 'logos/logo-light.png',
+                'type' => 'image',
+                'group' => 'branding',
+                'description' => 'Logo untuk tema terang'
+            ],
+            'logo_dark' => [
+                'value' => 'logos/logo-dark.png',
+                'type' => 'image',
+                'group' => 'branding',
+                'description' => 'Logo untuk tema gelap'
+            ],
+            'favicon' => [
+                'value' => 'logos/favicon.ico',
+                'type' => 'image',
+                'group' => 'branding',
+                'description' => 'Icon favorit website'
+            ],
+            'primary_color' => [
+                'value' => '#206bc4',
+                'type' => 'color',
+                'group' => 'branding',
+                'description' => 'Warna utama aplikasi'
+            ],
+            'secondary_color' => [
+                'value' => '#6c757d',
+                'type' => 'color',
+                'group' => 'branding',
+                'description' => 'Warna sekunder aplikasi'
+            ],
             
-            'feature_2_icon' => 'fas fa-bars',
-            'feature_2_title' => 'Dynamic Menus',
-            'feature_2_description' => 'Hierarchical menu system with role-based visibility using clean relationship queries.',
+            // ========================================
+            // SEO SETTINGS
+            // ========================================
+            'meta_title' => [
+                'value' => 'KantorKu SuperApp - Sistem Informasi Terintegrasi',
+                'type' => 'text',
+                'group' => 'seo',
+                'description' => 'Judul meta default untuk halaman'
+            ],
+            'meta_description' => [
+                'value' => 'Sistem informasi terintegrasi untuk meningkatkan efisiensi dan transparansi layanan pemerintahan',
+                'type' => 'textarea',
+                'group' => 'seo',
+                'description' => 'Deskripsi meta default untuk halaman'
+            ],
+            'meta_keywords' => [
+                'value' => 'sistem informasi, pemerintahan, terintegrasi, transparansi',
+                'type' => 'text',
+                'group' => 'seo',
+                'description' => 'Kata kunci meta default untuk halaman'
+            ],
             
-            'feature_3_icon' => 'fas fa-file-alt',
-            'feature_3_title' => 'Dynamic Pages',
-            'feature_3_description' => 'Slug-based routing with custom templates and SEO-friendly URL management.',
+            // ========================================
+            // CONTACT SETTINGS
+            // ========================================
+            'contact_email' => [
+                'value' => 'info@kantorku.com',
+                'type' => 'email',
+                'group' => 'contact',
+                'description' => 'Email kontak utama'
+            ],
+            'contact_phone' => [
+                'value' => '+62 31 123 4567',
+                'type' => 'text',
+                'group' => 'contact',
+                'description' => 'Nomor telepon kontak utama'
+            ],
+            'contact_address' => [
+                'value' => 'Jl. Pemuda No. 1, Surabaya, Jawa Timur 60271',
+                'type' => 'textarea',
+                'group' => 'contact',
+                'description' => 'Alamat kantor utama'
+            ],
             
-            'feature_4_icon' => 'fas fa-code',
-            'feature_4_title' => 'Clean Code',
-            'feature_4_description' => 'Modern Laravel practices with minimal conditionals, Blade components, and policies.',
+            // ========================================
+            // SOCIAL MEDIA SETTINGS
+            // ========================================
+            'social_facebook' => [
+                'value' => 'https://facebook.com/kantorku',
+                'type' => 'url',
+                'group' => 'social',
+                'description' => 'URL halaman Facebook resmi'
+            ],
+            'social_twitter' => [
+                'value' => 'https://twitter.com/kantorku',
+                'type' => 'url',
+                'group' => 'social',
+                'description' => 'URL halaman Twitter resmi'
+            ],
+            'social_instagram' => [
+                'value' => 'https://instagram.com/kantorku',
+                'type' => 'url',
+                'group' => 'social',
+                'description' => 'URL halaman Instagram resmi'
+            ],
+            'social_youtube' => [
+                'value' => 'https://youtube.com/kantorku',
+                'type' => 'url',
+                'group' => 'social',
+                'description' => 'URL channel YouTube resmi'
+            ],
             
-            // Sample pages settings
-            'sample_pages_title' => 'Explore Sample Pages',
-            
-            // General site settings
-            'site_title' => 'Laravel Superapp CMS',
-            'site_description' => 'Laravel-based Content Management System',
-            'site_icon' => 'favicon.ico',
+            // ========================================
+            // FEATURE SETTINGS
+            // ========================================
+            'maintenance_mode' => [
+                'value' => '0',
+                'type' => 'boolean',
+                'group' => 'feature',
+                'description' => 'Mode maintenance aplikasi'
+            ],
+            'user_registration' => [
+                'value' => '1',
+                'type' => 'boolean',
+                'group' => 'feature',
+                'description' => 'Izinkan pendaftaran user baru'
+            ],
+            'email_verification' => [
+                'value' => '1',
+                'type' => 'boolean',
+                'group' => 'feature',
+                'description' => 'Wajibkan verifikasi email'
+            ],
+            'captcha_enabled' => [
+                'value' => '0',
+                'type' => 'boolean',
+                'group' => 'feature',
+                'description' => 'Aktifkan CAPTCHA pada form'
+            ],
+            'max_file_upload' => [
+                'value' => '10240',
+                'type' => 'number',
+                'group' => 'feature',
+                'description' => 'Maksimal ukuran file upload (KB)'
+            ],
+            'items_per_page' => [
+                'value' => '25',
+                'type' => 'number',
+                'group' => 'feature',
+                'description' => 'Jumlah item per halaman pada tabel'
+            ],
         ];
 
-        foreach ($settings as $key => $value) {
+        foreach ($settings as $key => $config) {
             Setting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $value]
+                [
+                    'value' => $config['value'],
+                    'type' => $config['type'],
+                    'group' => $config['group'],
+                    'description' => $config['description'],
+                ]
             );
         }
     }

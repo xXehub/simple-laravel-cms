@@ -44,5 +44,8 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('navbarMenus', []);
             }
         });
+
+        // Share global settings with all views
+        View::composer('*', \App\View\Composers\SettingComposer::class);
     }
 }
