@@ -21,6 +21,28 @@ if (!function_exists('setting')) {
     }
 }
 
+if (!function_exists('setting_image')) {
+    /**
+     * Get image URL from settings with proper path handling
+     * 
+     * @param string $key Setting key
+     * @param string $default Default value
+     * @return string
+     */
+    function setting_image(string $key, string $default = ''): string
+    {
+        $imagePath = setting($key, $default);
+        
+        // If image is uploaded (starts with 'settings/'), add storage prefix
+        if (str_starts_with($imagePath, 'settings/')) {
+            return '/storage/' . $imagePath;
+        }
+        
+        // Return as-is for static files
+        return $imagePath;
+    }
+}
+
 if (!function_exists('menu_route')) {
     /**
      * Get URL for a menu by its route name or slug

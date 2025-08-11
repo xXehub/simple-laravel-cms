@@ -16,7 +16,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('panel.settings.update', ':id') }}" id="editSettingForm">
+                <form method="POST" action="{{ route('panel.settings.update', ':id') }}" id="editSettingForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="id" id="edit_setting_id">
@@ -212,9 +212,11 @@
                         helpText = 'Enter a valid URL';
                         break;
                     case 'image':
+                        const imagePreview = currentValue ? `<div class="mb-2"><img src="/storage/${currentValue}" alt="Current image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></div>` : '';
                         inputHtml = `
-                            <input type="file" class="form-control mb-2" id="edit_value_file" accept="image/*">
-                            <input type="text" class="form-control" id="edit_value" name="value" placeholder="Current image path" value="${currentValue}" readonly>
+                            ${imagePreview}
+                            <input type="file" class="form-control mb-2" id="edit_value_file" name="image_file" accept="image/*">
+                            <input type="hidden" id="edit_value" name="value" value="${currentValue}">
                             <small class="text-muted">Upload new image to replace current one</small>
                         `;
                         helpText = 'Upload an image file';

@@ -18,7 +18,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('panel.settings.store') }}" id="createSettingForm">
+                <form method="POST" action="{{ route('panel.settings.store') }}" id="createSettingForm" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <!-- Row 1: Setting Key (Full Width) -->
@@ -213,7 +213,7 @@
                         helpText = 'Enter a valid URL';
                         break;
                     case 'image':
-                        inputHtml = '<input type="file" class="form-control" id="create_value_file" accept="image/*"><input type="hidden" id="create_value" name="value">';
+                        inputHtml = '<input type="file" class="form-control" id="create_value_file" name="image_file" accept="image/*"><input type="hidden" id="create_value" name="value">';
                         helpText = 'Upload an image file';
                         break;
                     case 'color':

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\Panel\Setting\UpdateSettingsRequest;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -117,11 +118,28 @@ class SettingController extends Controller
             'value' => 'nullable|string',
             'type' => 'required|string',
             'group' => 'required|string',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         try {
-            Setting::create($request->only(['key', 'value', 'type', 'group', 'description']));
+            $value = $request->value;
+            
+            // Handle image upload
+            if ($request->type === 'image' && $request->hasFile('image_file')) {
+                $file = $request->file('image_file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('settings', $filename, 'public');
+                $value = $path;
+            }
+
+            Setting::create([
+                'key' => $request->key,
+                'value' => $value,
+                'type' => $request->type,
+                'group' => $request->group,
+                'description' => $request->description
+            ]);
 
             return ResponseHelper::handle(
                 $request,
@@ -153,11 +171,33 @@ class SettingController extends Controller
             'value' => 'nullable|string',
             'type' => 'required|string',
             'group' => 'required|string',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         try {
-            $setting->update($request->only(['key', 'value', 'type', 'group', 'description']));
+            $value = $request->value;
+            
+            // Handle image upload
+            if ($request->type === 'image' && $request->hasFile('image_file')) {
+                // Delete old image if exists
+                if ($setting->value && Storage::disk('public')->exists($setting->value)) {
+                    Storage::disk('public')->delete($setting->value);
+                }
+                
+                $file = $request->file('image_file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('settings', $filename, 'public');
+                $value = $path;
+            }
+
+            $setting->update([
+                'key' => $request->key,
+                'value' => $value,
+                'type' => $request->type,
+                'group' => $request->group,
+                'description' => $request->description
+            ]);
 
             return ResponseHelper::handle(
                 $request,
