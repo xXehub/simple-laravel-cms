@@ -29,8 +29,9 @@ class BerandaController extends Controller
             });
         }
         
-        // Paginate hasil dengan 8 item per halaman
-        $pages = $query->paginate(8);
+        // Paginate hasil dengan item per halaman dari setting
+        $perPage = setting('pagination_per_page', 8);
+        $pages = $query->paginate($perPage);
         
         // Append search parameter ke pagination links agar tetap ada saat pindah halaman
         $pages->appends($request->only('search'));
