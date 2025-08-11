@@ -7,33 +7,11 @@ use App\Models\MasterMenu;
 
 class MasterMenuSeeder extends Seeder
 {
-    /**
-     * Run the datab        });
-
-        // Page Builder (hanya menu utama, API dijadikan static di routes/api.php)
-        $pageBuilder = MasterMenu::create([
-            'nama_menu' => 'Page Builder',
-            'slug' => 'panel/builder',
-            'parent_id' => $panelManagementId,
-            'route_name' => 'panel.builder.index',
-            'icon' => 'ti ti-layout-grid',
-            'urutan' => 10,
-            'is_active' => 1,
-            'route_type' => 'admin',
-            'controller_class' => 'App\\Http\\Controllers\\Panel\\PageBuilderController',
-            'view_path' => null,
-            'middleware_list' => ["web", "auth", "permission:view-pages"],
-            'meta_title' => 'Page Builder',
-            'meta_description' => 'Build and design pages with drag & drop components',
-        ]);
-
-        $about = MasterMenu::create([
- */
     public function run(): void
     {
-        // --------------------
-        // PUBLIC MENUS
-        // --------------------
+        /* ----------------------------------------   
+         -------------- public menu ---------------
+         ------------------------------------------ */
         $beranda = MasterMenu::create([
             'nama_menu' => 'Beranda',
             'slug' => '/beranda',
@@ -52,9 +30,9 @@ class MasterMenuSeeder extends Seeder
             'visit_count' => 0, // Popular public page
         ]);
 
-        // --------------------
-        // ADMIN MENUS
-        // --------------------
+        /* -----------------------------------------  
+         --------------- admin menu ----------------
+         ------------------------------------------- */
         $dashboard = MasterMenu::create([
             'nama_menu' => 'Dashboard',
             'slug' => 'panel/dashboard',
@@ -158,7 +136,7 @@ class MasterMenuSeeder extends Seeder
             'is_active' => 1,
             'route_type' => 'admin',
             'controller_class' => 'App\\Http\\Controllers\\Panel\\PageController',
-            'view_path' => null,
+            'view_path' => 'panel.pages.index',
             'middleware_list' => ["web", "auth", "permission:view-pages"],
             'meta_title' => 'Page Management',
             'meta_description' => 'Manage CMS pages and content',
@@ -244,9 +222,9 @@ class MasterMenuSeeder extends Seeder
             'meta_description' => 'Get in touch with our team',
         ]);
 
-        // --------------------
-        // ADVANCED MENUS
-        // --------------------
+        /* -------------------------------------------  
+         --------------- lainnya menu ----------------
+         --------------------------------------------- */
         $advancedManagement = MasterMenu::create([
             'nama_menu' => 'Dalam Proses',
             'slug' => null,
