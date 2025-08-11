@@ -134,12 +134,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="edit_route_type" class="form-label">Route Type</label>
-                                    <select class="form-select" id="edit_route_type" name="route_type[]" multiple>
+                                    <select class="form-select" id="edit_route_type" name="route_type[]" multiple size="3">
                                         <option value="public">Public</option>
                                         <option value="admin">Admin</option>
                                         <option value="api">API</option>
                                     </select>
-                                    <small class="form-text text-muted">Select multiple route types (public, admin, api)</small>
+                                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple route types</small>
                                 </div>
                                 <div class="col-md-12">
                                     <label for="edit_controller_class" class="form-label">Controller Class</label>
@@ -489,33 +489,5 @@
         // Initialize helpers for edit modal
         setupEditControllerHelpers();
         setupEditMiddlewareHelpers();
-
-        // Initialize Tom Select for edit route_type multiple select
-        new TomSelect('#edit_route_type', {
-            plugins: ['remove_button'],
-            create: false,
-            placeholder: 'Select route types...',
-            maxItems: 3,
-            closeAfterSelect: false,
-            allowEmptyOption: false,
-            render: {
-                item: function(data, escape) {
-                    const colors = {
-                        'public': 'badge bg-success',
-                        'admin': 'badge bg-primary', 
-                        'api': 'badge bg-warning'
-                    };
-                    return '<div class="' + (colors[data.value] || 'badge bg-secondary') + '">' + escape(data.text) + '</div>';
-                },
-                option: function(data, escape) {
-                    const icons = {
-                        'public': 'fas fa-globe',
-                        'admin': 'fas fa-lock',
-                        'api': 'fas fa-code'
-                    };
-                    return '<div><i class="' + (icons[data.value] || 'fas fa-circle') + ' me-2"></i>' + escape(data.text) + '</div>';
-                }
-            }
-        });
     });
 </script>

@@ -48,6 +48,11 @@ class StoreMenuRequest extends FormRequest
         if ($this->input('parent_id') === '') {
             $this->merge(['parent_id' => null]);
         }
+        
+        // Handle empty route_type array (when no options selected)
+        if (!$this->has('route_type') || empty($this->input('route_type'))) {
+            $this->merge(['route_type' => []]);
+        }
     }
 
     /**

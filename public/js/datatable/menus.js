@@ -169,7 +169,12 @@ window.MenusDataTable = (function () {
     function resetCreateForm() {
         $('#createMenuForm')[0]?.reset();
         
-        DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_route_type', 'public');
+        // Clear route_type select (no default value)
+        const createRouteTypeSelect = document.getElementById('create_route_type');
+        if (createRouteTypeSelect) {
+            Array.from(createRouteTypeSelect.options).forEach(option => option.selected = false);
+        }
+        
         DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_parent_id', '');
         DataTableGlobal.setTomSelectValue(tomSelectInstances, 'create_roles', []);
     }
@@ -299,8 +304,13 @@ window.MenusDataTable = (function () {
         $('#edit_urutan').val(menu.urutan);
         $('#edit_is_active').prop('checked', menu.is_active == 1);
 
-        // Set TomSelect values
-        DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_route_type', menu.route_type || 'public');
+        // Set route_type values for native HTML select
+        const editRouteTypeSelect = document.getElementById('edit_route_type');
+        if (editRouteTypeSelect) {
+            Array.from(editRouteTypeSelect.options).forEach(option => {
+                option.selected = Array.isArray(menu.route_type) && menu.route_type.includes(option.value);
+            });
+        }
         
         const parentValue = menu.parent_id ? String(menu.parent_id) : '';
         DataTableGlobal.setTomSelectValue(tomSelectInstances, 'edit_parent_id', parentValue);
