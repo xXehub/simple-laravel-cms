@@ -16,7 +16,7 @@ window.SettingsDataTable = (function () {
         const baseConfig = DataTableGlobal.generateStandardConfig({
             tableConfig: {
                 ajax: { url: route, type: "GET" },
-                order: [[1, "desc"]], // ID descending
+                order: [[1, "asc"]], // ID ascending
                 deferRender: true,
             },
         });
@@ -103,8 +103,8 @@ window.SettingsDataTable = (function () {
                         if (row.type === 'boolean') {
                             const isTrue = data === '1' || data === 'true' || data === true;
                             return isTrue 
-                                ? '<span class="badge bg-success">Enabled</span>'
-                                : '<span class="badge bg-danger">Disabled</span>';
+                                ? '<span class="badge bg-green text-green-fg">Enabled</span>'
+                                : '<span class="badge bg-red text-red-fg">Disabled</span>';
                         }
                         
                         if (row.type === 'file' || row.type === 'image') {
