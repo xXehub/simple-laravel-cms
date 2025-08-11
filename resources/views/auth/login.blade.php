@@ -16,20 +16,24 @@
                             <div class="card-body">
                                 @if ($errors->has('email'))
                                     <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
-                                        <svg class="icon me-2" width="24" height="24" stroke="currentColor" fill="none">
-                                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
+                                        <div class="me-2">
+                                            <svg class="icon" width="24" height="24" stroke="currentColor" fill="none">
+                                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </div>
                                         <div>{{ $errors->first('email') }}</div>
                                     </div>
                                 @endif
 
                                 @if ($errors->has('g-recaptcha-response'))
                                     <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
-                                        <svg class="icon me-2" width="24" height="24" stroke="currentColor" fill="none">
-                                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
+                                        <div class="me-2">
+                                            <svg class="icon" width="24" height="24" stroke="currentColor" fill="none">
+                                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.623-1.14 1.054-2L13.054 5c-.527-.9-1.581-.9-2.108 0L3.028 17c-.569.86 0 2 1.054 2z"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </div>
                                         <div>{{ $errors->first('g-recaptcha-response') }}</div>
                                     </div>
                                 @endif
@@ -62,16 +66,26 @@
                                                 class="form-control" placeholder="Your password"
                                                 autocomplete="off" />
                                             <span class="input-group-text">
-                                                <a href="#" class="link-secondary" title="Lihat Kata Sandi"
-                                                    data-bs-toggle="tooltip">
+                                                <a href="#" class="link-secondary toggle-password"
+                                                    data-target="#password">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="none"
                                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round" class="icon icon-1">
+                                                        stroke-linejoin="round" class="icon icon-eye">
                                                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
                                                         <path
                                                             d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                                    </svg></a>
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                                                        class="icon icon-eye-off d-none">
+                                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                                        <line x1="2" y1="2" x2="22" y2="22"></line>
+                                                    </svg>
+                                                </a>
                                             </span>
                                         </div>
                                     </div>
@@ -114,4 +128,31 @@
             </div>
         </div>
     </div>
+
+    {{-- JavaScript untuk Toggle Password --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle password toggle
+            document.querySelectorAll('.toggle-password').forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.querySelector(targetId);
+                    const eyeIcon = this.querySelector('.icon-eye');
+                    const eyeOffIcon = this.querySelector('.icon-eye-off');
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        eyeIcon.classList.add('d-none');
+                        eyeOffIcon.classList.remove('d-none');
+                    } else {
+                        passwordInput.type = 'password';
+                        eyeIcon.classList.remove('d-none');
+                        eyeOffIcon.classList.add('d-none');
+                    }
+                });
+            });
+        });
+    </script>
 </x-layout.app>
