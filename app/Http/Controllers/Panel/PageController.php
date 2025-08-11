@@ -209,14 +209,14 @@ class PageController extends Controller
             ->addColumn('page_type', function ($page) {
                 $isBuilder = $this->isBuilderPage($page);
                 $type = $isBuilder ? 'Builder' : 'Template';
-                $class = $isBuilder ? 'info' : 'secondary';
+                $class = $isBuilder ? 'indigo text-indigo-fg' : 'orange text-orange-fg';
                 $icon = $isBuilder ? 'ti ti-puzzle' : 'ti ti-template';
                 
                 return '<span class="badge bg-' . $class . '"><i class="' . $icon . ' me-1"></i>' . $type . '</span>';
             })
             ->addColumn('status_badge', function ($page) {
                 $status = $page->is_published ? 'published' : 'draft';
-                $class = $page->is_published ? 'success' : 'warning';
+                $class = $page->is_published ? 'green text-green-fg' : 'yellow text-yellow-fg';
                 return '<span class="badge bg-' . $class . '">' . ucfirst($status) . '</span>';
             })
             ->addColumn('template_info', function ($page) {
@@ -436,7 +436,7 @@ class PageController extends Controller
     public function builder(Request $request, $id)
     {
         $page = Page::findOrFail($id);
-        return view('panel.pages.builder-modular', compact('page'));
+        return view('panel.pages.builder', compact('page'));
     }
 
     /**

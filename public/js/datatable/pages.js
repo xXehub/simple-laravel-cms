@@ -48,7 +48,7 @@ window.PagesDataTable = (function () {
                 {
                     data: "title",
                     name: "title",
-                    render: (data, type, row) => `<strong>${data}</strong>`
+                    render: (data, type, row) => `${data}`
                 },
                 {
                     data: "slug", 
