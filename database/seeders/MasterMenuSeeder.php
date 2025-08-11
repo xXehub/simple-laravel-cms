@@ -9,7 +9,9 @@ class MasterMenuSeeder extends Seeder
 {
     public function run(): void
     {
-        /* ----------------------------------------   
+        /* ---            'is_active' => 1,
+            'route_type' => ['public', 'admin'],
+            'controller_class' => 'App\\Http\\Controllers\\ArticleController',----------------------------------   
          -------------- public menu ---------------
          ------------------------------------------ */
         $beranda = MasterMenu::create([
@@ -21,7 +23,7 @@ class MasterMenuSeeder extends Seeder
             'urutan' => 1,
             'is_active' => 1,
             'is_beranda' => true,
-            'route_type' => 'public',
+            'route_type' => ['public'],
             'controller_class' => 'App\\Http\\Controllers\\BerandaController',
             'view_path' => 'beranda',
             'middleware_list' => ["web", "track_visit"],
@@ -41,7 +43,7 @@ class MasterMenuSeeder extends Seeder
             'icon' => 'fa-solid fa-table-columns',
             'urutan' => 2,
             'is_active' => 1,
-            'route_type' => 'admin',
+            'route_type' => ['admin'],
             'controller_class' => 'App\\Http\\Controllers\\Panel\\DashboardController',
             'view_path' => 'panel.dashboard',
             'middleware_list' => ["web", "auth", "permission:view-dashboard"],
@@ -410,6 +412,23 @@ class MasterMenuSeeder extends Seeder
             'middleware_list' => ["web", "auth", "permission:view-system"],
             'meta_title' => 'Performance Monitor',
             'meta_description' => 'Monitor system performance metrics',
+        ]);
+
+        // Contoh menu API yang tidak tampil di UI
+        $apiUsers = MasterMenu::create([
+            'nama_menu' => 'API Users',
+            'slug' => 'api/users',
+            'parent_id' => null,
+            'route_name' => 'api.users.index',
+            'icon' => 'fas fa-code',
+            'urutan' => 90,
+            'is_active' => 1,
+            'route_type' => ['api'],
+            'controller_class' => 'App\\Http\\Controllers\\Api\\UserController',
+            'view_path' => null,
+            'middleware_list' => ["api", "auth:sanctum"],
+            'meta_title' => 'API Users',
+            'meta_description' => 'User API endpoint',
         ]);
 
         // $this->command->info("\n🎯 MasterMenu seeding completed!");

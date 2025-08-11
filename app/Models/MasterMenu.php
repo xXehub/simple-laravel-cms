@@ -34,6 +34,7 @@ class MasterMenu extends Model
         'is_active' => 'boolean',
         'is_beranda' => 'boolean',
         'middleware_list' => 'array',
+        'route_type' => 'array',
     ];
 
     /**
@@ -373,35 +374,6 @@ class MasterMenu extends Model
     }
 
     /**
-     * Get root menus for sidebar with all nested children loaded recursively
-     */
-    public static function getSidebarMenus()
-    {
-        // Load root menus with recursive children using nested sets pattern
-        return static::rootMenus()
-            ->active()
-            ->with([
-                'children' => function ($query) {
-                    $query->active()->orderBy('urutan')
-                        ->with([
-                            'children' => function ($query) {
-                                $query->active()->orderBy('urutan')
-                                    ->with([
-                                        'children' => function ($query) {
-                                            $query->active()->orderBy('urutan');
-                                        }
-                                    ]);
-                            }
-                        ]);
-                }
-            ])
-            ->get()
-            ->filter(function ($menu) {
-                return $menu->canAccess();
-            });
-    }
-
-    /**
      * Debug method to see all menus structure
      */
 
@@ -498,11 +470,44 @@ class MasterMenu extends Model
     }
 
     /**
+     * Check if menu has specific route type
+     */
+    public function hasRouteType(string $type): bool
+    {
+        return in_array($type, $this->route_type ?? []);
+    }
+
+    /**
+     * Check if menu should appear in sidebar (contains admin route type)
+     */
+    public function shouldShowInSidebar(): bool
+    {
+        return $this->hasRouteType('admin');
+    }
+
+    /**
+     * Check if menu should appear in top bar (contains public route type)
+     */
+    public function shouldShowInTopBar(): bool
+    {
+        return $this->hasRouteType('public');
+    }
+
+    /**
+     * Check if menu is API only (only contains api route type)
+     */
+    public function isApiOnly(): bool
+    {
+        $routeTypes = $this->route_type ?? [];
+        return count($routeTypes) === 1 && in_array('api', $routeTypes);
+    }
+
+    /**
      * Scope for admin routes only
      */
     public function scopeAdminRoutes($query)
     {
-        return $query->where('route_type', 'admin');
+        return $query->whereJsonContains('route_type', 'admin');
     }
 
     /**
@@ -510,7 +515,82 @@ class MasterMenu extends Model
      */
     public function scopePublicRoutes($query)
     {
-        return $query->where('route_type', 'public');
+        return $query->whereJsonContains('route_type', 'public');
+    }
+
+    /**
+     * Scope for API routes only
+     */
+    public function scopeApiRoutes($query)
+    {
+        return $query->whereJsonContains('route_type', 'api');
+    }
+
+    /**
+     * Scope for sidebar menus (has admin route type)
+     */
+    public function scopeForSidebar($query)
+    {
+        return $query->whereJsonContains('route_type', 'admin');
+    }
+
+    /**
+     * Scope for top bar menus (has public route type)
+     */
+    public function scopeForTopBar($query)
+    {
+        return $query->whereJsonContains('route_type', 'public');
+    }
+
+    /**
+     * Get root menus for sidebar with all nested children loaded recursively
+     */
+    public static function getSidebarMenus()
+    {
+        // Load root menus with recursive children using nested sets pattern
+        return static::rootMenus()
+            ->active()
+            ->forSidebar() // Only menus with admin route type
+            ->with([
+                'children' => function ($query) {
+                    $query->active()->forSidebar()->orderBy('urutan')
+                        ->with([
+                            'children' => function ($query) {
+                                $query->active()->forSidebar()->orderBy('urutan')
+                                    ->with([
+                                        'children' => function ($query) {
+                                            $query->active()->forSidebar()->orderBy('urutan');
+                                        }
+                                    ]);
+                            }
+                        ]);
+                }
+            ])
+            ->get()
+            ->filter(function ($menu) {
+                return $menu->canAccess();
+            });
+    }
+
+    /**
+     * Get root menus for top bar navigation
+     */
+    public static function getTopBarMenus()
+    {
+        return static::rootMenus()
+            ->active()
+            ->forTopBar() // Only menus with public route type
+            ->with([
+                'children' => function ($query) {
+                    $query->active()->forTopBar()->orderBy('urutan')
+                        ->with([
+                            'children' => function ($query) {
+                                $query->active()->forTopBar()->orderBy('urutan');
+                            }
+                        ]);
+                }
+            ])
+            ->get();
     }
 
     /**

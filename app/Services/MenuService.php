@@ -202,9 +202,9 @@ class MenuService
         $currentUrl = request()->url();
         $currentPath = request()->path();
         
-        // Get only root level menus that are public and active
+        // Get only root level menus that have public route type and are active
         $rootMenus = MasterMenu::whereNull('parent_id')
-            ->where('route_type', 'public')
+            ->whereJsonContains('route_type', 'public')
             ->where('is_active', true)
             ->orderBy('urutan')
             ->get();
@@ -249,7 +249,7 @@ class MenuService
     private function getAccessibleChildren(int $parentId, string $currentUrl, string $currentPath): array
     {
         $children = MasterMenu::where('parent_id', $parentId)
-            ->where('route_type', 'public')
+            ->whereJsonContains('route_type', 'public')
             ->where('is_active', true)
             ->orderBy('urutan')
             ->get();

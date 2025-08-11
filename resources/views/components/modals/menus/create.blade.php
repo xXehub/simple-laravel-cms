@@ -135,19 +135,18 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="create_route_type" class="form-label">Route Type</label>
-                                    <select class="form-select" id="create_route_type" name="route_type">
-                                        <option value="public"
-                                            {{ old('route_type', 'public') == 'public' ? 'selected' : '' }}>
+                                    <select class="form-select" id="create_route_type" name="route_type[]" multiple>
+                                        <option value="public" {{ in_array('public', old('route_type', ['public'])) ? 'selected' : '' }}>
                                             Public
                                         </option>
-                                        <option value="admin" {{ old('route_type') == 'admin' ? 'selected' : '' }}>
+                                        <option value="admin" {{ in_array('admin', old('route_type', [])) ? 'selected' : '' }}>
                                             Admin
                                         </option>
-                                        <option value="api" {{ old('route_type') == 'api' ? 'selected' : '' }}>
+                                        <option value="api" {{ in_array('api', old('route_type', [])) ? 'selected' : '' }}>
                                             API
                                         </option>
                                     </select>
-                                    <small class="form-text text-muted">Access level classification</small>
+                                    <small class="form-text text-muted">Select multiple route types (public, admin, api)</small>
                                 </div>
                                 <div class="col-md-12">
                                     <label for="create_controller_class" class="form-label">Controller Class</label>
@@ -596,6 +595,34 @@
                     } else {
                         routeNameField.value = `${resourceName}.index`;
                     }
+                }
+            }
+        });
+
+        // Initialize Tom Select for route_type multiple select
+        new TomSelect('#create_route_type', {
+            plugins: ['remove_button'],
+            create: false,
+            placeholder: 'Select route types...',
+            maxItems: 3,
+            closeAfterSelect: false,
+            allowEmptyOption: false,
+            render: {
+                item: function(data, escape) {
+                    const colors = {
+                        'public': 'badge bg-success',
+                        'admin': 'badge bg-primary', 
+                        'api': 'badge bg-warning'
+                    };
+                    return '<div class="' + (colors[data.value] || 'badge bg-secondary') + '">' + escape(data.text) + '</div>';
+                },
+                option: function(data, escape) {
+                    const icons = {
+                        'public': 'fas fa-globe',
+                        'admin': 'fas fa-lock',
+                        'api': 'fas fa-code'
+                    };
+                    return '<div><i class="' + (icons[data.value] || 'fas fa-circle') + ' me-2"></i>' + escape(data.text) + '</div>';
                 }
             }
         });

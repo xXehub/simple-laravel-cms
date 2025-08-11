@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('urutan')->default(0);
             $table->tinyInteger('is_active')->default(1);
             $table->boolean('is_beranda')->default(false);
-            $table->enum('route_type', ['admin', 'public', 'api'])->default('public');
+            $table->json('route_type')->nullable()->comment('Array of route types: admin, public, api');
             $table->string('controller_class')->nullable();
             $table->string('view_path')->nullable();
             $table->json('middleware_list')->nullable();
@@ -36,7 +36,6 @@ return new class extends Migration
             // Indexes
             $table->index(['parent_id', 'urutan']);
             $table->index('slug');
-            $table->index('route_type');
             $table->index('controller_class');
         });
     }
