@@ -87,7 +87,7 @@ class RegisterController extends Controller
         ];
 
         // Add captcha validation only if captcha is enabled
-        if (setting('captcha_enabled', false)) {
+        if (setting('captcha_setting', false)) {
             $rules['g-recaptcha-response'] = ['required', 'captcha'];
             $messages['g-recaptcha-response.required'] = config('auth_messages.register.recaptcha_required');
             $messages['g-recaptcha-response.captcha'] = config('auth_messages.register.recaptcha_failed');

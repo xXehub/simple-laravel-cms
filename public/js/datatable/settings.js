@@ -44,7 +44,7 @@ window.SettingsDataTable = (function () {
                 {
                     data: "key",
                     name: "key",
-                    render: (data) => `<div class="font-weight-medium text-dark">${data}</div>`,
+                    render: (data) => `${data}`,
                 },
                 {
                     data: "type",

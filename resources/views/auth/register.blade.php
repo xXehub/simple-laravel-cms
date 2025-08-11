@@ -4,8 +4,8 @@
             <div class="row align-items-center g-4">
                 <div class="col-lg d-none d-lg-block">
                     <div class="col-lg d-none d-lg-flex justify-content-center align-items-center">
-                <img src="{{ asset('static/logo-surabaya-hebat.png') }}"
-                    alt="Logo Surabaya Hebat"
+                <img src="{{ setting_image('auth_logo', 'static/logo-surabaya-hebat.png') }}"
+                    alt="{{ setting('app_name', 'KantorKu SuperApp') }}"
                     class="img-fluid"
                     style="max-width: 60%; height: auto;">
             </div>
@@ -121,7 +121,7 @@
                                     @enderror
                                 </div>
 
-                                @if(setting('captcha_enabled', false))
+                                @if(setting('captcha_setting', false))
                                     {{-- reCAPTCHA Widget --}}
                                     <div class="mb-3 d-flex justify-content-center">
                                         {!! NoCaptcha::renderJs() !!}

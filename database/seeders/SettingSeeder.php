@@ -152,6 +152,12 @@ class SettingSeeder extends Seeder
                 'group' => 'general',
                 'description' => 'Jumlah item per halaman di beranda'
             ],
+            'auth_logo' => [
+                'value' => 'static/logo-surabaya-hebat.png',
+                'type' => 'image',
+                'group' => 'general',
+                'description' => 'Logo yang ditampilkan di halaman login dan register'
+            ],
             
             // ========================================
             // SOCIAL MEDIA SETTINGS
@@ -202,7 +208,7 @@ class SettingSeeder extends Seeder
                 'group' => 'feature',
                 'description' => 'Wajibkan verifikasi email'
             ],
-            'captcha_enabled' => [
+            'captcha_setting' => [
                 'value' => '0',
                 'type' => 'boolean',
                 'group' => 'feature',
