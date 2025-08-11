@@ -16,7 +16,7 @@ window.RolesDataTable = (function () {
         const baseConfig = DataTableGlobal.generateStandardConfig({
             tableConfig: {
                 ajax: { url: route, type: "GET" },
-                order: [[1, "desc"]], // ID descending
+                order: [[2, "asc"]], // Nama Role ascending
                 deferRender: true,
             },
         });
@@ -39,11 +39,19 @@ window.RolesDataTable = (function () {
                                type="checkbox" value="${row.id}"/>`;
                     },
                 },
-                { data: "id", name: "id" },
+                { 
+                    data: null,
+                    name: "DT_RowIndex",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
                 {
                     data: "name",
                     name: "name",
-                    render: (data) => `<strong>${data}</strong>`,
+                    render: (data) => `${data}`,
                 },
                 { data: "guard_name", name: "guard_name" },
                 {
@@ -52,8 +60,30 @@ window.RolesDataTable = (function () {
                     name: "permissions_count",
                     orderable: false,
                     searchable: false,
-                    render: (data) =>
-                        `<span class="badge bg-info">${data} permissions</span>`,
+                    render: (data, type, row) => {
+                        // Get total permissions count (you can adjust this number based on your actual total)
+                        const totalPermissions = window.totalPermissionsCount || 36; // Default to 36 if not set
+                        const percentage = (data / totalPermissions) * 100;
+                        
+                        // Determine badge color based on percentage
+                        let badgeClass;
+                        if (percentage >= 80) {
+                            badgeClass = 'badge bg-red text-red-fg'; // High permissions (80%+)
+                        } else if (percentage >= 60) {
+                            badgeClass = 'badge bg-orange text-orange-fg'; // Medium-high (60-79%)
+                        } else if (percentage >= 40) {
+                            badgeClass = 'badge bg-yellow text-yellow-fg'; // Medium (40-59%)
+                        } else if (percentage >= 20) {
+                            badgeClass = 'badge bg-blue text-blue-fg'; // Medium-low (20-39%)
+                        } else if (percentage > 0) {
+                            badgeClass = 'badge bg-green text-green-fg'; // Low permissions (1-19%)
+                        } else {
+                            badgeClass = 'badge bg-secondary text-secondary-fg'; // No permissions (0%)
+                        }
+                        
+                        const percentageText = percentage > 0 ? ` (${Math.round(percentage)}%)` : '';
+                        return `<span class="${badgeClass}">${data} permissions${percentageText}</span>`;
+                    },
                 },
                 {
                     // Created Date

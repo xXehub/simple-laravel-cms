@@ -23,7 +23,8 @@ class RoleController extends Controller
 
         $roles = Role::with('permissions')->paginate(20);
         $permissions = Permission::all();
-        return view('panel.roles.index', compact('roles', 'permissions'));
+        $totalPermissionsCount = $permissions->count();
+        return view('panel.roles.index', compact('roles', 'permissions', 'totalPermissionsCount'));
     }
 
     /**

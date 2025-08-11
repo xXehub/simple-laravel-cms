@@ -42,19 +42,19 @@
 
                                 <div id="advanced-table">
                                     <div class="table-responsive">
-                                        <table id="rolesTable">
+                                        <table id="rolesTable" class="table table-vcenter card-table">
                                             <thead>
                                                 <tr>
                                                     <th class="w-1">
                                                         <input class="form-check-input m-0 align-middle" type="checkbox"
                                                             aria-label="Select all roles" id="select-all" />
                                                     </th>
-                                                    <th>ID</th>
+                                                    <th class="w-1">NO</th>
                                                     <th>Nama Role</th>
-                                                    <th>Guard</th>
+                                                    <th >Guard</th>
                                                     <th>Permissions</th>
                                                     <th>Dibuat</th>
-                                                    <th class="w-3"></th>
+                                                    <th class="w-1"></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="table-tbody">
@@ -82,7 +82,7 @@
         </div>
     </div>
 
-     <!-- load komponen modal disini -->
+    <!-- load komponen modal disini -->
     <x-modals.roles.create :permissions="$permissions" />
     <x-modals.roles.edit :permissions="$permissions" />
     @push('scripts')
@@ -95,6 +95,9 @@
             window.roleEditRoute = '{{ route('panel.roles.edit', ':id') }}';
             window.roleDeleteRoute = '{{ route('panel.roles.destroy', ':id') }}';
             window.roleUpdateRoute = '{{ route('panel.roles.update', ':id') }}';
+
+            // Set total permissions count for percentage calculation
+            window.totalPermissionsCount = {{ $totalPermissionsCount }};
 
             // Initialize Roles DataTable
             RolesDataTable.initialize('{{ route('panel.roles') }}')
