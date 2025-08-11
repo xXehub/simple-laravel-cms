@@ -17,15 +17,15 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'KantorKu SuperApp' }} - Pemerintah Kota Surabaya</title>
+    <title>{{ $title ?? setting('app_name', 'KantorKu SuperApp') }} - {{ setting('meta_title', 'Pemerintah Kota Surabaya') }}</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset(setting('favicon', 'favicon.ico')) }}">
 
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="Sistem Informasi Terintegrasi Pemerintah Kota Surabaya">
-    <meta name="keywords" content="KantorKu, SuperApp, Surabaya, Pemerintah, Sistem Informasi">
-    <meta name="author" content="Pemerintah Kota Surabaya">
+    <meta name="description" content="{{ setting('meta_description', 'Sistem Informasi Terintegrasi Pemerintah Kota Surabaya') }}">
+    <meta name="keywords" content="{{ setting('meta_keywords', 'KantorKu, SuperApp, Surabaya, Pemerintah, Sistem Informasi') }}">
+    <meta name="author" content="{{ setting('meta_title', 'Pemerintah Kota Surabaya') }}">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">

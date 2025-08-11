@@ -67,21 +67,20 @@
         <div class="container">
             <div class="row g-8 align-items-center">
                 <div class="col-md-6 text-center text-md-start">
-                    <div class="hero-subheader">Selamat Datang di</div>
+                    <div class="hero-subheader">{{ setting('landing_hero_subheader', 'Selamat Datang di') }}</div>
                     <h1 class="hero-title">
-                        Super App Dinkominfo,<br />
+                        {{ setting('app_name', 'Super App Dinkominfo') }},<br />
                         <span class="text-primary" id="typed">satu portal</span>
                     </h1>
                     <p class="hero-description mt-4">
-                        Portal layanan terintegrasi untuk mengakses seluruh aplikasi dan informasi dari dinas dan OPD di
-                        lingkungan pemerintahan daerah.
+                        {{ setting('app_description', 'Portal layanan terintegrasi untuk mengakses seluruh aplikasi dan informasi dari dinas dan OPD di lingkungan pemerintahan daerah.') }}
                     </p>
                     <div class="mt-3 mt-lg-3">
                         <div class="row justify-content-center justify-content-md-start">
                             <div class="col-auto"><a href="{{ route('register') }}"
-                                    class="btn fw-semibold px-3 py-2 border">Daftar</a></div>
+                                    class="btn fw-semibold px-3 py-2 border">{{ setting('landing_btn_register', 'Daftar') }}</a></div>
                             <div class="col-auto"><a href="{{ route('login') }}"
-                                    class="btn btn-primary px-3 py-2">Masuk</a></div>
+                                    class="btn btn-primary px-3 py-2">{{ setting('landing_btn_login', 'Masuk') }}</a></div>
                         </div>
                     </div>
                 </div>
@@ -631,12 +630,9 @@
     {{-- [DONE] start - masuk ke section 3 --}}
     <section class="hero bg-light py-4 mt-6 ">
     <div class="text-center px-4 px-md-6" data-aos="fade-up">
-        <h1 class="hero-title">Tentang Super App</h1>
+        <h1 class="hero-title">Tentang {{ setting('app_name', 'Super App') }}</h1>
         <p class="hero-description hero-description-wide mx-auto" style="max-width: 720px;">
-            SuperApp adalah platform layanan digital terpadu yang dirancang untuk memudahkan masyarakat dalam
-            mengakses berbagai layanan publik dari instansi pemerintahan di Kota Surabaya. Pengguna dapat
-            menjelajahi, mengajukan, dan memantau layanan dari dinas seperti Pendidikan, Kominfo,
-            Kesehatan, hingga Perizinan.
+            {{ setting('app_description', 'SuperApp adalah platform layanan digital terpadu yang dirancang untuk memudahkan masyarakat dalam mengakses berbagai layanan publik dari instansi pemerintahan di Kota Surabaya. Pengguna dapat menjelajahi, mengajukan, dan memantau layanan dari dinas seperti Pendidikan, Kominfo, Kesehatan, hingga Perizinan.') }}
         </p>
     </div>
 </section>
@@ -650,17 +646,17 @@
                 {{-- Baris pertama --}}
                 <div class="col mb-3" data-aos="fade-up" data-aos-delay="100">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=1'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_1', 'https://picsum.photos/400/240?random=1') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
                 <div class="col-3 d-none d-md-block mb-3" data-aos="zoom-in" data-aos-delay="200">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=2'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_2', 'https://picsum.photos/400/240?random=2') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
                 <div class="col mb-3" data-aos="fade-left" data-aos-delay="300">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=3'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_3', 'https://picsum.photos/400/240?random=3') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
 
@@ -669,17 +665,17 @@
                 {{-- Baris kedua --}}
                 <div class="col mb-3 mb-md-0" data-aos="flip-left" data-aos-delay="100">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=4'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_4', 'https://picsum.photos/400/240?random=4') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
                 <div class="col-4 d-none d-md-block mb-3 mb-md-0" data-aos="zoom-in-up" data-aos-delay="200">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=5'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_5', 'https://picsum.photos/400/240?random=5') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
                 <div class="col" data-aos="fade-up-right" data-aos-delay="300">
                     <div class="bg-cover rounded"
-                        style="height: 15rem; background-image: url('https://picsum.photos/400/240?random=6'); background-size: cover; background-position: center;">
+                        style="height: 15rem; background-image: url('{{ setting('landing_gallery_image_6', 'https://picsum.photos/400/240?random=6') }}'); background-size: cover; background-position: center;">
                     </div>
                 </div>
             </div>
@@ -696,15 +692,14 @@
       {{-- Kolom Kiri --}}
       <div class="col-lg-4 d-flex flex-column justify-content-between" data-aos="fade-up" data-aos-delay="100">
         <div>
-          <h2 class="fw-bold mb-2">Pertanyaan yang Sering Diajukan</h2>
+          <h2 class="fw-bold mb-2">{{ setting('landing_faq_title', 'Pertanyaan yang Sering Diajukan') }}</h2>
           <p class="text-muted mb-2">
-            Tidak menemukan jawaban yang Anda butuhkan?<br>
-            Hubungi tim pengelola sistem.
+            {!! setting('landing_faq_subtitle', 'Tidak menemukan jawaban yang Anda butuhkan?<br>Hubungi tim pengelola sistem.') !!}
           </p>
         </div>
         <div class="mt-3">
           <a href="#" class="btn btn-primary fw-semibold px-4 py-2">
-            📖 Baca Selengkapnya
+            {{ setting('landing_faq_btn_text', '📖 Baca Selengkapnya') }}
           </a>
         </div>
       </div>
@@ -782,13 +777,13 @@
                     </div>
                     <div class="col-lg-4 ml-auto">
                         <div class="text-secondary">
-                            Teks bebas
+                            {{ setting('landing_footer_text', 'Teks bebas') }}
                         </div>
                     </div>
                 </div>
                 <div class="row g-4 justify-content-between mt-0 mt-md-2">
                     <div class="col-sm-7 col-md-6 col-lg-4">
-                        <h5 class="subheader">Supported by:</h5>
+                        <h5 class="subheader">{{ setting('landing_footer_supported_title', 'Supported by:') }}</h5>
                         <ul class="list-inline mb-0 mt-3">
                             <li class="list-inline-item">
                                 <a href="#"><span class="payment payment-1 payment-provider-paypal"></span>
@@ -809,7 +804,7 @@
                         </ul>
                     </div>
                     <div class="col-sm-5 col-md-6 col-lg-3 text-sm-end">
-                        <h5 class="subheader">Ikuti Media Sosial Kami:</h5>
+                        <h5 class="subheader">{{ setting('landing_footer_social_title', 'Ikuti Media Sosial Kami:') }}</h5>
                         <ul class="list-inline mb-0 mt-3">
                             <li class="list-inline-item">
                                 <a class="btn btn-icon btn-facebook"
@@ -869,12 +864,13 @@
     {{-- ini --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            var typedStrings = {!! setting('landing_typed_strings', '["satu portal", "semua dinas", "super mudah"]') !!};
             var typed = new Typed("#typed", {
-                strings: ["satu portal", "semua dinas", "super mudah"],
-                typeSpeed: 100,
-                backSpeed: 50,
-                backDelay: 1000,
-                startDelay: 1000,
+                strings: typedStrings,
+                typeSpeed: {{ setting('landing_typed_speed', '100') }},
+                backSpeed: {{ setting('landing_typed_back_speed', '50') }},
+                backDelay: {{ setting('landing_typed_back_delay', '1000') }},
+                startDelay: {{ setting('landing_typed_start_delay', '1000') }},
                 loop: true,
                 fade: true,
             });

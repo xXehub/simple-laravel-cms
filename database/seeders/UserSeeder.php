@@ -38,10 +38,10 @@ class UserSeeder extends Seeder
         $user->assignRole('user');
 
         // Generate 500 user dummy pake factory
-        User::factory()->count(2000)->create()->each(function ($user_factory) {
-            $user_factory->assignRole('user');
-        });
+        // User::factory()->count(2000)->create()->each(function ($user_factory) {
+        //     $user_factory->assignRole('user');
+        // });
 
-        $this->command->info("✅ 502 users created (2 admin + 500 dummy users)");
+        // $this->command->info("✅ 502 users created (2 admin + 500 dummy users)");
     }
 }

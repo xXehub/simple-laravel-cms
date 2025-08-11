@@ -58,6 +58,7 @@
                                     <option value="url">URL</option>
                                     <option value="image">Image</option>
                                     <option value="color">Color</option>
+                                    <option value="json">JSON</option>
                                 </select>
                                 <small class="form-text text-muted">Data type for this setting</small>
                             </div>
@@ -71,6 +72,7 @@
                                     <option value="contact">Contact</option>
                                     <option value="social">Social</option>
                                     <option value="feature">Feature</option>
+                                    <option value="landing">Landing</option>
                                 </select>
                                 <small class="form-text text-muted">Optional: Organize settings by category</small>
                             </div>
@@ -220,6 +222,10 @@
                     case 'color':
                         inputHtml = `<input type="color" class="form-control form-control-color" id="edit_value" name="value" required value="${currentValue || '#206bc4'}">`;
                         helpText = 'Select a color value';
+                        break;
+                    case 'json':
+                        inputHtml = `<textarea class="form-control" id="edit_value" name="value" rows="4" required placeholder='{"key": "value"}'>${currentValue}</textarea>`;
+                        helpText = 'Enter valid JSON format (e.g., ["item1", "item2"] or {"key": "value"})';
                         break;
                     default:
                         inputHtml = `<input type="text" class="form-control" id="edit_value" name="value" required value="${currentValue}">`;
