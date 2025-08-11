@@ -25,8 +25,17 @@ class LoginController extends Controller
      */
     public function redirectTo()
     {
-        $beranda = MasterMenu::getBeranda();
-        return $beranda ? $beranda->slug : '/beranda';
+        // Find beranda menu from database dynamically
+        $berandaMenu = MasterMenu::where('nama_menu', 'Beranda')
+            ->where('is_active', true)
+            ->first();
+        
+        if ($berandaMenu && $berandaMenu->slug) {
+            return $berandaMenu->slug;
+        }
+        
+        // Fallback to default beranda
+        return '/beranda';
     }
 
     public function username()
@@ -47,7 +56,7 @@ class LoginController extends Controller
         ];
 
         // Add captcha validation only if captcha is enabled
-        if (config('captcha.enabled')) {
+        if (setting('captcha_enabled', false)) {
             $rules['g-recaptcha-response'] = 'required|captcha';
             $messages['g-recaptcha-response.required'] = config('auth_messages.login.recaptcha_required');
             $messages['g-recaptcha-response.captcha'] = config('auth_messages.login.recaptcha_failed');

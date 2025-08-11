@@ -121,7 +121,7 @@
                                     @enderror
                                 </div>
 
-                                @if(config('captcha.enabled'))
+                                @if(setting('captcha_enabled', false))
                                     {{-- reCAPTCHA Widget --}}
                                     <div class="mb-3 d-flex justify-content-center">
                                         {!! NoCaptcha::renderJs() !!}
