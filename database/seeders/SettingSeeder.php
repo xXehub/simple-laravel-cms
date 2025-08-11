@@ -122,6 +122,24 @@ class SettingSeeder extends Seeder
                 'group' => 'contact',
                 'description' => 'Alamat kantor utama'
             ],
+            'contact_phone_2' => [
+                'value' => '(031) 5312144 Psw. 384 / 241',
+                'type' => 'text',
+                'group' => 'contact',
+                'description' => 'Nomor telepon kontak kedua'
+            ],
+            'contact_email_2' => [
+                'value' => 'mediacenter@surabaya.go.id',
+                'type' => 'email',
+                'group' => 'contact',
+                'description' => 'Email kontak kedua'
+            ],
+            'footer_description' => [
+                'value' => 'Platform digital terpadu untuk layanan pemerintahan yang lebih baik dan transparan.',
+                'type' => 'textarea',
+                'group' => 'general',
+                'description' => 'Deskripsi footer aplikasi'
+            ],
             
             // ========================================
             // SOCIAL MEDIA SETTINGS
@@ -243,6 +261,26 @@ class SettingSeeder extends Seeder
                 'description' => 'Text tombol masuk di hero section'
             ],
             
+            // Hero Carousel Images
+            'landing_hero_image_1' => [
+                'value' => '/static/illustrations/boy-with-key.svg',
+                'type' => 'url',
+                'group' => 'landing',
+                'description' => 'URL gambar hero carousel slide 1'
+            ],
+            'landing_hero_image_2' => [
+                'value' => '/static/illustrations/boy-girl.svg',
+                'type' => 'url',
+                'group' => 'landing',
+                'description' => 'URL gambar hero carousel slide 2'
+            ],
+            'landing_hero_image_3' => [
+                'value' => '/static/illustrations/growth.svg',
+                'type' => 'url',
+                'group' => 'landing',
+                'description' => 'URL gambar hero carousel slide 3'
+            ],
+            
             // Gallery Section Images
             'landing_gallery_image_1' => [
                 'value' => 'https://picsum.photos/400/240?random=1',
@@ -283,7 +321,7 @@ class SettingSeeder extends Seeder
             
             // Section 2 Cards
             'landing_card_1_title' => [
-                'value' => 'Card with top image',
+                'value' => 'Layanan Digital',
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Judul card section 2 posisi 1'
@@ -294,8 +332,14 @@ class SettingSeeder extends Seeder
                 'group' => 'landing',
                 'description' => 'URL gambar card section 2 posisi 1'
             ],
+            'landing_card_1_description' => [
+                'value' => 'Akses berbagai layanan digital pemerintahan dengan mudah dan cepat melalui satu platform terintegrasi.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Deskripsi card section 2 posisi 1'
+            ],
             'landing_card_2_title' => [
-                'value' => 'Card with top image',
+                'value' => 'Transparansi Informasi',
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Judul card section 2 posisi 2'
@@ -306,8 +350,14 @@ class SettingSeeder extends Seeder
                 'group' => 'landing',
                 'description' => 'URL gambar card section 2 posisi 2'
             ],
+            'landing_card_2_description' => [
+                'value' => 'Informasi publik yang lengkap dan transparan untuk mendukung keterbukaan pemerintahan.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Deskripsi card section 2 posisi 2'
+            ],
             'landing_card_3_title' => [
-                'value' => 'Card with top image',
+                'value' => 'Pelayanan Prima',
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Judul card section 2 posisi 3'
@@ -318,8 +368,14 @@ class SettingSeeder extends Seeder
                 'group' => 'landing',
                 'description' => 'URL gambar card section 2 posisi 3'
             ],
+            'landing_card_3_description' => [
+                'value' => 'Pelayanan berkualitas tinggi dengan standar yang jelas dan proses yang efisien.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Deskripsi card section 2 posisi 3'
+            ],
             'landing_card_4_title' => [
-                'value' => 'Card with top image',
+                'value' => 'Inovasi Berkelanjutan',
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Judul card section 2 posisi 4'
@@ -329,6 +385,12 @@ class SettingSeeder extends Seeder
                 'type' => 'url',
                 'group' => 'landing',
                 'description' => 'URL gambar card section 2 posisi 4'
+            ],
+            'landing_card_4_description' => [
+                'value' => 'Terus berinovasi dalam menghadirkan solusi teknologi terdepan untuk masyarakat.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Deskripsi card section 2 posisi 4'
             ],
             
             // FAQ Section
@@ -351,6 +413,56 @@ class SettingSeeder extends Seeder
                 'description' => 'Text tombol FAQ'
             ],
             
+            // FAQ Questions & Answers
+            'landing_faq_1_question' => [
+                'value' => 'Apa itu SuperApp Dinkominfo?',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Pertanyaan FAQ nomor 1'
+            ],
+            'landing_faq_1_answer' => [
+                'value' => 'SuperApp Dinkominfo adalah platform digital terpadu yang menghubungkan berbagai layanan pemerintahan dalam satu aplikasi untuk memudahkan masyarakat mengakses layanan publik.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Jawaban FAQ nomor 1'
+            ],
+            'landing_faq_2_question' => [
+                'value' => 'Bagaimana cara mendaftar dan menggunakan aplikasi ini?',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Pertanyaan FAQ nomor 2'
+            ],
+            'landing_faq_2_answer' => [
+                'value' => 'Anda dapat mendaftar dengan mengklik tombol "Daftar" di halaman utama, mengisi formulir pendaftaran dengan data yang valid, kemudian verifikasi email untuk mengaktifkan akun.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Jawaban FAQ nomor 2'
+            ],
+            'landing_faq_3_question' => [
+                'value' => 'Layanan apa saja yang tersedia di platform ini?',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Pertanyaan FAQ nomor 3'
+            ],
+            'landing_faq_3_answer' => [
+                'value' => 'Platform ini menyediakan akses ke berbagai layanan dinas seperti Pendidikan, Kesehatan, Perizinan, Kependudukan, dan layanan publik lainnya dalam satu tempat.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Jawaban FAQ nomor 3'
+            ],
+            'landing_faq_4_question' => [
+                'value' => 'Apakah aplikasi ini gratis untuk digunakan?',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Pertanyaan FAQ nomor 4'
+            ],
+            'landing_faq_4_answer' => [
+                'value' => 'Ya, aplikasi ini sepenuhnya gratis untuk digunakan oleh seluruh masyarakat. Tidak ada biaya pendaftaran atau biaya berlangganan.',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Jawaban FAQ nomor 4'
+            ],
+            
             // Footer Section
             'landing_footer_text' => [
                 'value' => 'Teks bebas',
@@ -369,6 +481,68 @@ class SettingSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Judul section social media di footer'
+            ],
+            
+            // Footer Organization Details
+            'landing_footer_org_name' => [
+                'value' => 'Dinas Komunikasi dan Informatika Kota Surabaya',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Nama organisasi di footer'
+            ],
+            'landing_footer_address_label' => [
+                'value' => 'Alamat:',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Label alamat di footer'
+            ],
+            'landing_footer_address_value' => [
+                'value' => 'Jl. Jimerto No.25-27, Wonokromo, Kec. Wonokromo, Surabaya, Jawa Timur 60243',
+                'type' => 'textarea',
+                'group' => 'landing',
+                'description' => 'Alamat lengkap organisasi'
+            ],
+            'landing_footer_contact_title' => [
+                'value' => 'Kontak Kami',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Judul section kontak di footer'
+            ],
+            'landing_footer_email_label' => [
+                'value' => 'Email:',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Label email di footer'
+            ],
+            'landing_footer_email_1' => [
+                'value' => 'dinkominfo@surabaya.go.id',
+                'type' => 'email',
+                'group' => 'landing',
+                'description' => 'Email utama organisasi'
+            ],
+            'landing_footer_email_2' => [
+                'value' => 'mediacenter@surabaya.go.id',
+                'type' => 'email',
+                'group' => 'landing',
+                'description' => 'Email kedua organisasi'
+            ],
+            'landing_footer_phone_label' => [
+                'value' => 'Telepon:',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Label telepon di footer'
+            ],
+            'landing_footer_phone_1' => [
+                'value' => '(031) 99277339',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Nomor telepon utama'
+            ],
+            'landing_footer_phone_2' => [
+                'value' => '(031) 5312144 Psw. 384 / 241',
+                'type' => 'text',
+                'group' => 'landing',
+                'description' => 'Nomor telepon kedua'
             ],
         ];
 

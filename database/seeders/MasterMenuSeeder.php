@@ -158,23 +158,6 @@ class MasterMenuSeeder extends Seeder
             'meta_description' => 'Configure system settings and preferences',
         ]);
 
-        // Page Builder
-        $pageBuilder = MasterMenu::create([
-            'nama_menu' => 'Page Builder',
-            'slug' => 'panel/builder',
-            'parent_id' => $panelManagementId,
-            'route_name' => 'panel.builder.index',
-            'icon' => 'ti ti-layout-grid',
-            'urutan' => 10,
-            'is_active' => 1,
-            'route_type' => 'admin',
-            'controller_class' => 'App\\Http\\Controllers\\Panel\\PageBuilderController',
-            'view_path' => null,
-            'middleware_list' => ["web", "auth", "permission:view-pages"],
-            'meta_title' => 'Page Builder',
-            'meta_description' => 'Build and design pages with drag & drop components',
-        ]);
-
         $about = MasterMenu::create([
             'nama_menu' => 'About Us',
             'slug' => 'about-us',
