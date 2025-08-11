@@ -407,7 +407,7 @@ class SettingSeeder extends Seeder
                 'description' => 'Subtitle section FAQ'
             ],
             'landing_faq_btn_text' => [
-                'value' => '📖 Baca Selengkapnya',
+                'value' => 'Baca Selengkapnya',
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Text tombol FAQ'
@@ -543,6 +543,20 @@ class SettingSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'landing',
                 'description' => 'Nomor telepon kedua'
+            ],
+            
+            // Supported Icon (Single Image)
+            'landing_supported_icon_image' => [
+                'value' => 'https://smb.telkomuniversity.ac.id/wp-content/uploads/2023/03/Logo-Utama-Telkom-University.png',
+                'type' => 'url',
+                'group' => 'landing',
+                'description' => 'URL gambar supported by'
+            ],
+            'landing_supported_icon_url' => [
+                'value' => 'https://telkomuniversity.ac.id',
+                'type' => 'url',
+                'group' => 'landing',
+                'description' => 'URL link untuk supported by'
             ],
         ];
 

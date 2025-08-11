@@ -2,9 +2,7 @@
     :pakaiTopBar="false" :hasDivPage="true" bodyClass="body-marketing body-gradient">
 
     <!-- Tambah AOS animate-on-scroll -->
-    <div class="col" data-aos="fade-up-right" data-aos-delay="300">
-    
-        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
         <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
         <style>
             .card:hover {
@@ -211,7 +209,7 @@
         {{-- [DONE] end - kelar section 2 --}}
 
         {{-- [DONE] start - masuk ke section 3 --}}
-        <section class="hero bg-light py-4 mt-6 ">
+        <section class="section section-light py-4 mt-6 ">
             <div class="text-center px-4 px-md-6" data-aos="fade-up">
                 <h1 class="hero-title">Tentang {{ setting('app_name', 'Super App') }}</h1>
                 <p class="hero-description hero-description-wide mx-auto" style="max-width: 720px;">
@@ -264,15 +262,13 @@
                     </div>
                 </div>
             </div>
-    </div>
-    </section>
+        </section>
     {{-- [DONE] end - kelar section 4 --}}
 
     {{-- [DONE] start - masuk section 5 --}}
     <section class="section section-light py-4 mb-8">
         <div class="container">
             <div class="row g-4 align-items-start">
-
                 {{-- Kolom Kiri --}}
                 <div class="col-lg-4 d-flex flex-column justify-content-between" data-aos="fade-up"
                     data-aos-delay="100">
@@ -378,29 +374,22 @@
                     </div>
                 </div>
                 <div class="row g-4 justify-content-between mt-0 mt-md-2">
-                    <div class="col-sm-7 col-md-6 col-lg-4">
-                        <h5 class="subheader">{{ setting('landing_footer_supported_title', 'Supported by:') }}</h5>
-                        <ul class="list-inline mb-0 mt-3">
-                            <li class="list-inline-item">
-                                <a href="#"><span class="payment payment-1 payment-provider-paypal"></span>
+                    @if(setting('landing_supported_icon_image'))
+                        <div class="col-sm-7 col-md-6 col-lg-4">
+                            <h5 class="subheader">{{ setting('landing_footer_supported_title', 'Supported by:') }}</h5>
+                            <div class="mt-3">
+                                <a href="{{ setting('landing_supported_icon_url', '#') }}" class="d-inline-block">
+                                    <img src="{{ setting_image('landing_supported_icon_image') }}" 
+                                         alt="Supported by" 
+                                         style="height: 40px; width: auto; opacity: 0.8; transition: opacity 0.3s;"
+                                         onmouseover="this.style.opacity='1'" 
+                                         onmouseout="this.style.opacity='0.8'">
                                 </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#"><span class="payment payment-1 payment-provider-visa"></span>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#"><span class="payment payment-1 payment-provider-mastercard"></span>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#"><span
-                                        class="payment payment-1 payment-provider-americanexpress"></span> </a>
-                            </li>
-                        </ul>
-                    </div>
+                            </div>
+                        </div>
+                    @endif
                     <div class="col-sm-5 col-md-6 col-lg-3 text-sm-end">
-                        <h5 class="subheader">Ikuti Media Sosial Kami:</h5>
+                        <h5 class="subheader">{{ setting('landing_footer_social_title', 'Ikuti Media Sosial Kami:') }}</h5>
                         <ul class="list-inline mb-0 mt-3">
                             <li class="list-inline-item">
                                 <a class="btn btn-icon btn-facebook"
@@ -455,9 +444,8 @@
         </div>
     </footer>
     <!--  END FOOTER  -->
-    </div>
-    </div>
-    {{-- ini --}}
+
+    {{-- Script untuk typed.js --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var typedStrings = {!! setting('landing_typed_strings', '["satu portal", "semua dinas", "super mudah"]') !!};
