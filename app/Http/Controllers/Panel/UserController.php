@@ -44,7 +44,11 @@ class UserController extends Controller
         $viewPath = $menu?->getDynamicViewPath() ?? 'panel.users.index';
 
         $roles = Role::all();
-        return view($viewPath, compact('roles', 'menu'));
+        
+        // Count soft deleted users
+        $trashedCount = User::onlyTrashed()->count();
+        
+        return view($viewPath, compact('roles', 'menu', 'trashedCount'));
     }
 
     /**
@@ -121,7 +125,7 @@ class UserController extends Controller
     }
 
     /**
-     * Delete user
+     * Delete user (soft delete)
      */
     public function destroy(Request $request)
     {
@@ -131,9 +135,36 @@ class UserController extends Controller
             return ResponseHelper::error('Tidak dapat menghapus akun sendiri');
         }
 
-        $user->delete();
+        $user->delete(); // This will soft delete
 
         return ResponseHelper::redirect('panel.users', 'User berhasil dihapus!');
+    }
+
+    /**
+     * Restore soft deleted user
+     */
+    public function restore(Request $request)
+    {
+        $user = User::withTrashed()->findOrFail($request->route('id') ?? $request->input('id'));
+        $user->restore();
+
+        return ResponseHelper::redirect('panel.users', 'User berhasil dipulihkan!');
+    }
+
+    /**
+     * Permanently delete user
+     */
+    public function forceDestroy(Request $request)
+    {
+        $user = User::withTrashed()->findOrFail($request->route('id') ?? $request->input('id'));
+
+        if ($user->id === auth()->id()) {
+            return ResponseHelper::error('Tidak dapat menghapus akun sendiri secara permanen');
+        }
+
+        $user->forceDelete(); // Permanent delete
+
+        return ResponseHelper::redirect('panel.users', 'User berhasil dihapus secara permanen!');
     }
 
     /**
@@ -191,6 +222,14 @@ class UserController extends Controller
     {
         $query = User::with('roles');
 
+        // Handle trashed filter
+        $showTrashed = $request->get('show_trashed', false);
+        if ($showTrashed === 'true' || $showTrashed === '1') {
+            $query = User::onlyTrashed()->with('roles');
+        } elseif ($showTrashed === 'with') {
+            $query = User::withTrashed()->with('roles');
+        }
+
         // Add search if provided  
         if ($search = $request->get('search')['value'] ?? null) {
             $query->where(function ($q) use ($search) {
@@ -207,6 +246,12 @@ class UserController extends Controller
             ->addColumn('roles', function ($user) {
                 return $user->roles->pluck('name')->toArray();
             })
+            ->addColumn('status', function ($user) {
+                if ($user->trashed()) {
+                    return '<span class="badge bg-danger">Deleted</span>';
+                }
+                return '<span class="badge bg-success">Active</span>';
+            })
             ->addColumn('action', function ($user) {
                 // Render action buttons using the component
                 return view('components.modals.users.action', [
@@ -215,14 +260,18 @@ class UserController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'avatar_url' => $user->avatar_url,
-                        'has_custom_avatar' => $user->hasCustomAvatar()
+                        'has_custom_avatar' => $user->hasCustomAvatar(),
+                        'is_trashed' => $user->trashed()
                     ]
                 ])->render();
             })
             ->editColumn('created_at', function ($user) {
                 return $user->created_at->format('Y-m-d H:i:s');
             })
-            ->rawColumns(['checkbox', 'action'])
+            ->editColumn('deleted_at', function ($user) {
+                return $user->deleted_at ? $user->deleted_at->format('Y-m-d H:i:s') : null;
+            })
+            ->rawColumns(['checkbox', 'action', 'status'])
             ->make(true);
     }
 

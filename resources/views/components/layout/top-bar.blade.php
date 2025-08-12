@@ -213,11 +213,10 @@
                                     </a>
                                 </li>
                             @else
-                                @can('view-dashboard')
+                               @canany(['access-panel', 'view-dashboard'])
                                     @php
-                                        // Ambil menu dashboard secara dinamis dari database
+                                        // Ambil menu dashboard secara dinamis berdasarkan permission view-dashboard
                                         $dashboardMenu = \App\Models\MasterMenu::active()
-                                            ->where('route_type', 'admin')
                                             ->whereJsonContains('middleware_list', 'permission:view-dashboard')
                                             ->first();
                                     @endphp
@@ -231,8 +230,27 @@
                                                 <span class="nav-link-title"> <b>Panel</b> </span>
                                             </a>
                                         </li>
+                                    @else
+                                        {{-- Fallback untuk first admin menu yang accessible --}}
+                                        @php
+                                            $firstAdminMenu = \App\Models\MasterMenu::active()
+                                                ->whereJsonContains('route_type', 'admin')
+                                                ->orderBy('urutan')
+                                                ->first();
+                                        @endphp
+                                        
+                                        @if ($firstAdminMenu && $firstAdminMenu->isAccessible())
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="{{ $firstAdminMenu->getUrl() }}">
+                                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                        <i class="fa-solid fa-table-columns"></i>
+                                                    </span>
+                                                    <span class="nav-link-title"> <b>Panel</b> </span>
+                                                </a>
+                                            </li>
+                                        @endif
                                     @endif
-                                @endcan
+                                @endcanany
                             @endif
 
                             <li class="nav-item">
