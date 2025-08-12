@@ -36,13 +36,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Share navbar menus with all views
         View::composer('*', function ($view) {
-            if (auth()->check()) {
-                $menuService = app(MenuService::class);
-                $navbarMenus = $menuService->getNavbarMenus();
-                $view->with('navbarMenus', $navbarMenus);
-            } else {
-                $view->with('navbarMenus', []);
-            }
+            $menuService = app(MenuService::class);
+            $navbarMenus = $menuService->getNavbarMenus();
+            $view->with('navbarMenus', $navbarMenus);
         });
 
         // Share global settings with all views

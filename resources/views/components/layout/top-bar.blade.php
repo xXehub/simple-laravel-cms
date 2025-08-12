@@ -106,7 +106,7 @@
                                 @foreach ($navbarMenus as $menu)
                                     @if (empty($menu['children']))
                                         {{-- Single menu item without children --}}
-                                        <li class="nav-item">
+                                        <li class="nav-item{{ $menu['is_active'] ? ' active' : '' }}">
                                             <a class="nav-link{{ $menu['is_active'] ? ' active' : '' }}"
                                                 href="{{ $menu['url'] }}">
                                                 @if ($menu['icon'])
