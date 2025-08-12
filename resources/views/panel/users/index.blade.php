@@ -208,79 +208,6 @@
                 });
             }
 
-            // Functions for trashed users actions
-            function restoreUser(userId, userName) {
-                Swal.fire({
-                    title: 'Restore User?',
-                    text: `Are you sure you want to restore user "${userName}"?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, restore it!',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-secondary'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = window.userRestoreRoute.replace(':id', userId);
-
-                        const csrfToken = document.createElement('input');
-                        csrfToken.type = 'hidden';
-                        csrfToken.name = '_token';
-                        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                        const methodField = document.createElement('input');
-                        methodField.type = 'hidden';
-                        methodField.name = '_method';
-                        methodField.value = 'PATCH';
-
-                        form.appendChild(csrfToken);
-                        form.appendChild(methodField);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            }
-
-            function forceDeleteUser(userId, userName) {
-                Swal.fire({
-                    title: 'Permanently Delete User?',
-                    text: `Are you sure you want to permanently delete user "${userName}"? This action cannot be undone!`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete permanently!',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        confirmButton: 'btn btn-danger',
-                        cancelButton: 'btn btn-secondary'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = window.userForceDeleteRoute.replace(':id', userId);
-
-                        const csrfToken = document.createElement('input');
-                        csrfToken.type = 'hidden';
-                        csrfToken.name = '_token';
-                        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                        const methodField = document.createElement('input');
-                        methodField.type = 'hidden';
-                        methodField.name = '_method';
-                        methodField.value = 'DELETE';
-
-                        form.appendChild(csrfToken);
-                        form.appendChild(methodField);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            }
-
             // Auto-refresh on success
             @if (session('success'))
                 document.addEventListener('DOMContentLoaded', () => {
@@ -295,8 +222,8 @@
             // Backward compatibility
             window.editUser = (userId) => UsersDataTable.editUser(userId, '{{ route('panel.users.edit', ':id') }}');
             window.deleteUser = (userId, userName) => confirmDeleteUser(userId, userName);
-            window.restoreUser = restoreUser;
-            window.forceDeleteUser = forceDeleteUser;
+            window.restoreUser = (userId, userName) => confirmRestoreUser(userId, userName);
+            window.forceDeleteUser = (userId, userName) => confirmForceDeleteUser(userId, userName);
         </script>
     @endpush
 </x-layout.app>

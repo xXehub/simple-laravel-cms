@@ -124,12 +124,11 @@
     // Global function for restore confirmation
     if (typeof window.confirmRestoreUser === 'undefined') {
         window.confirmRestoreUser = function(userId, userName) {
-            showConfirmationModal({
-                title: 'Pulihkan User',
+            showRestoreConfirmationModal({
+                title: 'Pulihkan User?',
                 message: 'Apakah Anda yakin ingin memulihkan user ini?',
                 itemName: userName,
-                confirmText: 'Ya, Pulihkan',
-                confirmClass: 'btn-success',
+                buttonText: 'Ya, Pulihkan',
                 onConfirm: function() {
                     submitUserAction(userId, 'PATCH', 'restore');
                 }
