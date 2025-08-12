@@ -135,6 +135,7 @@ class UserController extends Controller
             return ResponseHelper::error('Tidak dapat menghapus akun sendiri');
         }
 
+        $user->update(['deleted_by' => auth()->id()]);
         $user->delete(); // This will soft delete
 
         return ResponseHelper::redirect('panel.users', 'User berhasil dihapus!');
@@ -183,7 +184,7 @@ class UserController extends Controller
         $currentUserId = auth()->id();
 
         foreach ($userIds as $userId) {
-            $user = User::find($userId);
+            $user = User::withTrashed()->find($userId);
 
             if (!$user) {
                 continue;
@@ -195,7 +196,15 @@ class UserController extends Controller
                 continue;
             }
 
-            $user->delete();
+            // Check if user is already trashed (soft deleted)
+            if ($user->trashed()) {
+                // Force delete (permanent delete for trashed users)
+                $user->forceDelete();
+            } else {
+                // Soft delete for active users
+                $user->update(['deleted_by' => $currentUserId]);
+                $user->delete();
+            }
             $deletedCount++;
         }
 
@@ -220,14 +229,14 @@ class UserController extends Controller
      */
     public function datatable(Request $request)
     {
-        $query = User::with('roles');
+        $query = User::with(['roles', 'deletedBy']);
 
         // Handle trashed filter
         $showTrashed = $request->get('show_trashed', false);
         if ($showTrashed === 'true' || $showTrashed === '1') {
-            $query = User::onlyTrashed()->with('roles');
+            $query = User::onlyTrashed()->with(['roles', 'deletedBy']);
         } elseif ($showTrashed === 'with') {
-            $query = User::withTrashed()->with('roles');
+            $query = User::withTrashed()->with(['roles', 'deletedBy']);
         }
 
         // Add search if provided  
@@ -270,6 +279,9 @@ class UserController extends Controller
             })
             ->editColumn('deleted_at', function ($user) {
                 return $user->deleted_at ? $user->deleted_at->format('Y-m-d H:i:s') : null;
+            })
+            ->addColumn('deleted_by', function ($user) {
+                return $user->deletedBy ? $user->deletedBy->name : null;
             })
             ->rawColumns(['checkbox', 'action', 'status'])
             ->make(true);

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'deleted_by',
     ];
 
     /**
@@ -132,5 +133,13 @@ class User extends Authenticatable
                 ->orWhere('username', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%");
         });
+    }
+
+    /**
+     * Get the user who deleted this user
+     */
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }

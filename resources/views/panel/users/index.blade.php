@@ -65,7 +65,7 @@
                                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                                                 <path d="M8 6V4c0-1 1-2 2-2h4c0 1 1 2 2V6"></path>
                                             </svg>
-                                            Trashed Users
+                                            Terhapus
                                         </a>
                                     </li>
                                 </ul>
@@ -170,40 +170,19 @@
             function setupTabFiltering(table) {
                 const mainTableContainer = document.getElementById('main-table-container');
 
-                // Handle tab clicks
                 document.querySelectorAll('.nav-tabs a[data-bs-toggle="tab"]').forEach(tab => {
                     tab.addEventListener('shown.bs.tab', function(e) {
-                        const target = e.target.getAttribute('href');
-                        const tabType = target.replace('#tabs-', '');
+                        const tabType = e.target.getAttribute('href').replace('#tabs-', '');
 
-                        // Move table to active tab
                         if (tabType === 'users') {
-                            // Move table back to users tab
-                            const usersTabPane = document.getElementById('tabs-users');
-                            if (usersTabPane && mainTableContainer && !usersTabPane.contains(
-                                    mainTableContainer)) {
-                                usersTabPane.appendChild(mainTableContainer);
-                            }
-                            // Show active users (no trashed filter)
-                            if (table.ajax) {
-                                table.ajax.url('{{ route('panel.users') }}').load();
-                            }
+                            document.getElementById('tabs-users').appendChild(mainTableContainer);
+                            table.ajax.url('{{ route('panel.users') }}').load();
                         } else if (tabType === 'trashed') {
-                            // Move table to trashed tab placeholder
-                            const targetPlaceholder = document.getElementById('trashed-table-placeholder');
-                            if (targetPlaceholder && mainTableContainer) {
-                                targetPlaceholder.appendChild(mainTableContainer);
-                            }
-                            // Show trashed users
-                            if (table.ajax) {
-                                table.ajax.url('{{ route('panel.users') }}?show_trashed=true').load();
-                            }
+                            document.getElementById('trashed-table-placeholder').appendChild(mainTableContainer);
+                            table.ajax.url('{{ route('panel.users') }}?show_trashed=true').load();
                         }
 
-                        // Ensure table is visible and properly sized
-                        setTimeout(() => {
-                            table.columns.adjust().responsive.recalc();
-                        }, 100);
+                        setTimeout(() => table.columns.adjust().responsive.recalc(), 100);
                     });
                 });
             }
