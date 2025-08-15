@@ -1,6 +1,13 @@
 @props(['user'])
 
 <div class="btn-list flex-nowrap">
+    {{-- Show Button - Available for all users --}}
+    @can('view-users')
+        <a href="{{ url('panel/users/' . $user['id']) }}" class="btn btn-info btn-sm" style="padding: 4px 8px; font-size: 12px;" title="Show User">
+            <i class="fa-solid fa-eye"></i>
+        </a>
+    @endcan
+
     @if(!isset($user['is_trashed']) || !$user['is_trashed'])
         {{-- Active User Actions --}}
         @can('update-users')
@@ -162,12 +169,12 @@
             // Construct the action URL based on the action
             let actionUrl = '';
             if (action === 'restore') {
-                actionUrl = '{{ route('panel.users.restore', ':id') }}'.replace(':id', userId);
+                actionUrl = '/panel/users/' + userId + '/restore';
             } else if (action === 'force') {
-                actionUrl = '{{ route('panel.users.forceDestroy', ':id') }}'.replace(':id', userId);
+                actionUrl = '/panel/users/' + userId + '/force';
             } else {
                 // Default destroy action
-                actionUrl = '{{ route('panel.users.destroy', ':id') }}'.replace(':id', userId);
+                actionUrl = '/panel/users/' + userId;
             }
             
             form.action = actionUrl;

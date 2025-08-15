@@ -20,10 +20,10 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware(['auth']);
-        $this->middleware('permission:view-users')->only(['index', 'datatable']);
+        $this->middleware('permission:view-users')->only(['index', 'datatable', 'show']);
         $this->middleware('permission:create-users')->only(['create', 'store']);
         $this->middleware('permission:update-users')->only(['edit', 'update', 'uploadAvatar', 'deleteAvatar']);
-        $this->middleware('permission:delete-users')->only(['destroy', 'bulkDestroy']);
+        $this->middleware('permission:delete-users')->only(['destroy', 'restore', 'forceDestroy', 'bulkDestroy']);
     }
 
     /**
@@ -82,6 +82,23 @@ class UserController extends Controller
         }
 
         return ResponseHelper::redirect('panel.users', 'User berhasil dibuat!');
+    }
+
+    /**
+     * Show user details
+     */
+    public function show(Request $request)
+    {
+        $user = $this->getUserById($request);
+
+        // Get current menu from request
+        $currentSlug = str_replace('/show', '', $request->route()->uri ?? 'panel/users');
+        $menu = MasterMenu::where('slug', $currentSlug)->first();
+
+        // Get dynamic view path from database
+        $viewPath = $menu?->getDynamicViewPath() ?? 'panel.users.show';
+
+        return view($viewPath, compact('user', 'menu'));
     }
 
     /**
@@ -289,7 +306,8 @@ class UserController extends Controller
 
     protected function getUserById($request)
     {
-        return User::findOrFail($request->route('id') ?? $request->input('id'));
+        $userId = $request->route('id') ?? $request->input('id');
+        return User::withTrashed()->findOrFail($userId);
     }
 
     /**
